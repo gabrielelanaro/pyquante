@@ -1,0 +1,111 @@
+#!/usr/bin/env python
+"""\
+ fermi_dirac.py: Utilities for finite temperature Fermi-Dirac occupations.
+
+ This program is part of the PyQuante quantum chemistry program suite.
+
+ Copyright (c) 2004, Richard P. Muller. All Rights Reserved. 
+
+ PyQuante version 1.2 and later is covered by the modified BSD
+ license. Please see the file LICENSE that is part of this
+ distribution. 
+"""
+
+#  Tested on NO. Seems to work pretty well, although (not surprisingly)
+#   it gives a result slightly different from the UHF result. Appears to
+#   require averaging, which makes the code converge very slowly. Both zero
+#   temperature and finite temperature appear to work
+
+import sys
+from NumWrap import matrixmultiply,transpose
+from math import exp,log
+from Constants import Kboltz
+from LA2 import mkdens
+from PyQuante import logging
+
+def mkdens_occs(c,occs,**opts):
+    """Density matrix from a set of occupations (e.g. from FD expression).
+    """
+    tol = opts.get('tol',1e-5)
+    verbose = opts.get('verbose',False)
+    # Determine how many orbs have occupations greater than 0
+    norb = 0
+    for fi in occs:
+        if fi < tol: break
+        norb += 1
+    if verbose:
+        print "mkdens_occs: %d occupied orbitals found" % norb
+    # Determine how many doubly occupied orbitals we have
+    nclosed = 0
+    for i in range(norb):
+        if abs(1.-occs[i]) > tol: break
+        nclosed += 1
+    if verbose:
+        print "mkdens_occs: %d closed-shell orbitals found" % nclosed
+    D = mkdens(c,0,nclosed)
+    for i in range(nclosed,norb):
+        d = c[i:i+1,:]
+        D = D + occs[i]*matrixmultiply(transpose(d),d)
+    return D
+    
+def get_fermi_occ(efermi,en,temp):
+    kT = Kboltz*temp
+    x = (en-efermi)/kT
+    if x < -50.: return 1.
+    elif x > 50.: return 0
+    return 1/(1+exp(x))
+
+def get_entropy(occs,temp):
+    kT = Kboltz*temp
+    entropy = 0
+    for fi in occs:
+        if abs(fi) < 1e-10: break # stop summing when occs get small
+        if fi > 1e-10:
+            entropy += kT*fi*log(fi)
+        if (1-fi) > 1e-10:
+            entropy += kT*(1.-fi)*log(1.-fi)
+    return entropy
+    
+
+def get_fermi_occs(efermi,orbe,temp):
+    occs = []
+    for en in orbe:
+        occs.append(get_fermi_occ(efermi,en,temp))
+    return occs
+
+def get_t0_occs(nel,nbf):
+    occs = [0]*nbf
+    nc,no = divmod(nel,2)
+    for i in range(nc): occs[i] = 1.
+    for i in range(nc,nc+no): occs[i] = 0.5
+    return occs
+
+def get_efermi(nel,orbe,temp,**opts):
+    "Bisection method to get Fermi energy from Fermi-Dirac dist"
+    tol = opts.get('tol',1e-9)
+    verbose = opts.get('verbose',True)
+
+    elow,ehigh = orbe[0]-100.,orbe[-1]
+    nlow = 2*sum(get_fermi_occs(elow,orbe,temp))
+    nhigh = 2*sum(get_fermi_occs(ehigh,orbe,temp))
+
+    if nlow > nel:
+        logging.error("elow incorrect %f -> %f " % (elow,nlow))
+        raise "elow incorrect %f -> %f " % (elow,nlow)
+    if nhigh < nel:
+        logging.error("ehigh incorrect %f -> %f " % (ehigh,nhigh))
+        raise "ehigh incorrect %f -> %f " % (ehigh,nhigh)
+
+    for i in range(100):
+        efermi = (elow+ehigh)/2
+        n = 2*sum(get_fermi_occs(efermi,orbe,temp))
+        if abs(n-nel) < tol:
+            break
+        elif n < nel:
+            elow = efermi
+        else:
+            ehigh = efermi
+    else:
+        print "get_fd_occs: Too many iterations"
+    return efermi
+

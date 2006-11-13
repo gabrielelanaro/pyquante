@@ -1,0 +1,6 @@
+include Src/*.c
+include Src/*.h
+include Doc/*.html
+include Tests/*.py
+include MANIFEST.in setup.cfg README LICENSE
+

@@ -1,0 +1,52 @@
+This is e-TeX, Version 3.14159-2.1 (Web2C 7.4.5) (format=latex 2003.8.23)  20 NOV 2003 10:40
+entering extended mode
+**thomas_fermi.tex
+(/usr/local/teTeX/share/texmf.tetex/tex/latex/tools/.tex
+LaTeX2e <2001/06/01>
+Babel <v3.7h> and hyphenation patterns for american, nohyphenation, loaded.
+File ignored)
+*
+(Please type a command or say `\end')
+*
+(Please type a command or say `\end')
+*q
+
+! LaTeX Error: Missing \begin{document}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+<*> q
+     
+? \end
+Type <return> to proceed, S to scroll future error messages,
+R to run without stopping, Q to run quietly,
+I to insert something, 
+1 or ... or 9 to ignore the next 1 to 9 tokens of input,
+H for help, X to quit.
+? new
+Type <return> to proceed, S to scroll future error messages,
+R to run without stopping, Q to run quietly,
+I to insert something, 
+1 or ... or 9 to ignore the next 1 to 9 tokens of input,
+H for help, X to quit.
+? 
+! Emergency stop.
+ ...                                              
+                                                  
+<*> q
+     
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+ 
+Here is how much of TeX's memory you used:
+ 6 strings out of 95754
+ 310 string characters out of 1193897
+ 44457 words of memory out of 1000001
+ 3086 multiletter control sequences out of 10000+50000
+ 3640 words of font info for 14 fonts, out of 500000 for 1000
+ 14 hyphenation exceptions out of 1000
+ 5i,0n,4p,96b,14s stack positions out of 1500i,500n,5000p,200000b,5000s
+No pages of output.

@@ -1,0 +1,19 @@
+TARGETTYPE	dll
+TARGET		cmobihf.pyd
+TARGETPATH	\system\libs
+
+NOSTRICTDEF
+DEFFILE		cmobihf.frz
+
+SYSTEMINCLUDE 	\windows\epoc32\include
+SYSTEMINCLUDE 	\windows\epoc32\include\libc
+
+USERINCLUDE   	\windows\python-port-s60\symbian_python\Symbian
+USERINCLUDE   	\windows\python-port-s60\symbian_python\Include
+USERINCLUDE   	\windows\python-port-s60\symbian_python\Python
+
+LIBRARY 	python222.lib
+LIBRARY 	euser.lib
+LIBRARY         estlib.lib /* Necessary only if you use the C standard library */
+
+SOURCE		cmobihf.cpp

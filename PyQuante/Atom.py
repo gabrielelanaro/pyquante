@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+"""\
+ Atom.py: Simple class for atoms.
+
+ This program is part of the PyQuante quantum chemistry program suite
+
+ Copyright (c) 2004, Richard P. Muller. All Rights Reserved. 
+
+ PyQuante version 1.2 and later is covered by the modified BSD
+ license. Please see the file LICENSE that is part of this
+ distribution. 
+"""
+
+# My goal is to keep everything generic,i.e. not specific to
+#  MINDO, HF, DFT, etc.
+
+from NumWrap import array
+from PyQuante.cints import dist2,dist
+from Element import mass
+from Constants import bohr2ang
+
+# Careful about units! I'm not doing anything about them here;
+#  whatever you store you get back.
+
+class Atom:
+    def __init__(self,atno,x,y,z):
+        self.atno = atno
+        self.r = array([x,y,z])
+        return
+
+    def __repr__(self): return "Atom %2d (%6.3f,%6.3f,%6.3f)" % \
+        (self.atno,self.r[0],self.r[1],self.r[2])
+    def __getitem__(self, i):
+        return self.r[i]
+    def mass(self): return mass[self.atno]
+    def pos(self): return tuple(self.r)
+    # Could also do the following dists with numpy:
+    def dist2(self,atom): return dist2(self.pos(),atom.pos())
+    def dist(self,atom): return dist(self.pos(),atom.pos())
+    def atuple(self): return (self.atno,self.r)
+    def translate(self,pos): self.r += pos
+
+    # The next two I've written as functions since if I ever handle
+    #  pseudopotentials I'll need to do something clever, and this
+    #  gives me a degree of indirection that will allow me to do this
+    def get_nel(self): return self.atno
+    def get_nuke_chg(self): return self.atno
+
+    # This is set by the MINDO initialize routine. Will raise
+    #  an error otherwise
+    def get_nel_mindo(self): return self.Z
+
+    def update_from_atuple(self,(atno,(x,y,z))): self.r = array((x,y,z))
+
+def test():
+    at1 = Atom(1,0,0,0)
+    at2 = Atom(1,1,0,0)
+    print at1.dist(at2)
+
+if __name__ == '__main__': test()
