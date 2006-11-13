@@ -1,0 +1,778 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 7.0.4" />
+<style type="text/css">
+/* Debug borders */
+p, li, dt, dd, div, pre, h1, h2, h3, h4, h5, h6 {
+/*
+  border: 1px solid red;
+*/
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a { color: blue; }
+a:visited { color: fuchsia; }
+
+em {
+  font-style: italic;
+}
+
+strong {
+  font-weight: bold;
+}
+
+tt {
+  color: navy;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  font-family: sans-serif;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  border-bottom: 2px solid silver;
+  padding-top: 0.5em;
+}
+
+div.sectionbody {
+  font-family: serif;
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+span#author {
+  color: #527bbd;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+span#email {
+}
+span#revision {
+  font-family: sans-serif;
+}
+
+div#footer {
+  font-family: sans-serif;
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+div#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+div#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+div#preamble,
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-right: 10%;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+div.quoteblock > div.content {
+  padding-left: 2.0em;
+}
+div.quoteblock .attribution {
+  text-align: right;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 2px solid silver;
+}
+
+div.exampleblock > div.content {
+  border-left: 2px solid silver;
+  padding: 0.5em;
+}
+
+div.verseblock div.content {
+  white-space: pre;
+}
+
+div.imageblock div.content { padding-left: 0; }
+div.imageblock img { border: 1px solid silver; }
+span.image img { border-style: none; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: italic;
+}
+dd > *:first-child {
+  margin-top: 0;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.olist2 {
+  list-style-type: lower-alpha;
+}
+
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead {
+  font-family: sans-serif;
+  font-weight: bold;
+}
+tfoot {
+  font-weight: bold;
+}
+
+div.hlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+td.hlist1 {
+  vertical-align: top;
+  font-style: italic;
+  padding-right: 0.8em;
+}
+td.hlist2 {
+  vertical-align: top;
+}
+
+@media print {
+  div#footer-badges { display: none; }
+}
+/* Workarounds for IE6's broken and incomplete CSS2. */
+
+div.sidebar-content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+div.sidebar-title, div.image-title {
+  font-family: sans-serif;
+  font-weight: bold;
+  margin-top: 0.0em;
+  margin-bottom: 0.5em;
+}
+
+div.listingblock div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+div.quoteblock-content {
+  padding-left: 2.0em;
+}
+
+div.exampleblock-content {
+  border-left: 2px solid silver;
+  padding-left: 0.5em;
+}
+</style>
+<title>PyQuante - Python Quantum Chemistry</title>
+</head>
+<body>
+<div id="header">
+<h1>PyQuante - Python Quantum Chemistry</h1>
+<span id="author">Rick Muller</span><br />
+<span id="email"><tt>&lt;<a href="mailto:rmuller@sandia.gov">rmuller@sandia.gov</a>&gt;</tt></span><br />
+<span id="revision">version 1.5.0,</span>
+September 2006
+</div>
+<h2>What is PyQuante?</h2>
+<div class="sectionbody">
+<p><a href="http://pyquante.sourceforge.net/">PyQuante</a>
+(<a href="http://sourceforge.net/projects/pyquante">Download Site</a>
+<a href="userguide.html">User Guide</a>) is an open-source suite of programs
+for developing quantum chemistry methods. The program is written in
+the <a href="http://www.python.org">Python</a> programming language, but has many
+"rate-determining" modules also written in C for speed. The resulting
+code is not nearly as fast as
+<a href="http://www.schrodinger.com/Products/jaguar.html">Jaguar</a>,
+<a href="http://www.emsl.pnl.gov/docs/nwchem/nwchem.html">NWChem</a>,
+<a href="http://www.gaussian.com/">Gaussian</a>, or
+<a href="http://www.msg.ameslab.gov/GAMESS/GAMESS.html">GAMESS</a>, but the
+resulting code is much easier to understand and modify.</p>
+<p>The goal of this software is not necessarily to provide a working
+quantum chemistry program (although it will hopefully do that), but
+rather to provide a well-engineered set of tools so that scientists
+can construct their own quantum chemistry programs without going
+through the tedium of having to write every low-level routine. More
+information, including links to the download page, is available at
+<a href="http://pyquante.sourceforge.net">the PyQuante Home Page</a>.</p>
+<p>Here is an example of what closed-shell Hartree-Fock scripts look
+like:</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>def rhf(atoms,**opts):
+        "General wrapper for restricted closed-shell hartree fock"
+        ConvCriteria = opts.get('ConvCriteria',1e-5)
+        MaxIter = opts.get('MaxIter',20)
+        basis = opts.get('basis',None)
+        bfs = getbasis(atoms,basis)
+        S,h,Ints = getints(bfs,atoms)
+        orbs = get_guess(h,S)
+        nel = atoms.get_nel()
+        enuke = atoms.get_enuke()
+        nclosed,nopen = divmod(nel,2)
+        eold = 0.
+        for i in range(MaxIter):
+                D = mkdens(evecs,0,nocc)
+                G = get2JmK(Ints,D)
+                F = h+G
+                evals,evecs = GHeigenvectors(F,S)
+                energy = get_energy(h,F,D,enuke)
+                print energy
+                if abs(energy-eold) &lt; ConvCriteria: break
+                eold = energy
+        return energy</tt></pre>
+</div></div>
+<p>Even without knowing any Python, it is easy to see what the various
+steps in the program are doing.</p>
+</div>
+<h2>Current features</h2>
+<div class="sectionbody">
+<ul>
+<li>
+<p>
+Hartree-Fock: Restriced closed-shell HF and unrestricted open-shell
+  HF;
+</p>
+</li>
+<li>
+<p>
+DFT: LDA (SVWN, Xalpha) and GGA (BLYP, PBE) functionals;
+</p>
+</li>
+<li>
+<p>
+Two electron integrals computed using Huzinaga, Rys, or
+  Head-Gordon/Pople techniques. C and Python interfaces to all of
+  these programs.
+</p>
+</li>
+<li>
+<p>
+MINDO/3 semiempirical energies and forces
+</p>
+</li>
+<li>
+<p>
+CI-Singles excited states
+</p>
+</li>
+<li>
+<p>
+DIIS convergence acceleration
+</p>
+</li>
+<li>
+<p>
+Second-order Moller-Plesset (MP2) perturbation theory
+</p>
+</li>
+</ul>
+<p>Upcoming release road map (your suggestions are welcome:
+<a href="mailto:rmuller@sandia.gov">Email Me</a>):</p>
+<ul>
+<li>
+<p>
+Spin polarized (aka unrestricted spin) DFT
+</p>
+</li>
+<li>
+<p>
+Divide-and-conquer linear scaling Hamiltonians
+</p>
+</li>
+<li>
+<p>
+Restricted open-shell Hartree-Fock and GVB
+</p>
+</li>
+<li>
+<p>
+Forces
+</p>
+</li>
+<li>
+<p>
+Hybrid functionals
+</p>
+</li>
+<li>
+<p>
+CI/MCSCF
+</p>
+</li>
+<li>
+<p>
+MPn/CCSD
+</p>
+</li>
+</ul>
+</div>
+<h2>Programming Philosophy</h2>
+<div class="sectionbody">
+<p>I always strive for simplicity over speed. Data structures change more
+often than functions. My aim here is to be more rigid about functional
+interfaces than data interfaces. Which means that I only program
+functions in C, not data structures themselves, which I keep in python
+so I can change them as the needs of the code evolve. I believe that
+the first mistake people make in object-oriented programming is to
+make a very rigid object structure that cannot evolve with the code.</p>
+<p>Currently the only C routines are the integral code and the NumPy
+routines. This may change out of necessity if there appear to be huge
+bottlenecks keeping some of this in python, but I'd rather keep as
+much code in python and only put routines in C if I really, really
+need to.</p>
+</div>
+<h2>License</h2>
+<div class="sectionbody">
+<p>The software is released under the modified BSD license, which means
+that everyone is free to download, use, and modify the code without
+charge.</p>
+</div>
+<h2>Obtaining the Code</h2>
+<div class="sectionbody">
+<p>The program is available in tarball form from the
+<a href="http://sourceforge.net/projects/pyquante">PyQuante Download Page</a>. The
+CVS archive for the program is also at Sourceforge, and is recommended
+for anyone wanting to stay on the bleeding edge; information on how to
+access the CVS archive is available
+<a href="http://sourceforge.net/cvs/?group_id=43213">here</a>.</p>
+</div>
+<h2>Building the Code</h2>
+<div class="sectionbody">
+<p>Much of the code is written in python, and thus is platform
+independent. The rest of the code now uses the python distutils
+procedures for building the C modules. Type</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>% (sudo) python setup.py install</tt></pre>
+</div></div>
+<p>and the code should build and install properly. I've tested this on
+Linux, Windows/Cygwin, and Macintosh OS X. Installing the module like
+this will insure that the modules are installed where Python can find
+them.</p>
+<p>However, the above assumes that you have write priviledges in the
+Python site-packages directory, possibly via the _sudo_ command. If
+you do not have access to these directories, create an install
+directory where you do have access and pass this directory to the
+install process:</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>% mkdir ~/pyquante_lib
+% python setup.py install --install-lib=~/pyquante_lib
+% export PYTHONPATH=~/pyquante_lib:$PYTHONPATH</tt></pre>
+</div></div>
+<p>If any of this doesn't work for you, <a href="mailto:rmuller@sandia.gov">Email Me</a>.</p>
+</div>
+<h2>Getting Started</h2>
+<div class="sectionbody">
+<p>There is a <a href="file:userguide.html">User Guide</a> and other documentation in
+the Doc subdirectory, and tests in the Tests subdirectory.
+Subscription to the
+<a href="http://lists.sourceforge.net/lists/listinfo/pyquante-users">mailing list</a>
+is highly recommended for further support.
+<a href="mailto:rmuller@sandia.gov">Email me</a> if you need additional help.</p>
+</div>
+<h2>Contributors</h2>
+<div class="sectionbody">
+<ul>
+<li>
+<p>
+Konrad Hinsen helped with the original setup.py file
+</p>
+</li>
+<li>
+<p>
+Tom Manz wrote the Epstein-Nesbet pair correlation theory that is
+  distributed in the EN2.py module
+</p>
+</li>
+<li>
+<p>
+Daniel Rohr has written and debugged the EXX density functional
+  code
+</p>
+</li>
+<li>
+<p>
+Nigel Moriarty has made contributions to the semiempirical code
+</p>
+</li>
+<li>
+<p>
+Huub Van Dam was very helpful in implementing gradient-corrected
+  functionals. His <a href="http://www.cse.clrc.ac.uk/qcg/dft/">Density
+  Functional Repository Web Site</a> is an essential reference for anyone
+  trying to implement density functionals.
+</p>
+</li>
+</ul>
+</div>
+<h2>Changelog</h2>
+<div class="sectionbody">
+<ul>
+<li>
+<p>
+1.5.0: 2005-12-19
+</p>
+<ul>
+<li>
+<p>
+A User's Guide
+</p>
+</li>
+<li>
+<p>
+EXX density functionals
+</p>
+</li>
+<li>
+<p>
+Gradient-corrected density functionals
+</p>
+</li>
+<li>
+<p>
+Fermi-Dirac finite-temperature occupations in DFT and HF
+</p>
+</li>
+<li>
+<p>
+Minor interface improvements in the software routines
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.4.0: 2005-10-25
+</p>
+<ul>
+<li>
+<p>
+Fixed a serious bug in the AtomicGrid staggering (the spingrid=True)
+                functions.
+</p>
+</li>
+<li>
+<p>
+Made charge a property of Molecule, and removed it from the
+                arguments in hartree_fock.py and dft.py.
+</p>
+</li>
+<li>
+<p>
+Started a major interface change where all non-essential
+                arguments to functions will be passed in keyword argument
+                dictionaries, since this provides <strong>much</strong> more flexibility.
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.3.1: 2005-07-07
+</p>
+<ul>
+<li>
+<p>
+Moved the cints, crys, chgp routines into the PyQuante subdirectory.
+</p>
+</li>
+<li>
+<p>
+Renamed chgp.index to chgp.iiindex, which fixed a compile error under
+                gcc 4.0 (I think).
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.3.0: 2005-06-01
+</p>
+<ul>
+<li>
+<p>
+Added a capability to do three-center integrals over Gaussians,
+                which is useful for EXX and OEP.
+</p>
+</li>
+<li>
+<p>
+Fixed a bug in cints.binomial() where the return type
+                was incorrectly specified.
+</p>
+</li>
+<li>
+<p>
+Made the typing slightly stronger in CGBF and PGBF
+</p>
+</li>
+<li>
+<p>
+Fixed a bug in mopac_doverlap submitted by Andrew Ryzhkov
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.2: 2004-10-19
+</p>
+<ul>
+<li>
+<p>
+Relicensed the code under the modified BSD license.
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.1.1: 2003-04-14
+</p>
+<ul>
+<li>
+<p>
+Got MP2 working, so I decided to release a new version of the code.
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.1.0: 2003-04-09
+</p>
+<ul>
+<li>
+<p>
+Got Pulay's DIIS convergence acceleration working; this is now the
+                default converger in both hartree_fock and dft.
+</p>
+</li>
+<li>
+<p>
+Got a simple version of Configuration-Interaction Singles working.
+</p>
+</li>
+<li>
+<p>
+Made the test suite a little bit more robust; hopefully the
+                variations in the results that other people complained about are
+                now fixed.
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.0.5: 2002-12-12
+</p>
+<ul>
+<li>
+<p>
+Added a MINDO3.py module, which performs semi-empirical calculations
+                using Dewar's MINDO/3 Hamiltonian
+</p>
+</li>
+<li>
+<p>
+Added a Dynamics.py module to run molecular dynamics. Currently
+                only the MINDO3.py module supplies forces.
+</p>
+</li>
+<li>
+<p>
+Added a Minimizers.py module with a steepest descent minimizer
+                currently resides.
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.0.4: 2002-09-28
+</p>
+<ul>
+<li>
+<p>
+Fixed a bug whereby the different integral modules cints, chgp, and
+                crys could not be imported at the same time. Reported by Konrad
+                Hinsen.
+</p>
+</li>
+<li>
+<p>
+Fixed a bug in crys related to the Rys polynomials. Reported by
+                Pat Nichols.
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.0.3: 2002-09-09
+</p>
+<ul>
+<li>
+<p>
+Fixed an underflow bug in DFunctionals.py
+</p>
+</li>
+<li>
+<p>
+Slightly improved the test suite
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.0.2:        2002-09-08
+</p>
+<ul>
+<li>
+<p>
+Fixed a bug in CGBF/contr_coulomb where the return values were
+                multiplied by the wrong normalization constants (all a.norm()).
+</p>
+</li>
+<li>
+<p>
+Wrote a test suite (Tests/TessSweet.py), that also contains the
+                expected result of each program.
+</p>
+</li>
+<li>
+<p>
+Put additional comments in MolecularGrid.py, AtomicGrid.py, and
+                DFunctionals.py on the methods these are based upon.
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.0.1: 2002-09-01
+</p>
+<ul>
+<li>
+<p>
+Rearranged the files according to the "proper" Python distutils
+                module, according to Konrad Hinson's suggestions.
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>
+1.0.0: 2002-07-22
+</p>
+<ul>
+<li>
+<p>
+Original PyQuante release, naively called "1.0".
+</p>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.5.0<br />
+Last updated 02-Oct-2006 09:30:22 MDT
+</div>
+</div>
+</body>
+</html>

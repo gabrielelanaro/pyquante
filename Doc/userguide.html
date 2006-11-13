@@ -1,0 +1,647 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 7.0.4" />
+<style type="text/css">
+/* Debug borders */
+p, li, dt, dd, div, pre, h1, h2, h3, h4, h5, h6 {
+/*
+  border: 1px solid red;
+*/
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a { color: blue; }
+a:visited { color: fuchsia; }
+
+em {
+  font-style: italic;
+}
+
+strong {
+  font-weight: bold;
+}
+
+tt {
+  color: navy;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  font-family: sans-serif;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  border-bottom: 2px solid silver;
+  padding-top: 0.5em;
+}
+
+div.sectionbody {
+  font-family: serif;
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+span#author {
+  color: #527bbd;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+span#email {
+}
+span#revision {
+  font-family: sans-serif;
+}
+
+div#footer {
+  font-family: sans-serif;
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+div#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+div#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+div#preamble,
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-right: 10%;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+div.quoteblock > div.content {
+  padding-left: 2.0em;
+}
+div.quoteblock .attribution {
+  text-align: right;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 2px solid silver;
+}
+
+div.exampleblock > div.content {
+  border-left: 2px solid silver;
+  padding: 0.5em;
+}
+
+div.verseblock div.content {
+  white-space: pre;
+}
+
+div.imageblock div.content { padding-left: 0; }
+div.imageblock img { border: 1px solid silver; }
+span.image img { border-style: none; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: italic;
+}
+dd > *:first-child {
+  margin-top: 0;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.olist2 {
+  list-style-type: lower-alpha;
+}
+
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead {
+  font-family: sans-serif;
+  font-weight: bold;
+}
+tfoot {
+  font-weight: bold;
+}
+
+div.hlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+td.hlist1 {
+  vertical-align: top;
+  font-style: italic;
+  padding-right: 0.8em;
+}
+td.hlist2 {
+  vertical-align: top;
+}
+
+@media print {
+  div#footer-badges { display: none; }
+}
+/* Workarounds for IE6's broken and incomplete CSS2. */
+
+div.sidebar-content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+div.sidebar-title, div.image-title {
+  font-family: sans-serif;
+  font-weight: bold;
+  margin-top: 0.0em;
+  margin-bottom: 0.5em;
+}
+
+div.listingblock div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+div.quoteblock-content {
+  padding-left: 2.0em;
+}
+
+div.exampleblock-content {
+  border-left: 2px solid silver;
+  padding-left: 0.5em;
+}
+</style>
+<title>PyQuante Users Guide</title>
+</head>
+<body>
+<div id="header">
+<h1>PyQuante Users Guide</h1>
+<span id="author">Rick Muller</span><br />
+<span id="email"><tt>&lt;<a href="mailto:rmuller@sandia.gov">rmuller@sandia.gov</a>&gt;</tt></span><br />
+<span id="revision">version 1.5.0,</span>
+September 2006
+</div>
+<h2>Introduction</h2>
+<div class="sectionbody">
+<p>This manual documents the different functions in the PyQuante
+suite of Quantum Chemistry programs. See also the information on the
+<a href="http://pyquante.sourceforge.net">PyQuante Home Page</a>.</p>
+</div>
+<h2>Molecule Objects</h2>
+<div class="sectionbody">
+<p>PyQuante programs use the <strong>Molecule</strong> object to contain the information
+about the molecule - the atoms, the charge, and the multiplicity. The
+docstring information for the Molecule object is:</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>Molecule(name,atomlist,**opts) - Object to hold PyQuante molecular data
+
+name       The name of the molecule
+atomlist   A list of (atno,(x,y,z)) information for the molecule
+
+Options:      Value   Description
+--------      -----   -----------
+units         Bohr    Units for the coordinates of the molecule
+charge        0       The molecular charge
+multiplicity  1       The spin multiplicity of the molecule</tt></pre>
+</div></div>
+<p>Here's an example for constructing a molecule object for water:</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>h2o=Molecule('h2o',
+             atomlist = [(8,(0,0,0)),
+                         (1,(1.0,0,0)),
+                         (1,(0,1.0,0))],
+             units = 'Angstrom')</tt></pre>
+</div></div>
+<p>(of course the bond-angle is 90 degrees here, and is thus completely
+wrong, but this is only an example). Here's an example for the
+hydroxide ion that shows the use of the <strong>charge</strong> field:</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>oh = Molecule('OH-',
+              atomlist = [(8,(0,0,0)),(1,(0.96,0,0))],
+              units = 'Angstrom',
+              charge=-1)</tt></pre>
+</div></div>
+<p>Here's an example for the NO molecule that shows the use of the
+<strong>multiplicity</strong> field</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>no = Molecule('NO',
+              atomlist = [(7,(0,0,0)),(8,(2.12955,0,0))],
+              multiplicity=2)</tt></pre>
+</div></div>
+<p>As of version 1.5.1, you may construct molecules using the atomic
+symbol instead of the atomic number, e.g.</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>h2o=Molecule('h2o',
+             atomlist = [('O',(0,0,0)),
+                         ('H',(1.0,0,0)),
+                         ('H',(0,1.0,0))],
+             units = 'Angstrom')</tt></pre>
+</div></div>
+<p>Currently, the semiempirical code uses an extended verion of the
+Molecule object that adds a variety of additional features. Upcoming
+releases will hopefully unify the use of the Molecule between the HF,
+DFT, and semiempirical codes.</p>
+</div>
+<h2>Construction of a Gaussian Basis Set</h2>
+<div class="sectionbody">
+<p>Basis functions are constructed using the <strong>CGBF</strong> (contracted Gaussian
+basis function) object, which, in turn, uses the <strong>PGBF</strong> (primitive Gaussian
+basis function) object.</p>
+<p>Basis sets are simply lists of CGBF's. In the <strong>Ints</strong> module there is a
+convenience function <strong>getbasis</strong> that constructs basis sets for
+different molecules. Here is the docstring information for the
+getbasis function:</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>bfs = getbasis(atoms,basis_data=None)
+
+Given a Molecule object and a basis library, form a basis set
+constructed as a list of CGBF basis functions objects.</tt></pre>
+</div></div>
+<p>The basis data can be input from a number of data files in the
+PyQuante suite. Here are some of the more commonly used basis sets:</p>
+<ul>
+<li>
+<p>
+<strong>basis_631ss</strong> The Pople 6-31G** basis set
+</p>
+</li>
+<li>
+<p>
+<strong>basis_sto3g</strong> The Pople STO-3G basis set
+</p>
+</li>
+<li>
+<p>
+<strong>basis_321</strong> The Pople 3-21G basis set
+</p>
+</li>
+<li>
+<p>
+<strong>basis_ccpvtz</strong> The Dunning cc-pVTZ basis set
+</p>
+</li>
+<li>
+<p>
+<strong>basis_ccpvtzmf</strong> The Dunning cc-pVTZ(-f) basis set (cc-pVTZ without
+    <em>f</em>-functions)
+</p>
+</li>
+</ul>
+<p>For, example, to construct a basis set for the h2o object for water
+created above, we would call</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>from basis_631ss import basis_data
+bfs = getbasis(h2o,basis_data)</tt></pre>
+</div></div>
+<p>If the <strong>basis_data</strong> argument is omitted, the program will default
+to 6-31G**.</p>
+</div>
+<h2>Computation of One-Electron Integrals</h2>
+<div class="sectionbody">
+<p>The one-electron integrals consist of the overlap matrix <strong>S</strong>, the
+kinetic energy matrix <strong>t</strong>, and the nuclear attraction matrix <strong>vn</strong>. The
+latter two are often combined into the one-electron Hamiltonian <strong>h</strong>.</p>
+<p>There are a number of helper functions in the <strong>Ints</strong> module:</p>
+<ul>
+<li>
+<p>
+<strong>getT</strong> Form the kinetic energy matrix <strong>t</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>getS</strong> Form the overlap matrix <strong>S</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>getV</strong> Form the nuclear attraction matrix <strong>Vn</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>get1ints</strong> Form and return <strong>S</strong>,<strong>h</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>getints</strong> Form and return <strong>S</strong>,<strong>h</strong>,<strong>Ints</strong>, where <strong>Ints</strong> are the
+  two-electron integrals (see below).
+</p>
+</li>
+</ul>
+<p>These functions actually call instance functions of the CGBF objects,
+which can themselves be used individually. For example, the <strong>getS</strong>
+function is no more than the following code</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>def getS(bfs):
+    "Form the overlap matrix"
+    nbf = len(bfs)
+    S = zeros((nbf,nbf),Float)
+
+    for i in range(nbf):
+        bfi = bfs[i]
+        for j in range(nbf):
+            bfj = bfs[j]
+            S[i,j] = bfi.overlap(bfj)
+    return S</tt></pre>
+</div></div>
+<p>Some of the instance functions in the CGBF module use functions in the
+<strong>pyints</strong> and <strong>cints</strong> modules.</p>
+</div>
+<h2>Computation of Two-Electron Integrals</h2>
+<div class="sectionbody">
+<p>The two-electron integrals consist of the electron-electron Coulomb
+repulsion interactions. The easiest way to construct these is to use
+the functions in the <strong>Ints</strong> module</p>
+<ul>
+<li>
+<p>
+<strong>get2ints</strong> Form and return <strong>Ints</strong>, where <strong>Ints</strong> are the
+  two-electron integrals (see below).
+</p>
+</li>
+<li>
+<p>
+<strong>getints</strong> Form and return <strong>S</strong>,<strong>h</strong>,<strong>Ints</strong>, where <strong>Ints</strong> are the
+  two-electron integrals.
+</p>
+</li>
+</ul>
+<p>The <strong>Ints</strong> object (not to be confused with the <strong>Ints</strong> module, which is
+just a collection of helper functions) consists of a list of the
+two-electron integrals.</p>
+<p>There are actually three different methods to computing the
+two-electron integrals, and the helper functions in the <strong>Ints</strong> module
+default to one of these functions.</p>
+<ul>
+<li>
+<p>
+Huzinaga's original method for computing integrals over Gaussians.
+</p>
+</li>
+<li>
+<p>
+Rys quadrature.
+</p>
+</li>
+<li>
+<p>
+Head-Gordon and Pople's recurrance relations.
+</p>
+</li>
+</ul>
+<p>There are python versions of these methods implemented in
+the modules <strong>pyints</strong>, <strong>rys</strong>, and <strong>hgp</strong>, respectively. For speed, there
+are also C-versions of these modules in <strong>cints</strong>, <strong>crys</strong>, and <strong>chgp</strong>.
+The program defaults to the Coulomb repulsion routines in <strong>crys</strong>,
+since these are the fastest (although recent improvements to <strong>chgp</strong>
+make it not much slower).</p>
+<p>The <strong>coulomb_repulsion</strong> function is the same in all six routine:</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>def coulomb_repulsion((xa,ya,za),norma,(la,ma,na),alphaa,
+                      (xb,yb,zb),normb,(lb,mb,nb),alphab,
+                      (xc,yc,zc),normc,(lc,mc,nc),alphac,
+                      (xd,yd,zd),normd,(ld,md,nd),alphad):</tt></pre>
+</div></div>
+<p>This routine computes the Coulomb repulsion integral between four
+basis functions. The terms <strong>xi</strong>, <strong>yi</strong>, <strong>zi</strong> are the origins of
+the different basis functions. The terms <strong>normi</strong> are the normalization
+constants for the basis function. The terms <strong>li</strong>, <strong>mi</strong>, <strong>ni</strong> are the
+exponents of the Cartesian powers for the basis function. And the
+terms <strong>alphai</strong> are the Gaussian exponents.</p>
+</div>
+<h2>Hartree-Fock Calculations</h2>
+<div class="sectionbody">
+<p>Here is the docstring information for the <strong>rhf</strong> function that details
+the basic calling options:</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>rhf(atoms,**opts) - Closed-shell HF driving routine
+atoms       A Molecule object containing the molecule
+
+Options:      Value   Description
+--------      -----   -----------
+verbose       False   Print out extra information during DFT calc
+ConvCriteria  1e-4    Convergence Criteria
+MaxIter       20      Maximum SCF iterations
+DoAveraging   True    Use DIIS averaging for convergence acceleration
+ETemp         False   Use ETemp value for finite temperature DFT
+                      If not False, set to temperature (float)
+bfs           None    The basis functions to use. List of CGBF's
+basis_data    None    The basis data to use to construct bfs
+integrals     None    The one- and two-electron integrals to use
+                      If not None, S,h,Ints
+orbs          None    If not None, the guess orbitals</tt></pre>
+</div></div>
+<p>See the PyQuante Cookbook below for examples of this function's use.</p>
+<p>## Density Functional Theory Calculations
+Here is the docstring information for the <strong>dft</strong> function that details
+the basic calling options:</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>dft(atoms,**opts) - DFT driving routine
+
+atoms       A Molecule object containing the molecule
+
+Options:      Value   Description
+--------      -----   -----------
+verbose       False   Print out extra information during DFT calc
+ConvCriteria  1e-4    Convergence Criteria
+MaxIter       20      Maximum SCF iterations
+DoAveraging   True    Use DIIS averaging for convergence acceleration
+ETemp         False   Use ETemp value for finite temperature DFT
+                      If not False, set to temperature (float)
+bfs           None    The basis functions to use. List of CGBF's
+basis_data    None    The basis data to use to construct bfs
+integrals     None    The one- and two-electron integrals to use
+                      If not None, S,h,Ints
+orbs          None    If not none, the guess orbitals
+functional    SVWN    DFT functional (SVWN, BLYP, S0)
+grid_nrad     32      Number of radial shells per atom
+grid_fineness 1       Radial shell fineness. 0-&gt;coarse, 1-&gt;medium, 2-&gt;fine</tt></pre>
+</div></div>
+<p>See the PyQuante Cookbook below for examples of this function's use.</p>
+<p>MINDO/3 (semiempirical) Calculations</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>To be completed.
+
+PyQuante Cookbook</tt></pre>
+</div></div>
+<h3>A Simple RHF Calculation on Hydrogen</h3>
+<p>Here's an example of running a simple restricted Hartree-Fock (RHF)
+calculation on the hydrogen molecule</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>from PyQuante.hartree_fock import rhf
+from PyQuante.Molecule import Molecule
+h2 = Molecule('h2',atomlist=[(1,(0,0,0)),(1,(1.4,0,0))])
+en,orbe,orbs = rhf(h2)</tt></pre>
+</div></div>
+<p>Since no basis set is used, the program defaults to 6-31G**. At this
+geometry (R=1.4 bohr) this should produce an energy of -1.1313
+hartrees.</p>
+<h3>A Verbose RHF Calculation on Hydrogen</h3>
+<p>Here's an example of running the same RHF calculation on H2, but
+outputting a bit more information by using the verbose tag:</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>en,orbe,orbs = rhf(h2,verbose=True)</tt></pre>
+</div></div>
+<p>Here is typical output from this run (note, the exact numbers may
+differ a bit because of floating point differences):</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>Nbf =  10
+Nclosed =  1
+Optimization of HF orbitals
+0 -1.06918535085
+1 -1.13004381838
+2 -1.13125922261
+3 -1.1312837961</tt></pre>
+</div></div>
+<h3>Running a DFT Calculation on Hydrogen</h3>
+<p>Let's compare the results of this calculation to the results from DFT.
+We can run a DFT calculation on the same molecule by running the
+commands</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>from PyQuante.dft import dft
+en,orbe,orbs = dft(h2)</tt></pre>
+</div></div>
+<p>This will produce an energy of -1.1353 hartrees. Again, the 6-31G**
+basis set is used by default. In DFT calculations, the functional
+defaults to SVWN (LDA). To use a different functional, you can type</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>en,orbe,orbs = dft(h2,functional='BLYP')</tt></pre>
+</div></div>
+<p>which will produce an energy of -1.1665 hartrees.</p>
+<h3>Running Multiple Calculations on the Same Molecule</h3>
+<p>Suppose we want to construct a molecule and run several different
+calculations (HF, LDA, BLYP) on the system. Normally the routines
+<strong>dft</strong> and <strong>rhf</strong> compute the integrals, but we can also pass them in as
+arguments. For example:</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>h2o = Molecule('H2O',
+               atomlist = [(8,(0,0,0)),
+                           (1,(0.959,0,0)),
+                           (1,(-.230,0.930,0))],
+               units = 'Angstrom')
+bfs = getbasis(h2o)
+S,h,Ints = getints(bfs,h2o)
+enhf,orbehf,orbshf = rhf(h2o,integrals=(S,h,Ints))
+print "HF  total energy = ",enhf
+enlda,orbelda,orbslda = dft(h2o,
+                           integrals=(S,h,Ints),
+                           bfs = bfs)
+print "LDA total energy = ",enlda
+enblyp,orbeblyp,orbsblyp = dft(h2o,
+                           integrals=(S,h,Ints),
+                           bfs = bfs,
+                           functional='BLYP')
+print "BLYP total energy = ",enblyp</tt></pre>
+</div></div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.5.0<br />
+Last updated 08-Sep-2006 11:15:38 MDT
+</div>
+</div>
+</body>
+</html>

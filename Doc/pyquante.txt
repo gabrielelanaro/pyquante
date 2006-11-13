@@ -1,0 +1,246 @@
+PyQuante - Python Quantum Chemistry
+===================================
+Rick Muller <rmuller@sandia.gov>
+v1.5.0, September 2006
+
+What is PyQuante?
+-----------------
+http://pyquante.sourceforge.net/[PyQuante]
+(http://sourceforge.net/projects/pyquante[Download Site]
+link:userguide.html[User Guide]) is an open-source suite of programs
+for developing quantum chemistry methods. The program is written in
+the http://www.python.org[Python] programming language, but has many
+"rate-determining" modules also written in C for speed. The resulting
+code is not nearly as fast as
+http://www.schrodinger.com/Products/jaguar.html[Jaguar],
+http://www.emsl.pnl.gov/docs/nwchem/nwchem.html[NWChem],
+http://www.gaussian.com/[Gaussian], or
+http://www.msg.ameslab.gov/GAMESS/GAMESS.html[GAMESS], but the
+resulting code is much easier to understand and modify.
+
+The goal of this software is not necessarily to provide a working
+quantum chemistry program (although it will hopefully do that), but
+rather to provide a well-engineered set of tools so that scientists
+can construct their own quantum chemistry programs without going
+through the tedium of having to write every low-level routine. More
+information, including links to the download page, is available at
+http://pyquante.sourceforge.net[the PyQuante Home Page].
+
+Here is an example of what closed-shell Hartree-Fock scripts look
+like:
+
+-------------------
+def rhf(atoms,**opts):
+    	"General wrapper for restricted closed-shell hartree fock"
+    	ConvCriteria = opts.get('ConvCriteria',1e-5)
+    	MaxIter = opts.get('MaxIter',20)
+    	basis = opts.get('basis',None)
+    	bfs = getbasis(atoms,basis)
+    	S,h,Ints = getints(bfs,atoms)
+    	orbs = get_guess(h,S)
+    	nel = atoms.get_nel()
+    	enuke = atoms.get_enuke()
+    	nclosed,nopen = divmod(nel,2)
+    	eold = 0.
+    	for i in range(MaxIter):
+        	D = mkdens(evecs,0,nocc)
+        	G = get2JmK(Ints,D)
+        	F = h+G
+        	evals,evecs = GHeigenvectors(F,S)
+        	energy = get_energy(h,F,D,enuke)
+        	print energy
+        	if abs(energy-eold) < ConvCriteria: break
+        	eold = energy
+    	return energy
+-------------------
+
+Even without knowing any Python, it is easy to see what the various 
+steps in the program are doing.
+
+Current features
+----------------
+- Hartree-Fock: Restriced closed-shell HF and unrestricted open-shell
+  HF;
+- DFT: LDA (SVWN, Xalpha) and GGA (BLYP, PBE) functionals;
+- Two electron integrals computed using Huzinaga, Rys, or
+  Head-Gordon/Pople techniques. C and Python interfaces to all of
+  these programs.
+- MINDO/3 semiempirical energies and forces
+- CI-Singles excited states
+- DIIS convergence acceleration
+- Second-order Moller-Plesset (MP2) perturbation theory
+
+Upcoming release road map (your suggestions are welcome:
+mailto:rmuller@sandia.gov[Email Me]):
+
+- Spin polarized (aka unrestricted spin) DFT
+- Divide-and-conquer linear scaling Hamiltonians
+- Restricted open-shell Hartree-Fock and GVB 
+- Forces
+- Hybrid functionals
+- CI/MCSCF
+- MPn/CCSD
+
+
+Programming Philosophy
+----------------------
+I always strive for simplicity over speed. Data structures change more
+often than functions. My aim here is to be more rigid about functional
+interfaces than data interfaces. Which means that I only program
+functions in C, not data structures themselves, which I keep in python
+so I can change them as the needs of the code evolve. I believe that
+the first mistake people make in object-oriented programming is to
+make a very rigid object structure that cannot evolve with the code.
+
+Currently the only C routines are the integral code and the NumPy
+routines. This may change out of necessity if there appear to be huge
+bottlenecks keeping some of this in python, but I'd rather keep as
+much code in python and only put routines in C if I really, really
+need to.
+
+License
+--------
+The software is released under the modified BSD license, which means
+that everyone is free to download, use, and modify the code without
+charge.
+
+Obtaining the Code
+-------------------
+The program is available in tarball form from the 
+http://sourceforge.net/projects/pyquante[PyQuante Download Page]. The
+CVS archive for the program is also at Sourceforge, and is recommended
+for anyone wanting to stay on the bleeding edge; information on how to
+access the CVS archive is available
+http://sourceforge.net/cvs/?group_id=43213[here]. 
+
+Building the Code 
+-----------------
+Much of the code is written in python, and thus is platform
+independent. The rest of the code now uses the python distutils
+procedures for building the C modules. Type
+
+----------------
+% (sudo) python setup.py install
+----------------
+
+and the code should build and install properly. I've tested this on
+Linux, Windows/Cygwin, and Macintosh OS X. Installing the module like
+this will insure that the modules are installed where Python can find
+them.
+
+However, the above assumes that you have write priviledges in the
+Python site-packages directory, possibly via the _sudo_ command. If
+you do not have access to these directories, create an install
+directory where you do have access and pass this directory to the
+install process:
+
+----------------------------
+% mkdir ~/pyquante_lib
+% python setup.py install --install-lib=~/pyquante_lib
+% export PYTHONPATH=~/pyquante_lib:$PYTHONPATH
+----------------------------
+
+If any of this doesn't work for you, mailto:rmuller@sandia.gov[Email Me].
+
+Getting Started
+---------------
+There is a file:userguide.html[User Guide] and other documentation in
+the Doc subdirectory, and tests in the Tests subdirectory.
+Subscription to the
+http://lists.sourceforge.net/lists/listinfo/pyquante-users[mailing list]
+is highly recommended for further support. 
+mailto:rmuller@sandia.gov[Email me] if you need additional help. 
+
+Contributors
+------------
+- Konrad Hinsen helped with the original setup.py file
+- Tom Manz wrote the Epstein-Nesbet pair correlation theory that is 
+  distributed in the EN2.py module
+- Daniel Rohr has written and debugged the EXX density functional
+  code
+- Nigel Moriarty has made contributions to the semiempirical code
+- Huub Van Dam was very helpful in implementing gradient-corrected 
+  functionals. His http://www.cse.clrc.ac.uk/qcg/dft/[Density
+  Functional Repository Web Site] is an essential reference for anyone 
+  trying to implement density functionals. 
+
+Changelog
+----------
+- 1.5.0: 2005-12-19
+	* A User's Guide
+	* EXX density functionals
+	* Gradient-corrected density functionals
+	* Fermi-Dirac finite-temperature occupations in DFT and HF
+	* Minor interface improvements in the software routines
+
+- 1.4.0: 2005-10-25
+	* Fixed a serious bug in the AtomicGrid staggering (the spingrid=True)
+  		functions.
+	* Made charge a property of Molecule, and removed it from the
+  		arguments in hartree_fock.py and dft.py.
+	* Started a major interface change where all non-essential
+  		arguments to functions will be passed in keyword argument
+  		dictionaries, since this provides *much* more flexibility.
+
+- 1.3.1: 2005-07-07
+	* Moved the cints, crys, chgp routines into the PyQuante subdirectory.
+	* Renamed chgp.index to chgp.iiindex, which fixed a compile error under
+  		gcc 4.0 (I think).
+
+- 1.3.0: 2005-06-01
+	* Added a capability to do three-center integrals over Gaussians,
+  		which is useful for EXX and OEP.
+	* Fixed a bug in cints.binomial() where the return type
+  		was incorrectly specified.
+	* Made the typing slightly stronger in CGBF and PGBF
+	* Fixed a bug in mopac_doverlap submitted by Andrew Ryzhkov
+
+- 1.2: 2004-10-19
+	* Relicensed the code under the modified BSD license.
+
+- 1.1.1: 2003-04-14
+	* Got MP2 working, so I decided to release a new version of the code.
+
+- 1.1.0: 2003-04-09
+	* Got Pulay's DIIS convergence acceleration working; this is now the
+  		default converger in both hartree_fock and dft.
+	* Got a simple version of Configuration-Interaction Singles working.
+	* Made the test suite a little bit more robust; hopefully the
+  		variations in the results that other people complained about are
+		now fixed.
+
+- 1.0.5: 2002-12-12
+	* Added a MINDO3.py module, which performs semi-empirical calculations
+  		using Dewar's MINDO/3 Hamiltonian
+	* Added a Dynamics.py module to run molecular dynamics. Currently
+  		only the MINDO3.py module supplies forces.
+	* Added a Minimizers.py module with a steepest descent minimizer
+  		currently resides. 
+
+- 1.0.4: 2002-09-28
+	* Fixed a bug whereby the different integral modules cints, chgp, and
+  		crys could not be imported at the same time. Reported by Konrad
+		Hinsen.
+	* Fixed a bug in crys related to the Rys polynomials. Reported by 
+		Pat Nichols.
+
+- 1.0.3: 2002-09-09
+	* Fixed an underflow bug in DFunctionals.py
+	* Slightly improved the test suite
+
+- 1.0.2:	2002-09-08
+	* Fixed a bug in CGBF/contr_coulomb where the return values were
+  		multiplied by the wrong normalization constants (all a.norm()).
+	* Wrote a test suite (Tests/TessSweet.py), that also contains the
+  		expected result of each program.
+	* Put additional comments in MolecularGrid.py, AtomicGrid.py, and
+  		DFunctionals.py on the methods these are based upon.
+
+- 1.0.1: 2002-09-01
+	* Rearranged the files according to the "proper" Python distutils
+  		module, according to Konrad Hinson's suggestions.
+
+- 1.0.0: 2002-07-22
+	* Original PyQuante release, naively called "1.0".
+
+
