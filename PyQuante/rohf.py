@@ -1,5 +1,13 @@
+#!/usr/bin/env python
+
 """\
  Code for restricted open-shell hartree fock programs in PyQuante.
+
+ A good reference for the equations here is 'The Self-Consistent Field
+ Equations for Generalized Valence Bond and Open-Shell Hartree-Fock
+ Wave Functions', F. W. Bobrowicz and W. A. Goddard, III. in 'Methods
+ of Electronic Structure Theory', H. F. Schaefer, III, ed., Plenum
+ Publishing Company, 1977.
 
  This program is part of the PyQuante quantum chemistry program suite.
 
@@ -118,7 +126,7 @@ def get_f(nclosed,nopen):
 def get_a(nsh,f):
     a = zeros((nsh,nsh),'d')
     for i in range(nsh):
-        a[i,i] = 1.
+        a[i,i] = f[i]
         for j in range(i):
             a[i,j] = 2.*f[i]*f[j]
             a[j,i] = a[i,j]
@@ -127,9 +135,12 @@ def get_a(nsh,f):
 def get_b(nsh,f):
     b = zeros((nsh,nsh),'d')
     for i in range(nsh):
-        if f[i] == 0.5: b[i,i] = -1.
+        b[i,i] = 0
         for j in range(i):
-            b[i,j] = -f[i]*f[j]
+            if f[i] == 0.5 and f[j] == 0.5:
+                b[i,j] = 0.5
+            else:
+                b[i,j] = -f[i]*f[j]
             b[j,i] = b[i,j]
     return b
 
@@ -206,11 +217,13 @@ if __name__ == '__main__':
     from PyQuante.hartree_fock import hf
     he = Molecule('He',[(2,(0,0,0))])
     li = Molecule('Li',[(3,(0,0,0))],multiplicity=2)
-    be = Molecule('Be',[(4,(0,0,0))])
+    be = Molecule('Be',[(4,(0,0,0))],multiplicity=3)
     mol = be
-    #print "RHF results (for comparison)"
-    #hfen,hforbe,hforbs = hf(mol,verbose=True)
-    #print "RHF spectrum: ",hforbe
+    print "RHF results (for comparison)"
+    hfen,hforbe,hforbs = hf(mol,verbose=True)
+    print "RHF Energy = ",hfen
+    print "RHF spectrum: ",hforbe
     energy,orbe,orbs = rohf(mol)
+    print "ROHF Energy = ",energy
     print "ROHF spectrum: ",orbe
     

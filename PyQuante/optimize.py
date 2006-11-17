@@ -18,7 +18,7 @@ fminNCG     ---      Line-search Newton Conjugate Gradient (uses function, gradi
                      and hessian (if it's provided))
 
 """
-from NumWrap import Numeric
+from NumWrap import Numeric,identity
 from NumWrap import MLab
 Num = Numeric
 max = MLab.max
@@ -345,7 +345,8 @@ def fminBFGS(f, x0, fprime=None, args=(), avegtol=1e-5, maxiter=None, fulloutput
     k = 0
     N = len(x0)
     gtol = N*avegtol
-    I = MLab.eye(N)
+    #I = MLab.eye(N)
+    I = identity(N,'d')
     Hk = I
 
     if app_fprime:
@@ -356,7 +357,9 @@ def fminBFGS(f, x0, fprime=None, args=(), avegtol=1e-5, maxiter=None, fulloutput
         grad_calls = grad_calls + 1
     xk = x0
     sk = [2*gtol]
-    while (Num.add.reduce(abs(gfk)) > gtol) and (k < maxiter):
+    #while (Num.add.reduce(abs(gfk)) > gtol) and (k < maxiter):
+    tot = Num.add.reduce(abs(gfk))
+    while (tot > gtol) and (k < maxiter):
         pk = -Num.dot(Hk,gfk)
         alpha_k, fc, gc = line_search_BFGS(f,xk,pk,gfk,args)
         func_calls = func_calls + fc

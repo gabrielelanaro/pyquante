@@ -54,8 +54,17 @@ class Molecule:
         return outl
 
     def update_from_atuples(self,geo):
-        for i in range(len(geo)):
+        nat = len(geo)
+        assert nat == len(self.atoms)
+        for i in range(nat):
             self.atoms[i].update_from_atuple(geo[i])
+        return
+
+    def update_coords(self,coords):
+        nat = len(coords)/3
+        assert nat == len(self.atoms)
+        for i in range(nat):
+            self.atoms[i].update_coords(coords[3*i:3*i+3])
         return
 
     def translate(self,pos):

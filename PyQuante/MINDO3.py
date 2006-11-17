@@ -406,11 +406,46 @@ def scf(atoms,**opts):
     if verbose: print "Final Heat of Formation = ",Hf
     return Hf
 
+def energy_forces_factories(atoms):
+    # This is a factory function. It creates two functions, one that,
+    # given a vector of coordinates, returns an energy, and another that,
+    # given a vector of corrdinates, returns a vector of gradients. The
+    # factory function also returns a list of initial coordinates. The two
+    # functions and the initial coordinates are useful for calling the
+    # optimizer functions.
+    nat = len(atoms)
+    coords = zeros(3*nat,'d')
+    for i in range(nat):
+        for j in range(3):
+            coords[3*i+j] = atoms[i].r[j]
+    def Efunc(cnew):
+        for i in range(nat):
+            for j in range(3):
+                atoms[i].r[j] = cnew[3*i+j]
+        Hf,F = get_energy_forces(atoms,doforces=False)
+        print "Energy evaluation gave ",Hf
+        return Hf
+    def Ffunc(cnew):
+        for i in range(nat):
+            for j in range(3):
+                atoms[i].r[j] = cnew[3*i+j]
+        Hf,F = get_energy_forces(atoms,doforces=True)
+        return F
+    return coords,Efunc,Ffunc
+
+def opt(atoms):
+    from PyQuante.optimize import fminBFGS
+    c0,Efunc,Ffunc = energy_forces_factories(atoms)
+    copt = fminBFGS(Efunc,c0,Ffunc)
+    print "Final energy = ",Efunc(copt)
+    
+
 def get_energy_forces(atoms,**opts):
     from Convergence import SimpleAverager
 
     chg = opts.get('chg',0)
     averaging = opts.get('averaging',True)
+    doforces = opts.get('doforces',True)
     verbose = opts.get('verbose',False)
     
     atoms = initialize(atoms)
@@ -441,7 +476,12 @@ def get_energy_forces(atoms,**opts):
         raise "SCF Not Converged: exiting"
     Etot = Eel+Enuke
     Hf = Etot*ev2kcal+eref
-    Forces = forces(atoms,D)
+
+    if doforces:
+        Forces = forces(atoms,D)
+    else:
+        Forces = None
+
     return Hf,Forces
 
 def forces(atoms,D):

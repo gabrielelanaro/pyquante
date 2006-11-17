@@ -50,7 +50,8 @@ class Atom:
     #  an error otherwise
     def get_nel_mindo(self): return self.Z
 
-    def update_from_atuple(self,(atno,(x,y,z))): self.r = array((x,y,z))
+    def update_coords(self,xyz): self.r = array(xyz)
+    def update_from_atuple(self,(atno,xyz)): self.update_coords(xyz)
 
 def test():
     at1 = Atom(1,0,0,0)

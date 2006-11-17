@@ -26,7 +26,7 @@ class SimpleAverager:
         return
 
     def getD(self,D):
-        if self.Dold:
+        if self.Dold is not None:
             Dreturn = self.alpha*D+(1-self.alpha)*self.Dold
         else:
             Dreturn = D
