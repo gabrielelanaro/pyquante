@@ -294,8 +294,11 @@ def scfclosed(atoms,F0,nclosed,**opts):
         F2 = get_F2(atoms,D)
         F = F0+F1+F2
         Eel = 0.5*TraceProperty(D,F0+F)
-        if verbose: print i,Eel
-        if abs(Eel-Eold) < 0.001: break
+        if verbose: print i+1,Eel
+        if abs(Eel-Eold) < 0.001:
+            if verbose:
+                print "Exiting because converged",i+1,Eel,Eold
+            break
         Eold = Eel
         orbe,orbs = Heigenvectors(F)
         D = 2*mkdens(orbs,0,nclosed)
@@ -422,29 +425,41 @@ def energy_forces_factories(atoms):
         for i in range(nat):
             for j in range(3):
                 atoms[i].r[j] = cnew[3*i+j]
+        #print atoms
         Hf,F = get_energy_forces(atoms,doforces=False)
-        print "Energy evaluation gave ",Hf
+        #eref = get_reference_energy(atoms)
+        #Etot = (Hf-eref)/ev2kcal
+        #return Etot
+        #print Hf
         return Hf
     def Ffunc(cnew):
         for i in range(nat):
             for j in range(3):
                 atoms[i].r[j] = cnew[3*i+j]
-        Hf,F = get_energy_forces(atoms,doforces=True)
+        Hf,Forces = get_energy_forces(atoms,doforces=True)
+        F = zeros(3*nat,'d')
+        for i in range(nat):
+            for j in range(3):
+                F[3*i+j] = Forces[i,j]
         return F
     return coords,Efunc,Ffunc
 
 def opt(atoms):
     from PyQuante.optimize import fminBFGS
     c0,Efunc,Ffunc = energy_forces_factories(atoms)
-    copt = fminBFGS(Efunc,c0,Ffunc)
-    print "Final energy = ",Efunc(copt)
-    
+    # Currently optimization works when I use Energies and numerical
+    #  forces, but not using the analytical forces. Obviously something
+    #  is wrong somewhere here, but I don't have time to fix this now.
+    #  Hopefully the final fix won't be too hard.
+    copt = fminBFGS(Efunc,c0,None,avegtol=1e-4)
+    Efinal = Efunc(copt)
+    return Efinal
 
 def get_energy_forces(atoms,**opts):
     from Convergence import SimpleAverager
 
     chg = opts.get('chg',0)
-    averaging = opts.get('averaging',True)
+    averaging = opts.get('averaging',0.5)
     doforces = opts.get('doforces',True)
     verbose = opts.get('verbose',False)
     
@@ -466,11 +481,19 @@ def get_energy_forces(atoms,**opts):
         F2 = get_F2(atoms,D)
         F = F0+F1+F2
         Eel = 0.5*TraceProperty(D,F0+F)
-        if abs(Eel-Eold) < 0.001: break
-        if verbose: print i,Eel
+        if verbose: print i+1,Eel
+        if abs(Eel-Eold) < 0.001:
+            if verbose:
+                print "Exiting because converged",i+1,Eel,Eold
+            break
         energies.append(Eel)
         Eold = Eel
-        orbe,orbs = Heigenvectors(F)
+        try:
+            orbe,orbs = Heigenvectors(F)
+        except:
+            print atoms
+            raise "Eigenvectors did not converge in MINDO3:get_energy_forces"
+            
         D = 2*mkdens(orbs,0,nclosed)
     else:
         raise "SCF Not Converged: exiting"

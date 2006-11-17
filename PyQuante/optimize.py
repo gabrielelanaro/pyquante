@@ -18,7 +18,7 @@ fminNCG     ---      Line-search Newton Conjugate Gradient (uses function, gradi
                      and hessian (if it's provided))
 
 """
-from NumWrap import Numeric,identity
+from NumWrap import Numeric,identity,NewAxis
 from NumWrap import MLab
 Num = Numeric
 max = MLab.max
@@ -357,9 +357,8 @@ def fminBFGS(f, x0, fprime=None, args=(), avegtol=1e-5, maxiter=None, fulloutput
         grad_calls = grad_calls + 1
     xk = x0
     sk = [2*gtol]
-    #while (Num.add.reduce(abs(gfk)) > gtol) and (k < maxiter):
-    tot = Num.add.reduce(abs(gfk))
-    while (tot > gtol) and (k < maxiter):
+    while (Num.add.reduce(abs(gfk)) > gtol) and (k < maxiter):
+        #print "BFGS Convergence: ",Num.add.reduce(abs(gfk)),gtol,k
         pk = -Num.dot(Hk,gfk)
         alpha_k, fc, gc = line_search_BFGS(f,xk,pk,gfk,args)
         func_calls = func_calls + fc
@@ -377,9 +376,10 @@ def fminBFGS(f, x0, fprime=None, args=(), avegtol=1e-5, maxiter=None, fulloutput
         k = k + 1
 
         rhok = 1 / Num.dot(yk,sk)
-        A1 = I - sk[:,Num.NewAxis] * yk[Num.NewAxis,:] * rhok
-        A2 = I - yk[:,Num.NewAxis] * sk[Num.NewAxis,:] * rhok
-        Hk = Num.dot(A1,Num.dot(Hk,A2)) + rhok * sk[:,Num.NewAxis] * sk[Num.NewAxis,:]
+        A1 = I - sk[:,NewAxis] * yk[NewAxis,:] * rhok
+        A2 = I - yk[:,NewAxis] * sk[NewAxis,:] * rhok
+        Hk = Num.dot(A1,Num.dot(Hk,A2)) + rhok * sk[:,NewAxis] *\
+             sk[NewAxis,:]
         gfk = gfkp1
 
 
@@ -406,74 +406,6 @@ def fminBFGS(f, x0, fprime=None, args=(), avegtol=1e-5, maxiter=None, fulloutput
         return xk, fval, func_calls, grad_calls, warnflag
     else:        
         return xk
-
-def fminBFGS2(f, x0, fprime, args=(), avegtol=1e-5, maxiter=None, fulloutput=0, logger=None):
-    """xopt = fminBFGS2(f, x0, fprime, args=(), avegtol=1e-5,
-                       maxiter=None, fulloutput=0, logger=None)
-
-    Rick's version of a BFGS optimizer, mostly taken from Numerical
-    Recipes.
-
-    Optimize the function, f, whose gradient is given by fprime using the
-    quasi-Newton method of Broyden, Fletcher, Goldfarb, and Shanno (BFGS)
-    See Wright, and Nocedal 'Numerical Optimization', 1999, pg. 198.
-    """
-
-    x0 = Num.asarray(x0)
-    if maxiter is None:
-        maxiter = len(x0)*200
-    func_calls = 0
-    grad_calls = 0
-    k = 0
-    N = len(x0)
-    gtol = N*avegtol
-    I = MLab.eye(N)
-    Hk = I
-
-    gfk = apply(fprime,(x0,)+args)
-    grad_calls = grad_calls + 1
-    
-    xk = x0
-    sk = [2*gtol]
-    for iter in range(maxiter):
-        if sum(abs(gfk)) < gtol: break
-        pk = -Num.dot(Hk,gfk)
-
-        #alpha_k, fc, gc = line_search_BFGS(f,xk,pk,gfk,args)
-        alpha_k,fc,gc = 1,0,0
-
-        func_calls = func_calls + fc
-        xkp1 = xk + alpha_k * pk
-        sk = xkp1 - xk
-        xk = xkp1
-
-        gfkp1 = apply(fprime,(xkp1,)+args)
-        grad_calls = grad_calls + gc + 1
-
-        yk = gfkp1 - gfk
-        k = k + 1
-
-        rhok = 1 / Num.dot(yk,sk)
-        A1 = I - sk[:,Num.NewAxis] * yk[Num.NewAxis,:] * rhok
-        A2 = I - yk[:,Num.NewAxis] * sk[Num.NewAxis,:] * rhok
-        Hk = Num.dot(A1,Num.dot(Hk,A2)) + rhok * sk[:,Num.NewAxis] * sk[Num.NewAxis,:]
-        gfk = gfkp1
-    else:
-        if logger:
-            logger.info("Warning: Maxiter has been exceeded")
-    # end for iter in range(maxiter)
-
-
-    fval = apply(f,(xk,)+args)
-    if logger:
-        logger.info("         Current function value: %f" % fval)
-        logger.info("         Iterations: %d" % k)
-        logger.info("         Function evaluations: %d" % func_calls)
-        logger.info("         Gradient evaluations: %d" % grad_calls)
-
-    if fulloutput:
-        return xk, fval, func_calls, grad_calls, warnflag
-    return xk
 
 
 def fminNCG(f, x0, fprime, fhess_p=None, fhess=None, args=(), avextol=1e-5, maxiter=None, fulloutput=0, logger=None):

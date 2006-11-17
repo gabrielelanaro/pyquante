@@ -19,6 +19,7 @@ if use_numpy:
     from numpy import reshape,take
     from numpy import where
     from numpy import __version__ as version
+    from numpy.oldnumeric import NewAxis
     a,b,c = map(int,pat.split(version))
     big_version = 100*a+10*b+c
     if big_version >= 100:
@@ -45,6 +46,7 @@ else:
     from Numeric import arcsinh,diagonal,identity,choose,transpose
     from Numeric import reshape,take
     from Numeric import where
+    from Numeric import NewAxis
     from LinearAlgebra import solve_linear_equations,Heigenvectors
     from LinearAlgebra import determinant
     import Numeric
