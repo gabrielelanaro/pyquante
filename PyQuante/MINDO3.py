@@ -120,7 +120,6 @@ def get_F1(atoms,D):
         ibf += atomi.nbf
     return F1
 
-
 def get_F1_open(atoms,Da,Db):
     "One-center corrections to the core fock matrix"
     nbf = get_nbf(atoms)
@@ -284,6 +283,33 @@ def get_open_closed(nel,mult=None):
         if ntest: raise "Impossible nel, multiplicity %d %d " % (nel,mult)
     return nclosed,nopen
 
+def scf(atoms,**opts):
+    "Driver routine for energy calculations"
+    chg = opts.get('chg',0)
+    mult = opts.get('mult',None)
+    verbose = opts.get('verbose',False)
+
+    atoms = initialize(atoms)
+    
+    nel = get_nel(atoms)-int(chg)
+    nclosed,nopen = get_open_closed(nel,mult)
+
+    Enuke = get_enuke(atoms)
+    nbf = get_nbf(atoms)
+    eref = get_reference_energy(atoms)
+    if verbose:
+        print "Nel = %d, Nclosed = %d, Nopen = %d," % (nel,nclosed,nopen), \
+              "Enuke = %10.4f, Nbf = %d" % (Enuke,nbf)
+    F0 = get_F0(atoms)
+    if nopen:
+        Eel = scfopen(atoms,F0,nclosed+nopen,nclosed,**opts)
+    else:
+        Eel = scfclosed(atoms,F0,nclosed,**opts)
+    Etot = Eel+Enuke
+    Hf = Etot*ev2kcal+eref
+    if verbose: print "Final Heat of Formation = ",Hf
+    return Hf
+
 def scfclosed(atoms,F0,nclosed,**opts):
     "SCF procedure for closed-shell molecules"
     verbose = opts.get('verbose',False)
@@ -383,55 +409,38 @@ def get_fock(atoms):
     F2 = get_F2(atoms,D)
     return F0+F1+F2
 
-def scf(atoms,**opts):
-    "Driver routine for energy calculations"
-    chg = opts.get('chg',0)
-    mult = opts.get('mult',None)
-    verbose = opts.get('verbose',False)
-    atoms = initialize(atoms)
-    
-    nel = get_nel(atoms)-int(chg)
-    nclosed,nopen = get_open_closed(nel,mult)
 
-    Enuke = get_enuke(atoms)
-    nbf = get_nbf(atoms)
-    eref = get_reference_energy(atoms)
-    if verbose:
-        print "Nel = %d, Nclosed = %d, Nopen = %d," % (nel,nclosed,nopen), \
-              "Enuke = %10.4f, Nbf = %d" % (Enuke,nbf)
-    F0 = get_F0(atoms)
-    if nopen:
-        Eel = scfopen(atoms,F0,nclosed+nopen,nclosed,**opts)
-    else:
-        Eel = scfclosed(atoms,F0,nclosed,**opts)
-    Etot = Eel+Enuke
-    Hf = Etot*ev2kcal+eref
-    if verbose: print "Final Heat of Formation = ",Hf
-    return Hf
-
-def energy_forces_factories(atoms):
+def energy_forces_factories(atoms,**kwargs):
     # This is a factory function. It creates two functions, one that,
     # given a vector of coordinates, returns an energy, and another that,
     # given a vector of corrdinates, returns a vector of gradients. The
     # factory function also returns a list of initial coordinates. The two
     # functions and the initial coordinates are useful for calling the
     # optimizer functions.
+    verbose_level = kwargs.get('verbose_level',0)
+    return_etot_as_e = kwargs.get('return_etot_as_e',False)
+    numeric_forces = kwargs.get('numeric_forces',True)
     nat = len(atoms)
     coords = zeros(3*nat,'d')
     for i in range(nat):
         for j in range(3):
             coords[3*i+j] = atoms[i].r[j]
+
     def Efunc(cnew):
         for i in range(nat):
             for j in range(3):
                 atoms[i].r[j] = cnew[3*i+j]
-        #print atoms
         Hf,F = get_energy_forces(atoms,doforces=False)
-        #eref = get_reference_energy(atoms)
-        #Etot = (Hf-eref)/ev2kcal
-        #return Etot
-        #print Hf
+        if verbose_level > 1:
+            print "MINDO3 energy calculation requested:"
+            print atoms
+            print Hf
+        # Recompute the total energy:
+        eref = get_reference_energy(atoms)
+        Etot = (Hf-eref)/ev2kcal
+        if return_etot_as_e: return Etot
         return Hf
+
     def Ffunc(cnew):
         for i in range(nat):
             for j in range(3):
@@ -441,17 +450,41 @@ def energy_forces_factories(atoms):
         for i in range(nat):
             for j in range(3):
                 F[3*i+j] = Forces[i,j]
+        if verbose_level > 0:
+            print "MINDO3 gradient calculation requested:"
+            print atoms
         return F
+
+    def Ffunc_num(cnew):
+        E0 = Efunc(cnew)
+        F = zeros(3*nat,'d')
+        ei = zeros(3*nat,'d')
+        dx = 1e-8
+        for i in range(nat):
+            for j in range(3):
+                ei[3*i+j] = 1.0
+                E1 = Efunc(cnew+ei*dx)
+                ei[3*i+j] = 0.0
+                F[3*i+j] = (E1-E0)/dx
+        if verbose_level > 0:
+            print "MINDO3 gradient calculation requested:"
+            print atoms
+        return F
+
+    if numeric_forces: return coords,Efunc,Ffunc_num
     return coords,Efunc,Ffunc
 
-def opt(atoms):
+def opt(atoms,**kwargs):
     from PyQuante.optimize import fminBFGS
-    c0,Efunc,Ffunc = energy_forces_factories(atoms)
+    c0,Efunc,Ffunc = energy_forces_factories(atoms,**kwargs)
+
     # Currently optimization works when I use Energies and numerical
     #  forces, but not using the analytical forces. Obviously something
     #  is wrong somewhere here, but I don't have time to fix this now.
     #  Hopefully the final fix won't be too hard.
-    copt = fminBFGS(Efunc,c0,None,avegtol=1e-4)
+
+    copt = fminBFGS(Efunc,c0,Ffunc,avegtol=1e-4)
+    
     Efinal = Efunc(copt)
     return Efinal
 
@@ -502,6 +535,7 @@ def get_energy_forces(atoms,**opts):
 
     if doforces:
         Forces = forces(atoms,D)
+        #Forces = numeric_forces(atoms,D)
     else:
         Forces = None
 
@@ -547,8 +581,8 @@ def forces(atoms,D):
                 for bfi in atomi.basis:
                     for bfj in atomj.basis:
                         Dij = D[bfi.index,bfj.index]
-                        #dSij = mopac_doverlap(bfi,bfj,dir)
-                        dSij = -bfi.cgbf.doverlap(bfj.cgbf,dir)/bohr2ang
+                        dSij = mopac_doverlap(bfi,bfj,dir)
+                        #dSij = -bfi.cgbf.doverlap(bfj.cgbf,dir)/bohr2ang
                         #dSij = -bfi.cgbf.doverlap_num(bfj.cgbf,dir)/bohr2ang
                         Fij += 2*beta*(bfi.ip+bfj.ip)*Dij*dSij
 

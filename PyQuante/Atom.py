@@ -25,7 +25,7 @@ from Constants import bohr2ang
 class Atom:
     def __init__(self,atno,x,y,z):
         self.atno = atno
-        self.r = array([x,y,z])
+        self.r = array([x,y,z],'d')
         return
 
     def __repr__(self): return "Atom %2d (%6.3f,%6.3f,%6.3f)" % \
