@@ -62,9 +62,12 @@ def ocbse(orbs,h,Hs,f,a,b,noccsh):
         T = take(orbs,orbrange,1)
         # Transform to MO space
         #F = SimilarityTransform(F,T) # SimilarityTransformT??
-        FT = matrixmultiply(F,transpose(T))
-        F = matrixmultiply(T,FT)
+        FT = matrixmultiply(F,T)
+        F = matrixmultiply(transpose(T),FT)
         orbe2,orbs2 = Heigenvectors(F)
+        print orbe2
+        print orbs2[:,0]
+        raise "stopping"
         # Insert orbital energies into the right place
         orbe[istart:iend] = orbe2[:noccsh[ish]]
         orbe[vstart:vend] = orbe2[-nvirt:]
@@ -218,8 +221,8 @@ if __name__ == '__main__':
     he = Molecule('He',[(2,(0,0,0))])
     li = Molecule('Li',[(3,(0,0,0))],multiplicity=2)
     be = Molecule('Be',[(4,(0,0,0))],multiplicity=3)
-    mol = be
-    print "RHF results (for comparison)"
+    mol = li
+    print "HF results (for comparison)"
     hfen,hforbe,hforbs = hf(mol,verbose=True)
     print "RHF Energy = ",hfen
     print "RHF spectrum: ",hforbe
