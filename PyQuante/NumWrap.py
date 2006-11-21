@@ -20,8 +20,11 @@ if use_numpy:
     from numpy import where
     from numpy import __version__ as version
     from numpy.oldnumeric import NewAxis
-    a,b,c = map(int,pat.split(version))
-    big_version = 100*a+10*b+c
+
+    words = map(int,pat.split(version))
+    big_version = 100*words[0] + 10*words[1]
+    if len(words) > 2: big_version += words[0]
+
     if big_version >= 100:
         from numpy.oldnumeric.linear_algebra import determinant
         from numpy.oldnumeric.linear_algebra import Heigenvectors
