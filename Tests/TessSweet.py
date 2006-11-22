@@ -14,7 +14,7 @@
 from PyQuante import logging
 import h2,he,he_dft,h2o,h2o_mindo,oh_mindo,h2o_dft,ne,no_uhf,h2_cis,\
        h2_mp2,h2_dft,lih_dft,h_dft,li_dft,no_dft,\
-       h2_ft_dft,li_ft_dft
+       h2_ft_dft,li_ft_dft,be_oep
 import time
 import datetime
 
@@ -43,7 +43,7 @@ def main(**opts):
 
     hf_jobs = [h2,he,h2o,ne]
     dft_jobs = [h_dft,h2_dft,h2_ft_dft,he_dft,li_dft,li_ft_dft,lih_dft,
-                h2o_dft,no_dft]
+                h2o_dft,no_dft,be_oep]
     mindo_jobs = [h2o_mindo,oh_mindo]
     other_jobs = [h2_cis,h2_mp2]
     uhf_jobs = [no_uhf]

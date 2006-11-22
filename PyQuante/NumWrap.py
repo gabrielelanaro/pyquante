@@ -19,7 +19,6 @@ if use_numpy:
     from numpy import reshape,take
     from numpy import where
     from numpy import __version__ as version
-    from numpy.oldnumeric import NewAxis
 
     words = map(int,pat.split(version))
     big_version = 100*words[0] + 10*words[1]
@@ -30,6 +29,7 @@ if use_numpy:
         from numpy.oldnumeric.linear_algebra import Heigenvectors
         from numpy.oldnumeric.linear_algebra import solve_linear_equations
         import numpy.oldnumeric.mlab as MLab
+        from numpy.oldnumeric import NewAxis
     elif big_version >= 98:
         from numpy.linalg.old import determinant
         from numpy.linalg.old import Heigenvectors
@@ -40,6 +40,7 @@ if use_numpy:
         from numpy.linalg import Heigenvectors
         from numpy.linalg import solve_linear_equations
         import numpy.lib.mlab as MLab
+        from numpy import NewAxis
     matrixmultiply = dot
     import numpy as Numeric
     

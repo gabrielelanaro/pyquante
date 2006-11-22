@@ -4,8 +4,8 @@
 
 from math import sqrt
 from PyQuante.NumWrap import zeros,matrixmultiply,transpose,dot,identity,\
-     array
-from PyQuante.Ints import getbasis, getints, getJ
+     array,solve_linear_equations
+from PyQuante.Ints import getbasis, getints, getJ,get2JmK
 from PyQuante.LA2 import GHeigenvectors,mkdens,TraceProperty
 from PyQuante.hartree_fock import get_fock
 from PyQuante.CGBF import three_center
@@ -214,45 +214,135 @@ def get_Hoep(b,H0,Gij):
         Hoep = Hoep + b[g]*Gij[g]
     return Hoep
 
-def update_bfgs(X,G,HIo,Xo,Go,**opts):
-    # Numerical recipes BFGS routine 
-    N = len(X)
-    stpmax = opts.get('stpmax',0.1)
-    stpmaxn = opts.get('stpmaxn',N*stpmax)
+# Here's a much faster way to do this. Haven't figured out how to
+#  do it for more generic functions like OEP-GVB
+def oep_hf_an(atoms,orbs,**opts):
+    """oep_hf - Form the optimized effective potential for HF exchange.
 
-    if HIo is None:
-        # Inverse Hessian values of .7 correspond to Hessians of
-        # 1.4 Hartree/Angstrom**2 - about right                 
-        HIo = 0.7*identity(N,'d')
+    Implementation of Wu and Yang's Approximate Newton Scheme
+    from J. Theor. Comp. Chem. 2, 627 (2003).
 
-    if Go is None or Xo is None:
-        ChgeX = -0.7*G
-        HI = HIo
+    oep_hf(atoms,orbs,**opts)
+
+    atoms       A Molecule object containing a list of the atoms
+    orbs        A matrix of guess orbitals
+
+    Options
+    -------
+    bfs           None    The basis functions to use for the wfn
+    pbfs          None    The basis functions to use for the pot
+    basis_data    None    The basis data to use to construct bfs
+    integrals     None    The one- and two-electron integrals to use
+                          If not None, S,h,Ints
+    """
+    maxiter = opts.get('maxiter',100)
+    tol = opts.get('tol',1e-5)
+    bfs = opts.get('bfs',None)
+    if not bfs:
+        basis = opts.get('basis',None)
+        bfs = getbasis(atoms,basis)
+
+    # The basis set for the potential can be set different from
+    #  that used for the wave function
+    pbfs = opts.get('pbfs',None) 
+    if not pbfs: pbfs = bfs
+    npbf = len(pbfs)
+
+    integrals = opts.get('integrals',None)
+    if integrals:
+        S,h,Ints = integrals
     else:
-        DG = G-Go
-        DX = X-Xo
-        HDG = dot(HIo,DG)
-        fac = 1./dot(DG,DX)
-        fae = dot(DG,HDG)
-        fad = 1./fae
-        w = fac*DX - fad*HDG
-        HI = zeros((N,N),'d')
-        for i in range(N):
-            for j in range(N):
-                HI[i,j] = HIo[i,j] \
-                          + fac*DX[i]*DX[j] \
-                          - fad*HDG[i]*HDG[j] \
-                          - fae*w[i]*w[j]
-        ChgeX = -dot(HI,G)
+        S,h,Ints = getints(bfs,atoms)
 
-    stpl = sqrt(dot(ChgeX,ChgeX))
-    if stpl > stpmaxn: ChgeX *= stpmaxn/stpl
+    nel = atoms.get_nel()
+    nocc,nopen = atoms.get_closedopen()
 
-    lgstst = max(abs(ChgeX))
-    if lgstst > stpmax: ChgeX *= stpmax/lgstst
+    Enuke = atoms.get_enuke()
 
-    Xn = X + ChgeX
-    return Xn,HI
+    # Form the OEP using Yang/Wu, PRL 89 143002 (2002)
+    nbf = len(bfs)
+    norb = nbf
+    bp = zeros(nbf,'d')
+
+    bvec = opts.get('bvec',None)
+    if bvec:
+        assert len(bvec) == npbf
+        b = array(bvec)
+    else:
+        b = zeros(npbf,'d')
+
+
+    # Form and store all of the three-center integrals
+    # we're going to need.
+    # These are <ibf|gbf|jbf> (where 'bf' indicates basis func,
+    #                          as opposed to MO)
+    # N^3 storage -- obviously you don't want to do this for
+    #  very large systems
+    Gij = []
+    for g in range(npbf):
+        gmat = zeros((nbf,nbf),'d')
+        Gij.append(gmat)
+        gbf = pbfs[g]
+        for i in range(nbf):
+            ibf = bfs[i]
+            for j in range(i+1):
+                jbf = bfs[j]
+                gij = three_center(ibf,gbf,jbf)
+                gmat[i,j] = gij
+                gmat[j,i] = gij
+
+    # Compute the Fermi-Amaldi potential based on the LDA density.
+    # We're going to form this matrix from the Coulombic matrix that
+    # arises from the input orbitals. D0 and J0 refer to the density
+    # matrix and corresponding Coulomb matrix
+    
+    D0 = mkdens(orbs,0,nocc)
+    J0 = getJ(Ints,D0)
+    Vfa = (2*(nel-1.)/nel)*J0
+    H0 = h + Vfa
+
+    b = zeros(nbf,'d')
+    eold = 0
+
+    for iter in range(maxiter):
+        Hoep = get_Hoep(b,H0,Gij)
+        orbe,orbs = GHeigenvectors(Hoep,S)
+        
+        D = mkdens(orbs,0,nocc)
+        Vhf = get2JmK(Ints,D)
+
+        energy = TraceProperty(2*h+Vhf,D)+Enuke
+        if abs(energy-eold) < tol:
+            break
+        else:
+            eold = energy
+        
+        logging.debug("OEP AN Opt: %d %f" % (iter,energy))
+        dV_ao = Vhf-Vfa
+        dV = matrixmultiply(orbs,matrixmultiply(dV_ao,transpose(orbs)))
+
+        X = zeros((nbf,nbf),'d')
+        c = zeros(nbf,'d')
+        Gkt = zeros((nbf,nbf),'d')
+
+        for k in range(nbf):
+            Gk = matrixmultiply(orbs,matrixmultiply(Gij[k],
+                                                    transpose(orbs)))
+            for i in range(nocc):
+                for a in range(nocc,norb):
+                    c[k] += dV[i,a]*Gk[i,a]/(orbe[i]-orbe[a])
+                    
+            for l in range(nbf):
+                Gl = matrixmultiply(orbs,matrixmultiply(Gij[l],
+                                                        transpose(orbs)))
+                for i in range(nocc):
+                    for a in range(nocc,norb):
+                        X[k,l] += Gk[i,a]*Gl[i,a]/(orbe[i]-orbe[a])
+        # This should actually be a pseudoinverse...
+        b = solve_linear_equations(X,c)
+
+    logging.info("Final OEP energy = %f" % energy)
+    return energy,orbe,orbs
 
 if __name__ == '__main__':
     from PyQuante.Molecule import Molecule
