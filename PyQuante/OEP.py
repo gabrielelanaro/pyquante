@@ -9,7 +9,7 @@ from PyQuante.Ints import getbasis, getints, getJ
 from PyQuante.LA2 import GHeigenvectors,mkdens,TraceProperty
 from PyQuante.hartree_fock import get_fock
 from PyQuante.CGBF import three_center
-from PyQuante.optimize import fmin,fminBFGS,fminNCG,fminBFGS2
+from PyQuante.optimize import fminBFGS
 from PyQuante.fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs,\
      get_entropy
 from PyQuante import logging
@@ -122,19 +122,6 @@ def oep(atoms,orbs,energy_func,grad_func=None,**opts):
         b = fminBFGS(energy_func,b,grad_func,
                      (nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij),
                      logger=logging)
-    elif opt_method == 'BFGS2': 
-        b = fminBFGS2(energy_func,b,grad_func,
-                     (nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij),
-                     logger=logging)
-    elif opt_method == 'NM': 
-        b = fmin(energy_func,b,
-                 (nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij),
-                 logger=logging,maxiter=1000*nbf,maxfun=1000*nbf)
-    elif opt_method == 'CG':
-        print "Warning: OEP/CG optimization is still experimental"
-        b = fminNCG(energy_func,b,grad_func,None,None,
-                    (nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij),
-                    logger=logging)
     else:
         raise "Unknown OEP optimization method: %s" % opt_method
 
@@ -171,7 +158,7 @@ def get_exx_energy(b,nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij,**opts):
 
     logging.debug("EXX Energy, B, Gap: %10.5f %10.5f %10.5f"
                   % (energy,sqrt(dot(b,b)),gap))
-    logging.debug("%s" % orbe)
+    #logging.debug("%s" % orbe)
     if return_flag == 1:
         return energy,orbe,orbs
     elif return_flag == 2:
@@ -188,8 +175,7 @@ def get_exx_gradient(b,nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij,**opts):
     # Dump the gradient every 10 steps so we can restart...
     global gradcall
     gradcall += 1
-    if gradcall % 5 == 0:
-        logging.debug("B vector:\n%s" % b)
+    #if gradcall % 5 == 0: logging.debug("B vector:\n%s" % b)
 
     # Form the new potential and the new orbitals
     energy,orbe,orbs,F = get_exx_energy(b,nbf,nel,nocc,ETemp,Enuke,
@@ -212,7 +198,7 @@ def get_exx_gradient(b,nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij,**opts):
             for a in range(nocc,norb):
                 bp[g] = bp[g] + Fmo[i,a]*Gmo[i,a]/(orbe[i]-orbe[a])
 
-    logging.debug("EXX  Grad: %10.5f" % (sqrt(dot(bp,bp))))
+    #logging.debug("EXX  Grad: %10.5f" % (sqrt(dot(bp,bp))))
     return_flag = opts.get('return_flag',0)
     if return_flag == 1:
         return energy,bp
@@ -268,4 +254,20 @@ def update_bfgs(X,G,HIo,Xo,Go,**opts):
     Xn = X + ChgeX
     return Xn,HI
 
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    from PyQuante.Molecule import Molecule
+    from PyQuante.Ints import getbasis,getints
+    from PyQuante.hartree_fock import rhf
+    from PyQuante import logging
+    logging.basicConfig(level=logging.DEBUG,format="%(message)s")
+
+    #mol = Molecule('HF',[('H',(0.,0.,0.)),('F',(0.,0.,0.898369))],
+    #              units='Angstrom')
+    mol = Molecule('LiH',[(1,(0,0,1.5)),(3,(0,0,-1.5))],units = 'Bohr')
+    
+    bfs = getbasis(mol)
+    S,h,Ints = getints(bfs,mol)
+    print "after integrals"
+    E_hf,orbe_hf,orbs_hf = rhf(mol,bfs=bfs,integrals=(S,h,Ints),DoAveraging=True)
+    print "RHF energy = ",E_hf
+    E_exx,orbe_exx,orbs_exx = exx(mol,orbs_hf,bfs=bfs,integrals=(S,h,Ints))

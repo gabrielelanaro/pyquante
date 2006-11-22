@@ -112,12 +112,12 @@ def rhf(atoms,**opts):
     enuke = atoms.get_enuke()
     eold = 0.
 
-    logging.debug("RHF calculation on %s" % atoms.name)
-    logging.debug("Nbf = %d" % len(bfs))
-    logging.debug("Nclosed = %d" % nclosed)
+    logging.info("RHF calculation on %s" % atoms.name)
+    logging.info("Nbf = %d" % len(bfs))
+    logging.info("Nclosed = %d" % nclosed)
 
     if DoAveraging:
-        logging.debug("Using DIIS averaging")
+        logging.info("Using DIIS averaging")
         avg = DIIS(S)
     logging.debug("Optimization of HF orbitals")
     for i in range(MaxIter):
@@ -187,11 +187,11 @@ def uhf(atoms,**opts):
     enuke = atoms.get_enuke()
     eold = 0.
 
-    logging.debug("UHF calculation on %s" % atoms.name)
-    logging.debug("Nbf = %d" % len(bfs))
-    logging.debug("Nalpha = %d" % nalpha)
-    logging.debug("Nbeta = %d" % nbeta)
-    logging.debug("Averaging = %s" % DoAveraging)
+    logging.info("UHF calculation on %s" % atoms.name)
+    logging.info("Nbf = %d" % len(bfs))
+    logging.info("Nalpha = %d" % nalpha)
+    logging.info("Nbeta = %d" % nbeta)
+    logging.info("Averaging = %s" % DoAveraging)
     logging.debug("Optimization of HF orbitals")
     for i in range(MaxIter):
         Da = mkdens(orbsa,0,nalpha)
