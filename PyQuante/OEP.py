@@ -45,10 +45,6 @@ def oep(atoms,orbs,energy_func,grad_func=None,**opts):
     basis_data    None    The basis data to use to construct bfs
     integrals     None    The one- and two-electron integrals to use
                           If not None, S,h,Ints
-    opt_method    BFGS    Use BFGS for the OEP optimization
-                  NM      Use Nelder-Mead (Simplex, Amoeba) for the OEP opt
-                  CG      Use Conjugate-Gradient for the OEP optimization
-                  BFGS2   Rick's experimental BFGS optimizer
     """
     verbose = opts.get('verbose',False)
     ETemp = opts.get('ETemp',False)
@@ -118,12 +114,9 @@ def oep(atoms,orbs,energy_func,grad_func=None,**opts):
     Vfa = (2*(nel-1.)/nel)*J0
     H0 = h + Vfa
 
-    if opt_method == 'BFGS': 
-        b = fminBFGS(energy_func,b,grad_func,
-                     (nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij),
-                     logger=logging)
-    else:
-        raise "Unknown OEP optimization method: %s" % opt_method
+    b = fminBFGS(energy_func,b,grad_func,
+                 (nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij),
+                 logger=logging)
 
     energy,orbe,orbs = energy_func(b,nbf,nel,nocc,ETemp,Enuke,
                                    S,h,Ints,H0,Gij,return_flag=1)
@@ -343,6 +336,166 @@ def oep_hf_an(atoms,orbs,**opts):
 
     logging.info("Final OEP energy = %f" % energy)
     return energy,orbe,orbs
+
+def oep_uhf_an(atoms,orbsa,orbsb,**opts):
+    """oep_hf - Form the optimized effective potential for HF exchange.
+
+    Implementation of Wu and Yang's Approximate Newton Scheme
+    from J. Theor. Comp. Chem. 2, 627 (2003).
+
+    oep_uhf(atoms,orbs,**opts)
+
+    atoms       A Molecule object containing a list of the atoms
+    orbs        A matrix of guess orbitals
+
+    Options
+    -------
+    bfs           None    The basis functions to use for the wfn
+    pbfs          None    The basis functions to use for the pot
+    basis_data    None    The basis data to use to construct bfs
+    integrals     None    The one- and two-electron integrals to use
+                          If not None, S,h,Ints
+    """
+    maxiter = opts.get('maxiter',100)
+    tol = opts.get('tol',1e-5)
+    ETemp = opts.get('ETemp',False)
+    bfs = opts.get('bfs',None)
+    if not bfs:
+        basis = opts.get('basis',None)
+        bfs = getbasis(atoms,basis)
+
+    # The basis set for the potential can be set different from
+    #  that used for the wave function
+    pbfs = opts.get('pbfs',None) 
+    if not pbfs: pbfs = bfs
+    npbf = len(pbfs)
+
+    integrals = opts.get('integrals',None)
+    if integrals:
+        S,h,Ints = integrals
+    else:
+        S,h,Ints = getints(bfs,atoms)
+
+    nel = atoms.get_nel()
+    nclosed,nopen = atoms.get_closedopen()
+    nalpha,nbeta = nclosed+nopen,nclosed
+
+    Enuke = atoms.get_enuke()
+
+    # Form the OEP using Yang/Wu, PRL 89 143002 (2002)
+    nbf = len(bfs)
+    norb = nbf
+
+    ba = zeros(npbf,'d')
+    bb = zeros(npbf,'d')
+
+    # Form and store all of the three-center integrals
+    # we're going to need.
+    # These are <ibf|gbf|jbf> (where 'bf' indicates basis func,
+    #                          as opposed to MO)
+    # N^3 storage -- obviously you don't want to do this for
+    #  very large systems
+    Gij = []
+    for g in range(npbf):
+        gmat = zeros((nbf,nbf),'d')
+        Gij.append(gmat)
+        gbf = pbfs[g]
+        for i in range(nbf):
+            ibf = bfs[i]
+            for j in range(i+1):
+                jbf = bfs[j]
+                gij = three_center(ibf,gbf,jbf)
+                gmat[i,j] = gij
+                gmat[j,i] = gij
+
+    # Compute the Fermi-Amaldi potential based on the LDA density.
+    # We're going to form this matrix from the Coulombic matrix that
+    # arises from the input orbitals. D0 and J0 refer to the density
+    # matrix and corresponding Coulomb matrix
+    
+    D0 = mkdens(orbsa,0,nalpha)+mkdens(orbsb,0,nbeta)
+    J0 = getJ(Ints,D0)
+    Vfa = ((nel-1.)/nel)*J0
+    H0 = h + Vfa
+
+    eold = 0
+
+    for iter in range(maxiter):
+        Hoepa = get_Hoep(ba,H0,Gij)
+        Hoepb = get_Hoep(ba,H0,Gij)
+
+        orbea,orbsa = GHeigenvectors(Hoepa,S)
+        orbeb,orbsb = GHeigenvectors(Hoepb,S)
+
+        if ETemp:
+            efermia = get_efermi(nalpha,orbea,ETemp)
+            occsa = get_fermi_occs(efermia,orbea,ETemp)
+            Da = mkdens_occs(orbsa,occsa)
+            efermib = get_efermi(nbeta,orbeb,ETemp)
+            occsb = get_fermi_occs(efermib,orbeb,ETemp)
+            Db = mkdens_occs(orbsb,occsb)
+            entropy = 0.5*(get_entropy(occsa,ETemp)+get_entropy(occsb,ETemp))
+        else:
+            Da = mkdens(orbsa,0,nalpha)
+            Db = mkdens(orbsb,0,nbeta)
+
+        J = getJ(Ints,Da) + getJ(Ints,Db)
+        Ka = getK(Ints,Da)
+        Kb = getK(Ints,Db)
+
+        energy = (TraceProperty(2*h+J-Ka,Da)+TraceProperty(2*h+J-Kb,Db))/2\
+                 +Enuke
+        if ETemp: energy += entropy
+        
+        if abs(energy-eold) < tol:
+            break
+        else:
+            eold = energy
+        
+        logging.debug("OEP AN Opt: %d %f" % (iter,energy))
+
+        # Do alpha and beta separately
+        # Alphas
+        dV_ao = J-Ka-Vfa
+        dV = matrixmultiply(orbsa,matrixmultiply(dV_ao,transpose(orbsa)))
+        X = zeros((nbf,nbf),'d')
+        c = zeros(nbf,'d')
+        for k in range(nbf):
+            Gk = matrixmultiply(orbsa,matrixmultiply(Gij[k],
+                                                    transpose(orbsa)))
+            for i in range(nalpha):
+                for a in range(nalpha,norb):
+                    c[k] += dV[i,a]*Gk[i,a]/(orbea[i]-orbea[a])
+            for l in range(nbf):
+                Gl = matrixmultiply(orbsa,matrixmultiply(Gij[l],
+                                                        transpose(orbsa)))
+                for i in range(nalpha):
+                    for a in range(nalpha,norb):
+                        X[k,l] += Gk[i,a]*Gl[i,a]/(orbea[i]-orbea[a])
+        # This should actually be a pseudoinverse...
+        ba = solve_linear_equations(X,c)
+        # Betas
+        dV_ao = J-Kb-Vfa
+        dV = matrixmultiply(orbsb,matrixmultiply(dV_ao,transpose(orbsb)))
+        X = zeros((nbf,nbf),'d')
+        c = zeros(nbf,'d')
+        for k in range(nbf):
+            Gk = matrixmultiply(orbsb,matrixmultiply(Gij[k],
+                                                    transpose(orbsb)))
+            for i in range(nbeta):
+                for a in range(nbeta,norb):
+                    c[k] += dV[i,a]*Gk[i,a]/(orbeb[i]-orbeb[a])
+            for l in range(nbf):
+                Gl = matrixmultiply(orbsb,matrixmultiply(Gij[l],
+                                                        transpose(orbsb)))
+                for i in range(nbeta):
+                    for a in range(nbeta,norb):
+                        X[k,l] += Gk[i,a]*Gl[i,a]/(orbeb[i]-orbeb[a])
+        # This should actually be a pseudoinverse...
+        bb = solve_linear_equations(X,c)
+
+    logging.info("Final OEP energy = %f" % energy)
+    return energy,(orbea,orbeb),(orbsa,orbsb)
 
 if __name__ == '__main__':
     from PyQuante.Molecule import Molecule

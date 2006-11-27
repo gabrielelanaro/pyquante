@@ -402,14 +402,13 @@ def udft(atoms,**opts):
     # It would be nice to have a more intelligent treatment of the guess
     # so that I could pass in a density rather than a set of orbs.
     orbs = opts.get('orbs',None)
-    orbsa = orbsb = orbs
     if not orbs: orbe,orbs = GHeigenvectors(h,S)
+    orbsa = orbsb = orbs
 
     nalpha,nbeta = atoms.get_alphabeta()
 
     logging.debug("UDFT calculation on %s using functional %s"
                  % (atoms.name,functional))
-    logging.debug(time.asctime())
     logging.debug("Nbf = %d" % len(bfs))
     logging.debug("Nalpha = %d" % nalpha)
     logging.debug("Nbeta = %d" % nbeta)
