@@ -5,7 +5,7 @@
 from math import sqrt
 from PyQuante.NumWrap import zeros,matrixmultiply,transpose,dot,identity,\
      array,solve_linear_equations
-from PyQuante.Ints import getbasis, getints, getJ,get2JmK
+from PyQuante.Ints import getbasis, getints, getJ,get2JmK,getK
 from PyQuante.LA2 import GHeigenvectors,mkdens,TraceProperty
 from PyQuante.hartree_fock import get_fock
 from PyQuante.CGBF import three_center
@@ -428,10 +428,10 @@ def oep_uhf_an(atoms,orbsa,orbsb,**opts):
         orbeb,orbsb = GHeigenvectors(Hoepb,S)
 
         if ETemp:
-            efermia = get_efermi(nalpha,orbea,ETemp)
+            efermia = get_efermi(2*nalpha,orbea,ETemp)
             occsa = get_fermi_occs(efermia,orbea,ETemp)
             Da = mkdens_occs(orbsa,occsa)
-            efermib = get_efermi(nbeta,orbeb,ETemp)
+            efermib = get_efermi(2*nbeta,orbeb,ETemp)
             occsb = get_fermi_occs(efermib,orbeb,ETemp)
             Db = mkdens_occs(orbsb,occsb)
             entropy = 0.5*(get_entropy(occsa,ETemp)+get_entropy(occsb,ETemp))

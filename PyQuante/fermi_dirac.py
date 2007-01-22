@@ -10,12 +10,6 @@
  license. Please see the file LICENSE that is part of this
  distribution. 
 """
-
-#  Tested on NO. Seems to work pretty well, although (not surprisingly)
-#   it gives a result slightly different from the UHF result. Appears to
-#   require averaging, which makes the code converge very slowly. Both zero
-#   temperature and finite temperature appear to work
-
 import sys
 from NumWrap import matrixmultiply,transpose
 from math import exp,log
@@ -24,8 +18,7 @@ from LA2 import mkdens
 from PyQuante import logging
 
 def mkdens_occs(c,occs,**opts):
-    """Density matrix from a set of occupations (e.g. from FD expression).
-    """
+    "Density matrix from a set of occupations (e.g. from FD expression)."
     tol = opts.get('tol',1e-5)
     verbose = opts.get('verbose',False)
     # Determine how many orbs have occupations greater than 0

@@ -28,12 +28,8 @@ def get_fock(D,Ints,h):
 
 def get_energy(h,F,D,enuke=0.,**opts):
     "Form the total energy of the closed-shell wave function."
-    verbose = opts.get('verbose',False)
     eone = TraceProperty(D,h)
     etwo = TraceProperty(D,F)
-    if verbose:
-        print "eone = ",2*eone
-        print "etwo = ",etwo-eone
     return eone+etwo+enuke
 
 def get_guess(h,S):
@@ -70,8 +66,6 @@ def rhf(atoms,**opts):
 
     Options:      Value   Description
     --------      -----   -----------
-    verbose       False   Output terse information to stdout (default)
-                  True    Print out additional information 
     ConvCriteria  1e-4    Convergence Criteria
     MaxIter       20      Maximum SCF iterations
     DoAveraging   True    Use DIIS for accelerated convergence (default)
@@ -88,7 +82,6 @@ def rhf(atoms,**opts):
     MaxIter = opts.get('MaxIter',20)
     DoAveraging = opts.get('DoAveraging',False)
     ETemp = opts.get('ETemp',False)
-    verbose = opts.get('verbose',False)
 
     bfs = opts.get('bfs',None)
     if not bfs:
@@ -148,7 +141,6 @@ def uhf(atoms,**opts):
 
     Options:      Value   Description
     --------      -----   -----------
-    verbose       False   Print out extra information during DFT calc
     ConvCriteria  1e-4    Convergence Criteria
     MaxIter       20      Maximum SCF iterations
     DoAveraging   True    Use DIIS averaging for convergence acceleration
@@ -162,7 +154,7 @@ def uhf(atoms,**opts):
     MaxIter = opts.get('MaxIter',20)
     DoAveraging = opts.get('DoAveraging',True)
     averaging = opts.get('averaging',0.5)
-    verbose = opts.get('verbose',False)
+    ETemp = opts.get('ETemp',False)
 
     bfs = opts.get('bfs',None)
     if not bfs:
@@ -181,7 +173,9 @@ def uhf(atoms,**opts):
     S,h,Ints = getints(bfs,atoms)
 
     orbs = opts.get('orbs',None)
-    if not orbs: orbe,orbs = GHeigenvectors(h,S)
+    if not orbs:
+        orbe,orbs = GHeigenvectors(h,S)
+        orbea = orbeb = orbe
     orbsa = orbsb = orbs
     
     enuke = atoms.get_enuke()
@@ -194,8 +188,21 @@ def uhf(atoms,**opts):
     logging.info("Averaging = %s" % DoAveraging)
     logging.debug("Optimization of HF orbitals")
     for i in range(MaxIter):
-        Da = mkdens(orbsa,0,nalpha)
-        Db = mkdens(orbsb,0,nbeta)
+        if ETemp:
+            # We have to multiply nalpha and nbeta by 2
+            #  to get the Fermi energies to come out correct:
+            efermia = get_efermi(2.0*nalpha,orbea,ETemp)
+            occsa = get_fermi_occs(efermia,orbea,ETemp)
+            #print "occsa = ",occsa
+            Da = mkdens_occs(orbsa,occsa)
+            efermib = get_efermi(2.0*nbeta,orbeb,ETemp)
+            occsb = get_fermi_occs(efermib,orbeb,ETemp)
+            #print "occsb = ",occsb
+            Db = mkdens_occs(orbsb,occsb)
+            entropy = 0.5*(get_entropy(occsa,ETemp)+get_entropy(occsb,ETemp))
+        else:
+            Da = mkdens(orbsa,0,nalpha)
+            Db = mkdens(orbsb,0,nbeta)
         if DoAveraging:
             if i: 
                 Da = averaging*Da + (1-averaging)*Da0
@@ -214,6 +221,7 @@ def uhf(atoms,**opts):
         energya = get_energy(h,Fa,Da)
         energyb = get_energy(h,Fb,Db)
         energy = (energya+energyb)/2+enuke
+        if ETemp: energy += entropy
         logging.debug("%d %f" % (i,energy))
         if abs(energy-eold) < ConvCriteria: break
         eold = energy

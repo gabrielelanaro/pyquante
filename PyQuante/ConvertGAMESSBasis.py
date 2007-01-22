@@ -22,17 +22,18 @@ def split_comment(line):
     elif len(res) == 2: return res
     return res[0],''.join(res[1:])
 
-def main(**opts):
-    maxatno = opts.get('maxatno',54)
-    fname = opts.get('fname','/home/rmuller/dzvp_basis.txt')
-    oname = opts.get('oname','basis_dzvp.py')
+def parse_gamess_basis(file,**kwargs):
+    import re
+    maxatno = kwargs.get('maxatno',54)
     basis = [None]*(maxatno+1)
     atom_line = re.compile('[A-Za-z]{3,}')
-    file = open(fname)
     while 1:
-        line = file.readline()
-        if not line: break
-        line,comment = split_comment(line)
+        try:
+            line = file.next()
+        except:
+            break
+        #line,comment = split_comment(line)
+        if line.startswith('!'):continue
         words = line.split()
         if not words: continue
         if atom_line.search(line):
@@ -46,11 +47,17 @@ def main(**opts):
             nprim = int(words[1])
             prims = []
             for i in range(nprim):
-                line = file.readline()
+                line = file.next()
                 words = line.split()
                 prims.append((float(words[1]),float(words[2])))
             bfs.append((sym,prims))
-    file.close()
+    return basis
+
+def main(**opts):
+    fname = opts.get('fname','/home/rmuller/dzvp_basis.txt')
+    oname = opts.get('oname','basis_dzvp.py')
+    file = open(fname)
+    basis = parse_gamess_basis(file,**opts)
     string = pprint.pformat(basis)
     file = open(oname,'w').write('basis_data = %s' % string)
     return
