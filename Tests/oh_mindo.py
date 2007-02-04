@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-"H2O using Gaussians"
+"OH using Mindo"
 
-import time
+import unittest, sciunittest
+
 from PyQuante.MINDO3 import scf
 from PyQuante.Molecule import Molecule
 
@@ -13,14 +14,20 @@ def main():
     en = scf(atomlist)
     return en
 
-
 def profmain():
     import profile,pstats
     profile.run('main()','prof')
     prof = pstats.Stats('prof')
     prof.strip_dirs().sort_stats('time').print_stats(15)
 
-if __name__ == '__main__': main()
+class OHTest(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of OH (using Mindo) close to 18.128?"""
+        result = main()
+        self.assertInside(result, energy, 1e-6)
 
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(OHTest)
 
-    
+if __name__ == '__main__':
+    unittest.TextTestRunner(verbosity=2).run(suite())

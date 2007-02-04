@@ -1,3 +1,6 @@
+import unittest
+import sciunittest
+
 from PyQuante.Molecule import Molecule
 from PyQuante.Ints import getbasis,getints
 from PyQuante.hartree_fock import rhf
@@ -22,20 +25,15 @@ def main(**opts):
                                          integrals=(S,h,Ints))
     return E_exx
 
-def test():
-    from PyQuante import logging
-    logging.basicConfig(#filename='testsuite.log',
-                        level=logging.INFO,
-                        format="%(message)s",
-                        filemode='w')
-    logging.info("Running %-15s:" % name)
-    E = main()
-    error = abs(E-energy)
-    if error < 1.e-4:
-        logging.info("--- E=%12.6f Worked ---" % E)
-    else:
-        logging.info("*** Warning: E=%12.6f should be %12.6f ***" %
-                     (E,energy))
-    
+class BeOEPTest(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of Be/OEP close to -7.98?"""
+        E = main()
+        self.assertInside(E, energy, 1e-5)
 
-if __name__ == '__main__': test()
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(BeOEPTest)
+
+if __name__ == '__main__':
+    import unittest
+    unittest.TextTestRunner(verbosity=2).run(suite())

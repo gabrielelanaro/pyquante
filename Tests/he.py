@@ -9,6 +9,8 @@
 # GAMESS-UK result
 # Energy -2.85516043
 
+import unittest, sciunittest
+
 energy = -2.855223
 energy = -2.85516040352   # After DIIS
 name = "He"
@@ -22,4 +24,14 @@ def main():
     en,orbe,orbs = rhf(he)
     return en
 
-if __name__ == '__main__': main() 
+class HeTest(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of He (using Gaussians) close to -2.855?"""
+        result = main()
+        self.assertInside(result, energy, 1e-7)
+
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(HeTest)
+
+if __name__ == '__main__':
+    unittest.TextTestRunner(verbosity=2).run(suite())
