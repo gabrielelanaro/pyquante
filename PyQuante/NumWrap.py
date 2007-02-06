@@ -21,8 +21,8 @@
 #  Make a shorter alias for dot than matrixmultiply (matmult or matmul or mm)?
 #  Switch the definitions of SimilarityTransform and STT? Maybe also use a shorter name (simx)
 
-test_numpy = True # This is the cutting edge version
-use_numpy = False
+test_numpy = False # This is the cutting edge version
+use_numpy = True
 import re
 pat = re.compile('\D')
 
