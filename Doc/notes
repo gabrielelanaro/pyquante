@@ -3848,6 +3848,14 @@ to go into a file via this module. Is properly flushed, etc.
 Compiled and ran the code on a Macintel Mac Mini. Test suite ran in 99 sec. 
 My mac laptop runs in 272 sec.
 
+----------2007-02-06-------------------------------
+Creating a new option NumWrap.test_numpy to allow eigenvectors to be
+stored in columns (numpy style) rather than rows (Numeric style). Both
+Numeric and numpy are supported in the new version, and the test
+suites all run regardless of (numpy vecs)/(numeric vecs) or
+(numpy)/(numeric) choices.
+
+
 TODO LIST
 * Move basis sets into PyQuante/Basis
 * Move integrals into PyQuante/Ints

@@ -62,6 +62,7 @@ Current features
 - Hartree-Fock: Restriced closed-shell HF and unrestricted open-shell
   HF;
 - DFT: LDA (SVWN, Xalpha) and GGA (BLYP, PBE) functionals;
+- Optimized-effective potential DFT;
 - Two electron integrals computed using Huzinaga, Rys, or
   Head-Gordon/Pople techniques. C and Python interfaces to all of
   these programs.
@@ -108,10 +109,10 @@ Obtaining the Code
 -------------------
 The program is available in tarball form from the 
 http://sourceforge.net/projects/pyquante[PyQuante Download Page]. The
-CVS archive for the program is also at Sourceforge, and is recommended
-for anyone wanting to stay on the bleeding edge; information on how to
+SVN archive for the program is also at Sourceforge, and is recommended
+for anyone wanting to stay current with the codebase; information on how to
 access the CVS archive is available
-http://sourceforge.net/cvs/?group_id=43213[here]. 
+http://sourceforge.net/svn/?group_id=43213[here]. 
 
 Building the Code 
 -----------------
@@ -166,6 +167,11 @@ Contributors
 
 Changelog
 ----------
+- 1.5.1: 2007-02-06
+  	* Interfaces to both numpy and Numeric python libraries
+        * Miscellaneous changes that have been in the SVN archive for
+		some time.
+
 - 1.5.0: 2005-12-19
 	* A User's Guide
 	* EXX density functionals
