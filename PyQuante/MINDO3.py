@@ -14,8 +14,11 @@
 from Constants import bohr2ang,e2,ev2kcal
 from MINDO3_Parameters import axy,Bxy
 from math import sqrt,exp,pow
-from NumWrap import zeros
-from NumWrap import Heigenvectors
+from NumWrap import zeros,test_numpy
+if test_numpy:
+    from NumWrap import eigh
+else:
+    from NumWrap import Heigenvectors
 from LA2 import mkdens,TraceProperty
 A0 = bohr2ang
 
@@ -326,7 +329,10 @@ def scfclosed(atoms,F0,nclosed,**opts):
                 print "Exiting because converged",i+1,Eel,Eold
             break
         Eold = Eel
-        orbe,orbs = Heigenvectors(F)
+        if test_numpy:
+            orbe,orbs = eigh(F)
+        else:
+            orbe,orbs = Heigenvectors(F)
         D = 2*mkdens(orbs,0,nclosed)
     return Eel
 
@@ -348,8 +354,12 @@ def scfopen(atoms,F0,nalpha,nbeta,**opts):
         if verbose: print i,Eel
         if abs(Eel-Eold) < 0.001: break
         Eold = Eel
-        orbea,orbsa = Heigenvectors(Fa)
-        orbeb,orbsb = Heigenvectors(Fb)
+        if test_numpy:
+            orbea,orbsa = eigh(Fa)
+            orbeb,orbsb = eigh(Fb)
+        else:
+            orbea,orbsa = Heigenvectors(Fa)
+            orbeb,orbsb = Heigenvectors(Fb)
         Da = mkdens(orbsa,0,nalpha)
         Db = mkdens(orbsb,0,nbeta)
     return Eel
@@ -522,7 +532,10 @@ def get_energy_forces(atoms,**opts):
         energies.append(Eel)
         Eold = Eel
         try:
-            orbe,orbs = Heigenvectors(F)
+            if test_numpy:
+                orbe,orbs = eigh(F)
+            else:
+                orbe,orbs = Heigenvectors(F)
         except:
             print atoms
             raise "Eigenvectors did not converge in MINDO3:get_energy_forces"

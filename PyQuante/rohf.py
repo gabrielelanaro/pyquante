@@ -21,7 +21,11 @@ from PyQuante.Ints import getbasis,getints,getJ,getK,get2JmK
 from PyQuante.LA2 import mkdens,GHeigenvectors,SimilarityTransform,\
      TraceProperty,SimilarityTransformT
 from NumWrap import zeros,take,transpose,matrixmultiply
-from NumWrap import Heigenvectors
+from NumWrap import test_numpy
+if test_numpy:
+    from NumWrap import eigh
+else:
+    from NumWrap import Heigenvectors
 
 def get_os_dens(orbs,f,noccsh):
     istart = iend = 0
@@ -64,7 +68,10 @@ def ocbse(orbs,h,Hs,f,a,b,noccsh):
         #F = SimilarityTransform(F,T) # SimilarityTransformT??
         FT = matrixmultiply(F,T)
         F = matrixmultiply(transpose(T),FT)
-        orbe2,orbs2 = Heigenvectors(F)
+        if test_numpy:
+            orbe2,orbs2 = eigh(F)
+        else:
+            orbe2,orbs2 = Heigenvectors(F)
         print orbe2
         print orbs2[:,0]
         raise "stopping"

@@ -14,7 +14,10 @@
 from math import sqrt
 from NumWrap import test_numpy
 from NumWrap import matrixmultiply,transpose,diagonal,identity,zeros
-from NumWrap import Heigenvectors
+if test_numpy:
+    from NumWrap import eigh
+else:
+    from NumWrap import Heigenvectors
 
 # Note: to be really smart in a quantum chemistry program, we would
 #  want to only symmetrically orthogonalize the S matrix once, since
@@ -44,7 +47,7 @@ def GHeigenvectors(H,A,**opts):
         opts['have_xfrm'] = True
         return GHeigenvectors(H,X,**opts)
     if test_numpy:
-        val,vec = Heigenvectors(SimilarityTransformT(H,A))
+        val,vec = eigh(SimilarityTransformT(H,A))
         vec = matrixmultiply(A,vec)
     else:
         val,vec = Heigenvectors(SimilarityTransform(H,A))
@@ -55,7 +58,10 @@ def SymOrth(X):
     """Symmetric orthogonalization of the real symmetric matrix X.
     This is given by Ut(1/sqrt(lambda))U, where lambda,U are the
     eigenvalues/vectors."""
-    val,vec = Heigenvectors(X)
+    if test_numpy:
+        val,vec = eigh(X)
+    else:
+        val,vec = Heigenvectors(X)
     n = vec.shape[0]
     shalf = identity(n,'d')
     for i in range(n):
@@ -69,8 +75,12 @@ def SymOrth(X):
 def CanOrth(X): 
     """Canonical orthogonalization of matrix X. This is given by
     U(1/sqrt(lambda)), where lambda,U are the eigenvalues/vectors."""
-    val,vec = Heigenvectors(X)
     n = vec.shape[0]
+    if test_numpy:
+        val,vec = eigh(X)
+    else:
+        val,vec = Heigenvectors(X)
+
     if test_numpy:
         for i in range(n):
             vec[:,i] = vec[:,i] / sqrt(val[i])

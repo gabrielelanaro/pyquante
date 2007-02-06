@@ -16,9 +16,12 @@
 import os,sys
 from PyQuante.cints import ijkl2intindex
 from NumWrap import zeros,dot,matrixmultiply
-from NumWrap import Heigenvectors
 from NumWrap import test_numpy
 from Ints import getbasis, get2ints
+if test_numpy:
+    from NumWrap import eigh
+else:
+    from NumWrap import Heigenvectors
 
 def getorb(i,orbs):
     # This wrapper is written to make the transition to new numpy go a little
@@ -44,7 +47,10 @@ def DoubleExcitations(occs,virts):
 
 def CIS(Ints,orbs,orbe,occs,ehf):
     CIMatrix = CISMatrix(Ints,orbs,ehf,orbe,occs)
-    Ecis,Vectors = Heigenvectors(CIMatrix)
+    if test_numpy:
+        Ecis,Vectors = eigh(CIMatrix)
+    else:
+        Ecis,Vectors = Heigenvectors(CIMatrix)
     return Ecis
 
 def get_occ_unocc(occs):
