@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 "H2O using Gaussians to test the DFT module"
 
+import unittest, sciunittest
+
 from PyQuante.dft import *
 from PyQuante.Molecule import Molecule
 
@@ -20,5 +22,15 @@ def main():
     en,orbe,orbs = dft(h2o)
     return en
 
-if __name__ == '__main__': main()
+class WaterDFTTest(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of H2O (DFT) close to -75.896499?"""
+        E = main()
+        self.assertInside(E, energy, 1e-4)
 
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(WaterDFTTest)
+
+if __name__ == '__main__':
+    import unittest
+    unittest.TextTestRunner(verbosity=2).run(suite())

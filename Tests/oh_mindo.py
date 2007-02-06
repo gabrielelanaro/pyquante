@@ -22,7 +22,7 @@ def profmain():
 
 class OHTest(sciunittest.TestCase):
     def runTest(self):
-        """Energy of OH (using Mindo) close to 18.128?"""
+        """Energy of OH (Mindo) close to 18.128?"""
         result = main()
         self.assertInside(result, energy, 1e-6)
 

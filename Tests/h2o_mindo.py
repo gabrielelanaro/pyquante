@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 "H2O using Gaussians"
 
-import time
+import unittest, sciunittest
+
 from PyQuante.MINDO3 import scf
 from PyQuante.Molecule import Molecule
 
@@ -21,7 +22,15 @@ def profmain():
     prof = pstats.Stats('prof')
     prof.strip_dirs().sort_stats('time').print_stats(15)
 
-if __name__ == '__main__': main()
+class WaterMindoTest(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of H2O (Mindo) close to -48.825159?"""
+        E = main()
+        self.assertInside(E, energy, 1e-7)
 
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(WaterMindoTest)
 
-    
+if __name__ == '__main__':
+    import unittest
+    unittest.TextTestRunner(verbosity=2).run(suite())

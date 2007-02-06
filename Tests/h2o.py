@@ -7,7 +7,8 @@
 # GAMESS-UK results for above 
 # Energy -76.01175904
 
-import time
+import unittest, sciunittest
+
 from PyQuante.Ints import getbasis,getints
 from PyQuante.hartree_fock import rhf
 from PyQuante.Molecule import Molecule
@@ -21,19 +22,21 @@ def main():
     en,orbe,orbs = rhf(h2o)
     return en
 
-
 def profmain():
     import profile,pstats
     profile.run('main()','prof')
     prof = pstats.Stats('prof')
     prof.strip_dirs().sort_stats('time').print_stats(15)
 
+class WaterTest(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of H2O close to -76.011751?"""
+        E = main()
+        self.assertInside(E, energy, 1e-4)
+
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(WaterTest)
+
 if __name__ == '__main__':
-    t0 = time.time()
-    en = main()
-    #profmain()
-    t1 = time.time()
-    print en,energy,t1-t0
-
-
-    
+    import unittest
+    unittest.TextTestRunner(verbosity=2).run(suite())

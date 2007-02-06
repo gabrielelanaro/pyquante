@@ -1,7 +1,9 @@
 import sys
 import unittest
 
-testmodules = ['h2', 'he', 'be_oep', 'oh_mindo']
+testmodules = ['be_oep', 'h2', 'he', 'h2o', 'h2o_mindo', 
+               'oh_mindo']
+dfttests = ['h2_ft_dft', 'he_dft', 'h2o_dft']
 
 def importname(modulename, name):
     """Import from a module whose name is determined at runtime.
