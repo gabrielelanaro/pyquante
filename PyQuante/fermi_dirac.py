@@ -12,6 +12,7 @@
 """
 import sys
 from NumWrap import matrixmultiply,transpose
+from NumWrap import test_numpy
 from math import exp,log
 from Constants import Kboltz
 from LA2 import mkdens
@@ -37,8 +38,11 @@ def mkdens_occs(c,occs,**opts):
         print "mkdens_occs: %d closed-shell orbitals found" % nclosed
     D = mkdens(c,0,nclosed)
     for i in range(nclosed,norb):
-        d = c[i:i+1,:]
-        D = D + occs[i]*matrixmultiply(transpose(d),d)
+        if test_numpy:
+            D = D + occs[i]*matrixmultiply(c[:,i:i+1],transpose(c[:,i:i+1]))
+        else:
+            d = c[i:i+1,:]
+            D = D + occs[i]*matrixmultiply(transpose(d),d)
     return D
     
 def get_fermi_occ(efermi,en,temp):

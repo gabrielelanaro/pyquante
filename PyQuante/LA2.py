@@ -12,9 +12,9 @@
 """
 
 from math import sqrt
+from NumWrap import test_numpy
 from NumWrap import matrixmultiply,transpose,diagonal,identity,zeros
 from NumWrap import Heigenvectors
-
 
 # Note: to be really smart in a quantum chemistry program, we would
 #  want to only symmetrically orthogonalize the S matrix once, since
@@ -22,10 +22,6 @@ from NumWrap import Heigenvectors
 #  want to call X = SymOrth(S), and then GHeigenvectorsD(H,X), rather
 #  than calling GHeigenvectors(H,S) every time, since the latter
 #  recomputes the symmetric orthogonalization every SCF cycle.
-
-def Orthogonalize(H,S):
-    X = SymOrth(S)
-    return SimilarityTransform(H,X)
 
 def GHeigenvectors(H,A,**opts):
     """\
@@ -47,8 +43,13 @@ def GHeigenvectors(H,A,**opts):
             X = SymOrth(A)
         opts['have_xfrm'] = True
         return GHeigenvectors(H,X,**opts)
-    val,vec = Heigenvectors(SimilarityTransform(H,A))
-    return val,matrixmultiply(vec,A)
+    if test_numpy:
+        val,vec = Heigenvectors(SimilarityTransformT(H,A))
+        vec = matrixmultiply(A,vec)
+    else:
+        val,vec = Heigenvectors(SimilarityTransform(H,A))
+        vec = matrixmultiply(vec,A)
+    return val,vec
 
 def SymOrth(X):
     """Symmetric orthogonalization of the real symmetric matrix X.
@@ -59,16 +60,24 @@ def SymOrth(X):
     shalf = identity(n,'d')
     for i in range(n):
         shalf[i,i] /= sqrt(val[i])
-    return SimilarityTransformT(shalf,vec)
+    if test_numpy:
+        X = SimilarityTransform(shalf,vec)
+    else:
+        X = SimilarityTransformT(shalf,vec) 
+    return X
 
 def CanOrth(X): 
     """Canonical orthogonalization of matrix X. This is given by
     U(1/sqrt(lambda)), where lambda,U are the eigenvalues/vectors."""
     val,vec = Heigenvectors(X)
     n = vec.shape[0]
-    for i in range(n):
-        for j in range(n):
-            vec[i,j] = vec[i,j]/sqrt(val[i])
+    if test_numpy:
+        for i in range(n):
+            vec[:,i] = vec[:,i] / sqrt(val[i])
+    else:
+        for i in range(n):
+            for j in range(n):
+                vec[i,j] = vec[i,j]/sqrt(val[i])
     return vec
 
 def TraceProperty(H,D):
@@ -86,8 +95,13 @@ def SimilarityTransform(H,X):
 
 def mkdens(c,nstart,nstop):
     "Form a density matrix C*Ct given eigenvectors C[nstart:nstop,:]"
-    d = c[nstart:nstop,:]
-    return matrixmultiply(transpose(d),d)
+    if test_numpy:
+        d = c[:,nstart:nstop]
+        Dmat = matrixmultiply(d,transpose(d))
+    else:
+        d = c[nstart:nstop,:]
+        Dmat = matrixmultiply(transpose(d),d)
+    return Dmat
 
 def mkdens2(c,nstart,nstop):
     "2*normal density matrix, since that's more common"

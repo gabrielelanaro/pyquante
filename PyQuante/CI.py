@@ -17,7 +17,14 @@ import os,sys
 from PyQuante.cints import ijkl2intindex
 from NumWrap import zeros,dot,matrixmultiply
 from NumWrap import Heigenvectors
+from NumWrap import test_numpy
 from Ints import getbasis, get2ints
+
+def getorb(i,orbs):
+    # This wrapper is written to make the transition to new numpy go a little
+    #  more smoothly. It can be deleted once the transition is done
+    if test_numpy: return orbs[:,i]
+    return orbs[i,:]
 
 def SingleExcitations(occs,virts):
     singles = []
@@ -94,34 +101,6 @@ def CISDMatrix(Ints,orbs,Ehf,orbe,occs):
             CIMatrix[bs,ar] = CIMatrix[ar,bs]
     return CIMatrix
     
-def TransformIntsSlo(Ints,orbs):
-    """This is really, really slow (N^8). TransformInts should be used
-    instead. This routine only exists for purposes of comparison."""
-
-    nbf,nmo = orbs.shape # probably wrong if not square
-    totlen = nmo*(nmo+1)*(nmo*nmo+nmo+2)/8
-    MOInts = zeros(totlen,'d')
-    
-    for i in range(nmo):
-        for j in range(i+1):
-            ij = i*(i+1)/2+j
-            for k in range(nmo):
-                for l in range(k+1):
-                    kl = k*(k+1)/2+l
-                    if ij >= kl:
-                        ijkl = ijkl2intindex(i,j,k,l)
-                        val = 0
-                        for mu in range(nbf):
-                            for nu in range(nbf):
-                                for sigma in range(nbf):
-                                    for eta in range(nbf):
-                                        mnse = ijkl2intindex(mu,nu,sigma,eta)
-                                        val += Ints[mnse]*\
-                                               orbs[i,mu]*orbs[j,nu]*\
-                                               orbs[k,sigma]*orbs[l,eta]
-                        MOInts[ijkl] = val
-    return MOInts
-
 def TransformInts(Ints,orbs):
     """O(N^5) 4-index transformation of the two-electron integrals. Not as
     efficient as it could be, since it inflates to the full rectangular
@@ -150,21 +129,24 @@ def TransformInts(Ints,orbs):
                 for l in mos:
                     for eta in bfs:
                         tempvec[eta] = Ints[ijkl2intindex(mu,nu,sigma,eta)]
-                    temp[mu,nu,sigma,l] = dot(orbs[l,:],tempvec)
+                    orbl = getorb(l,orbs)
+                    temp[mu,nu,sigma,l] = dot(orbl,tempvec)
 
     # Transform sigma -> k
     for mu in bfs:
         for nu in bfs:
             for l in mos:
                 for k in mos:
-                    temp2[mu,nu,k,l] = dot(orbs[k,:],temp[mu,nu,:,l])
+                    orbk = getorb(k,orbs)
+                    temp2[mu,nu,k,l] = dot(orbk,temp[mu,nu,:,l])
 
     # Transform nu -> j
     for mu in bfs:
         for k in mos:
             for l in mos:
                 for j in mos:
-                    temp[mu,j,k,l] = dot(orbs[j,:],temp2[mu,:,k,l])
+                    orbj = getorb(j,orbs)
+                    temp[mu,j,k,l] = dot(orbj,temp2[mu,:,k,l])
 
     # Transform mu -> i and repack integrals:
     MOInts = zeros(totlen,'d')
@@ -176,7 +158,8 @@ def TransformInts(Ints,orbs):
                     kl = k*(k+1)/2+l
                     if ij >= kl:
                         ijkl = ijkl2intindex(i,j,k,l)
-                        MOInts[ijkl] = dot(orbs[i,:],temp[:,j,k,l])
+                        orbi = getorb(i,orbs)
+                        MOInts[ijkl] = dot(orbi,temp[:,j,k,l])
 
     del temp,temp2,tempvec #force garbage collection now
     return MOInts

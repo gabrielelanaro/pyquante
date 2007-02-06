@@ -15,8 +15,15 @@
 
 from PyQuante.cints import ijkl2intindex
 from NumWrap import zeros,dot
+from NumWrap import test_numpy
 
 VERBOSE=0
+
+def getorb(i,orbs):
+    # This wrapper is written to make the transition to new numpy go a little
+    #  more smoothly. It can be deleted once the transition is done
+    if test_numpy: return orbs[:,i]
+    return orbs[i,:]
 
 def TransformIntsMP2(Ints,orbs,nclosed):
     """\
@@ -46,21 +53,24 @@ def TransformIntsMP2(Ints,orbs,nclosed):
                 for b in occs:
                     for sigma in bfs:
                         tempvec[sigma] = Ints[ijkl2intindex(mu,nu,sigma,eta)]
-                    temp[mu,nu,b,eta] = dot(orbs[b,:],tempvec)
+                    orbb = getorb(b,orbs)
+                    temp[mu,nu,b,eta] = dot(orbb,tempvec)
 
     temp2 = zeros((nclosed,nbf,nclosed,nbf),'d')
     for nu in bfs:
         for eta in bfs:
             for b in occs:
                 for a in occs:
-                    temp2[a,nu,b,eta] = dot(orbs[a,:],temp[:,nu,b,eta])
+                    orba = getorb(a,orbs)
+                    temp2[a,nu,b,eta] = dot(orba,temp[:,nu,b,eta])
 
     temp = zeros((nclosed,nbf,nclosed,nmo),'d')
     for a in occs:
         for nu in bfs:
             for b in occs:
                 for j in mos:
-                    temp[a,nu,b,j] = dot(orbs[j,:],temp2[a,nu,b,:])
+                    orbj = getorb(j,orbs)
+                    temp[a,nu,b,j] = dot(orbj,temp2[a,nu,b,:])
 
     # Transform mu -> i and repack integrals:
     MOInts = zeros(totlen,'d')
@@ -69,7 +79,8 @@ def TransformIntsMP2(Ints,orbs,nclosed):
             for b in occs:
                 for i in mos:
                     aibj = ijkl2intindex(a,i,b,j)
-                    MOInts[aibj] = dot(orbs[i,:],temp[a,:,b,j])
+                    orbi = getorb(i,orbs)
+                    MOInts[aibj] = dot(orbi,temp[a,:,b,j])
 
     #print "Integral transform time = ",time()-t0
     del temp,temp2,tempvec #force garbage collection now

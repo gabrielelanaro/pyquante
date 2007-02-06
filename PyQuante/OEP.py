@@ -5,6 +5,7 @@
 from math import sqrt
 from PyQuante.NumWrap import zeros,matrixmultiply,transpose,dot,identity,\
      array,solve_linear_equations
+from PyQuante.NumWrap import test_numpy
 from PyQuante.Ints import getbasis, getints, getJ,get2JmK,getK
 from PyQuante.LA2 import GHeigenvectors,mkdens,TraceProperty
 from PyQuante.hartree_fock import get_fock
@@ -83,7 +84,6 @@ def oep(atoms,orbs,energy_func,grad_func=None,**opts):
         b = array(bvec)
     else:
         b = zeros(npbf,'d')
-
 
     # Form and store all of the three-center integrals
     # we're going to need.
@@ -174,7 +174,10 @@ def get_exx_gradient(b,nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij,**opts):
     energy,orbe,orbs,F = get_exx_energy(b,nbf,nel,nocc,ETemp,Enuke,
                                         S,h,Ints,H0,Gij,return_flag=2)
 
-    Fmo = matrixmultiply(orbs,matrixmultiply(F,transpose(orbs)))
+    if test_numpy:
+        Fmo = matrixmultiply(transpose(orbs),matrixmultiply(F,orbs))
+    else:
+        Fmo = matrixmultiply(orbs,matrixmultiply(F,transpose(orbs)))
 
     norb = nbf
     bp = zeros(nbf,'d') # dE/db
@@ -183,8 +186,10 @@ def get_exx_gradient(b,nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij,**opts):
         # Transform Gij[g] to MOs. This is done over the whole
         #  space rather than just the parts we need. I can speed
         #  this up later by only forming the i,a elements required
-        Gmo = matrixmultiply(orbs,matrixmultiply(Gij[g],
-                                                 transpose(orbs)))
+        if test_numpy:
+            Gmo = matrixmultiply(transpose(orbs),matrixmultiply(Gij[g],orbs))
+        else:
+            Gmo = matrixmultiply(orbs,matrixmultiply(Gij[g],transpose(orbs)))
 
         # Now sum the appropriate terms to get the b gradient
         for i in range(nocc):
@@ -312,22 +317,30 @@ def oep_hf_an(atoms,orbs,**opts):
         
         logging.debug("OEP AN Opt: %d %f" % (iter,energy))
         dV_ao = Vhf-Vfa
-        dV = matrixmultiply(orbs,matrixmultiply(dV_ao,transpose(orbs)))
+        if test_numpy:
+            dV = matrixmultiply(transpose(orbs),matrixmultiply(dV_ao,orbs))
+        else:
+            dV = matrixmultiply(orbs,matrixmultiply(dV_ao,transpose(orbs)))
 
         X = zeros((nbf,nbf),'d')
         c = zeros(nbf,'d')
         Gkt = zeros((nbf,nbf),'d')
 
         for k in range(nbf):
-            Gk = matrixmultiply(orbs,matrixmultiply(Gij[k],
-                                                    transpose(orbs)))
+            # This didn't work; in fact, it made things worse:
+            if test_numpy:
+                Gk = matrixmultiply(transpose(orbs),matrixmultiply(Gij[k],orbs))
+            else:
+                Gk = matrixmultiply(orbs,matrixmultiply(Gij[k],transpose(orbs)))
             for i in range(nocc):
                 for a in range(nocc,norb):
                     c[k] += dV[i,a]*Gk[i,a]/(orbe[i]-orbe[a])
                     
             for l in range(nbf):
-                Gl = matrixmultiply(orbs,matrixmultiply(Gij[l],
-                                                        transpose(orbs)))
+                if test_numpy:
+                    Gl = matrixmultiply(transpose(orbs),matrixmultiply(Gij[l],orbs))
+                else:
+                    Gl = matrixmultiply(orbs,matrixmultiply(Gij[l],transpose(orbs)))
                 for i in range(nocc):
                     for a in range(nocc,norb):
                         X[k,l] += Gk[i,a]*Gl[i,a]/(orbe[i]-orbe[a])

@@ -9,11 +9,40 @@
  these have to be done consistently with the Numeric/numpy choice
 """
 
+# New project to standardize on numpy names and calling conventions
+# step one: import new libraries using old names
+# step two: change over to new names
+# step three: remove NumWrap
+#
+# Using the new version will be flagged by the 'test_numpy' variable. Just set this to False
+#  to turn everything off
+
+# Cleanup things to do:
+#  Make a shorter alias for dot than matrixmultiply (matmult or mm)?
+#  Switch the definitions of SimilarityTransform and STT? Maybe also use a shorter name (simx)
+
+test_numpy = False # This is the cutting edge version
 use_numpy = True
 import re
 pat = re.compile('\D')
 
-if use_numpy:
+if test_numpy:
+    from numpy import array,zeros,concatenate,dot,ravel,arange
+    from numpy import arcsinh,diagonal,identity,choose,transpose
+    from numpy import reshape,take
+    from numpy import where
+    matrixmultiply = dot
+
+    from numpy.linalg import det as determinant
+    from numpy.linalg import eigh as Heigenvectors
+    from numpy.linalg import solve as solve_linear_equations
+
+    # still need to kill these two, which are used by Optimize:
+    import numpy.oldnumeric.mlab as MLab
+    from numpy.oldnumeric import NewAxis
+    import numpy as Numeric
+
+elif use_numpy:
     from numpy import array,zeros,concatenate,dot,ravel,arange
     from numpy import arcsinh,diagonal,identity,choose,transpose
     from numpy import reshape,take
