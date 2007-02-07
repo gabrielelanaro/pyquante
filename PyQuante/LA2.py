@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """\
- LA2.py: Simple additions to the Python LinearAlgebra library
+ LA2.py: Simple additions to numpy.linalg linear algebra library
 
  This program is part of the PyQuante quantum chemistry program suite.
 
@@ -10,6 +10,10 @@
  license. Please see the file LICENSE that is part of this
  distribution. 
 """
+
+# Todo
+# - update SimilarityTransformation to simx
+
 
 from math import sqrt
 from NumWrap import test_numpy
@@ -25,6 +29,25 @@ else:
 #  want to call X = SymOrth(S), and then GHeigenvectorsD(H,X), rather
 #  than calling GHeigenvectors(H,S) every time, since the latter
 #  recomputes the symmetric orthogonalization every SCF cycle.
+
+def norm(vec):
+    "val = norm(vec) : Return the 2-norm of a vector"
+    return sqrt(dot(vec,vec))
+def sym(A):
+    "B = sym(A) : Symmetrize a matrix"
+    return 0.5*(A+transpose(A))
+def simx(A,B,trans='N'):
+    """\
+    C = simx(A,B,trans)
+    Perform the similarity transformation C = B'*A*B (trans='N') or
+    C = B*A*B' (trans='T').
+    """
+    if trans=='T': return matmul(B,matmul(A,transpose(B)))
+    return matmul(transpose(B),matmul(A,B))
+
+def outprod(A):
+    "D = outprod(A) : Return the outer product A*A'"
+    return matmul(A,transpose(A))
 
 def GHeigenvectors(H,A,**opts):
     """\

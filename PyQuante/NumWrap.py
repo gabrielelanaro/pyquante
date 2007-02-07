@@ -9,17 +9,15 @@
  these have to be done consistently with the Numeric/numpy choice
 """
 
-# New project to standardize on numpy names and calling conventions
-# step one: import new libraries using old names
-# step two: change over to new names
-# step three: remove NumWrap
+# Todo
+# - Standardize on the test_numpy code
+# - Remove the non-test_numpy code
+# - Migrate to numpy.linalg names
+# - Change matrixmultiply to "matmul"
+# - Remove NumWrap and Numeric support (maybe never do this)
 #
-# Using the new version will be flagged by the 'test_numpy' variable. Just set this to False
-#  to turn everything off
-
-# Cleanup things to do:
-#  Make a shorter alias for dot than matrixmultiply (matmult or matmul or mm)?
-#  Switch the definitions of SimilarityTransform and STT? Maybe also use a shorter name (simx)
+# Using the new version will be flagged by the 'test_numpy' variable.
+# Just set this to False to turn everything off
 
 test_numpy = False # This is the cutting edge version
 use_numpy = True
@@ -34,6 +32,7 @@ if test_numpy:
         from numpy import reshape,take
         from numpy import where
         matrixmultiply = dot
+        matmul = dot
 
         from numpy.linalg import det as determinant
         from numpy.linalg import eigh
@@ -54,6 +53,7 @@ if test_numpy:
         from LinearAlgebra import determinant
         import Numeric
         import MLab
+        matmul = matrixmultiply
 
         def eigh(A):
             val,vec = Heigenvectors(A)
@@ -89,6 +89,7 @@ else:
             import numpy.lib.mlab as MLab
             from numpy import NewAxis
         matrixmultiply = dot
+        matmul = matrixmultiply
         import numpy as Numeric
     
     else:
@@ -102,4 +103,5 @@ else:
         from LinearAlgebra import determinant
         import Numeric
         import MLab
+        matmul = matrixmultiply
 

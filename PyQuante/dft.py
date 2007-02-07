@@ -145,7 +145,7 @@ def dft(atoms,**opts):
     MaxIter = opts.get('MaxIter',20)
     DoAveraging = opts.get('DoAveraging',True)
     ETemp = opts.get('ETemp',False)
-    functional = opts.get('functional','SVWN')
+    functional = opts.get('functional',None)
     opts['do_grad_dens'] = need_gradients[functional]
 
     bfs = opts.get('bfs',None)

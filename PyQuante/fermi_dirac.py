@@ -18,6 +18,13 @@ from Constants import Kboltz
 from LA2 import mkdens
 from PyQuante import logging
 
+def mkdens_fermi(nel,orbe,orbs,e_temp):
+    efermi = get_efermi(nel,orbe,e_temp)
+    occs = get_fermi_occs(efermi,orbe,e_temp)
+    D = mkdens_occs(orbs,occs)
+    entropy = get_entropy(occs,e_temp)
+    return D,entropy
+
 def mkdens_occs(c,occs,**opts):
     "Density matrix from a set of occupations (e.g. from FD expression)."
     tol = opts.get('tol',1e-5)
