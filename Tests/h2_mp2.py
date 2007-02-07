@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 "H2 correlation energy via MP2"
 
+import unittest, sciunittest
+
 from PyQuante.Ints import getbasis,getints
 from PyQuante.hartree_fock import rhf
 from PyQuante.Molecule import Molecule
@@ -25,9 +27,15 @@ def main():
     emp2 = MP2(Ints,orbs,orbe,nocc,nbf-nocc)  
     return en+emp2
 
-if __name__ == '__main__': main() 
+class H2MP2Test(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of H2 (MP2) close to -1.111591861694?"""
+        E = main()
+        self.assertInside(E, energy, 1e-6)
 
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(H2MP2Test)
 
-    
-
-    
+if __name__ == '__main__':
+    import unittest
+    unittest.TextTestRunner(verbosity=2).run(suite()) 

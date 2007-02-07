@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import unittest, sciunittest
+
 from PyQuante.NumWrap import arange
 from PyQuante.dft import dft
 from PyQuante.Molecule import Molecule
@@ -45,9 +47,15 @@ def profmain():
     pstats.Stats('prof').strip_dirs().sort_stats('time').print_stats(15)
     return
 
+class LiHDFTTest(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of LiH (DFT) close to -7.813809?"""
+        E = main()
+        self.assertInside(E, energy, 1e-5)
+
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(LiHDFTTest)
+
 if __name__ == '__main__':
-    main()
-    #profmain()
-    
-                                   
-    
+    import unittest
+    unittest.TextTestRunner(verbosity=2).run(suite())

@@ -1,3 +1,5 @@
+import unittest, sciunittest
+
 from PyQuante.dft import dft
 from PyQuante.Molecule import Molecule
 
@@ -9,4 +11,15 @@ def main():
     en,orbe,orbs = dft(atomlist)
     return en
 
-if __name__ == '__main__': main()
+class HDFTTest(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of H atom (DFT) close to -0.4415033?"""
+        E = main()
+        self.assertInside(E, energy, 1e-8)
+
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(HDFTTest)
+
+if __name__ == '__main__':
+    import unittest
+    unittest.TextTestRunner(verbosity=2).run(suite())

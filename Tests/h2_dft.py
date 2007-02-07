@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import unittest, sciunittest
+
 from PyQuante.NumWrap import arange
 from PyQuante.dft import dft
 from PyQuante.Molecule import Molecule
@@ -33,7 +35,15 @@ def main(**opts):
     en,orbe,orbs = dft(h2,**opts)
     return en
 
-if __name__ == '__main__': main()
-    
-                                   
-    
+class H2DFTTest(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of H2 (DFT) close to -1.132710?"""
+        E = main()
+        self.assertInside(E, energy, 1e-6)
+
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(H2DFTTest)
+
+if __name__ == '__main__':
+    import unittest
+    unittest.TextTestRunner(verbosity=2).run(suite())                                   

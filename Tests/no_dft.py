@@ -5,6 +5,8 @@
 # GAMESS-UK
 # Energy -129.2478829288 (uhf at 2.12955 bohr)
 
+import unittest, sciunittest
+
 from PyQuante.dft import dft
 from PyQuante.Molecule import Molecule
 
@@ -19,4 +21,16 @@ def main():
     en,orbe,orbs = dft(atomlist)
     return en
 
-if __name__ == '__main__': main()
+class NODFTTest(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of NO (DFT) close to -128.897264?"""
+        E = main()
+        self.assertInside(E, energy, 1e-4)
+
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(NODFTTest)
+
+if __name__ == '__main__':
+    import unittest
+    unittest.TextTestRunner(verbosity=2).run(suite())                                   
+

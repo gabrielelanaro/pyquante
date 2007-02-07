@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 "H2 first excited state energy"
 
+import unittest, sciunittest
+
 from PyQuante.Ints import getbasis,getints
 from PyQuante.hartree_fock import rhf
 from PyQuante.Molecule import Molecule
@@ -19,7 +21,18 @@ def main():
     Ecis = CIS(Ints,orbs,orbe,occs,en)
     return Ecis[0]
 
-if __name__ == '__main__': main()
+class H2CISTest(sciunittest.TestCase):
+    def runTest(self):
+        """Energy of H2 first excited state (CIS) close to -0.645236?"""
+        E = main()
+        self.assertInside(E, energy, 1e-4)
+
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(H2CISTest)
+
+if __name__ == '__main__':
+    import unittest
+    unittest.TextTestRunner(verbosity=2).run(suite())
 
 
     
