@@ -61,7 +61,7 @@ Current features
 ----------------
 - Hartree-Fock: Restriced closed-shell HF and unrestricted open-shell
   HF;
-- DFT: LDA (SVWN, Xalpha) and GGA (BLYP, PBE) functionals;
+- DFT: LDA (SVWN, Xalpha) and GGA (BLYP) functionals;
 - Optimized-effective potential DFT;
 - Two electron integrals computed using Huzinaga, Rys, or
   Head-Gordon/Pople techniques. C and Python interfaces to all of

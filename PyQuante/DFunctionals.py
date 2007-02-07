@@ -137,7 +137,7 @@ def VWN(dens,gamma=None):
         dfcdnb[i] = vcb
     return fc,dfcdna,dfcdnb,dfcdgaa,dfcdgab,dfcdgbb
 
-def PWN(dens,gamma=None):
+def PW(dens,gamma=None):
     """
     Perdew-Wang correlation functional for vectors of
     spin up and spin down densities. From 'Accurate and simple 
@@ -199,7 +199,7 @@ def B(dens,gamma):
         dfxdgbb[i] = fxgbb
     return fx,dfxdna,dfxdnb,dfxdgaa,dfxdgab,dfxdgbb
 
-def LYPN(dens,gamma):
+def LYP(dens,gamma):
     """Transformed version of LYP. See 'Results obtained with correlation
     energy density functionals of Becke and Lee, Yang, and Parr.' Miehlich,
     Savin, Stoll and Preuss. CPL 157, 200 (1989).
@@ -259,19 +259,6 @@ def CPBE(dens,gamma):
     return ec,vc
 
 def EXXC1(dens,gamma):
-    "AEM's EXX compatible correlation #1 (note: no spin). AEM June 2006."
-    npts = len(dens)
-    ec = zeros(npts,'d')
-    vc = zeros(npts,'d')
-    for i in range(npts):
-        rho = float(dens[i]) # Density 
-        gam = gamma[i]
-        ecpnt,dnedrho,dnedgamma = c1(rho,gam)
-        ec[i] = ecpnt
-        vc[i] = dnedrho   # more derivatives need to be added
-    return ec,vc
-
-def EXXC1N(dens,gamma):
     "AEM's EXX compatible correlation #1 (note: no spin). AEM June 2006."
     npts = len(dens[0])
     assert len(dens[1]) == npts
@@ -375,7 +362,6 @@ def xpbe(rho,gam,**opts):
         vxgam = ex0*dFdg
     if return_flag == 1: return ex,vxrho,vxgam
     return ex,vxrho
-
 
 def cvwn(rhoa,rhob,**opts):
     tol = opts.get('tol',1e-10)
@@ -815,8 +801,8 @@ def getf(xc,functional,dens,gamma):
 # PW, AM05 and EXXC1 added by AEM in June 2006.
 xfuncs = dict(LDA=S,S0=S,SVWN=S,BLYP=B,LYP=None,VWN=None,
                PW=None,LDAPW=S,AM05=AM05)
-cfuncs = dict(LDA=None,S0=None,SVWN=VWN,BLYP=LYPN,LYP=LYPN,VWN=VWN,
-               PW=PWN,LDAPW=PWN,AM05=None)
+cfuncs = dict(LDA=None,S0=None,SVWN=VWN,BLYP=LYP,LYP=LYP,VWN=VWN,
+               PW=PW,LDAPW=PW,AM05=None)
 analyt = dict(LDA=True,S0=True,SVWN=True,BLYP=True,PBE=False,
               LYP=True,CPBE=False,EXXC1=False,VWN=True,PW=True,LDAPW=True,AM05=True)
 need_gradients = dict(LDA=False,S0=False,SVWN=False,BLYP=True,PBE=True,
