@@ -57,6 +57,9 @@ def SCF(atoms,**opts):
     grid_fineness 1       Radial shell fineness. 0->coarse, 1->medium, 2->fine
     etarget       None    Target energy for testing purposes
     targettol     1e-4    Tolerance for energy target sucess
+    testing       False   Return whether or not the energy target was met
+                          (see etarget and targettol, above), rather than
+                          the energy and orbitals
     """
     # Get the various options from the kwargs flags
     verbose = opts.get('verbose',False) 
@@ -67,6 +70,7 @@ def SCF(atoms,**opts):
     functional = opts.get('functional',None)
     etarget = opts.get('etarget',None)
     targettol = opts.get('targettol',1e-4)
+    testing = opts.get('testing',False)
 
     if verbose:
         oldloglevel = logging.root.level
@@ -177,10 +181,13 @@ def SCF(atoms,**opts):
             logging.info("Target energy met")
         else:
             logging.warning("Warning! energy should have been %f" % etarget)
+    else:
+        worked = False
     logging.info("\n")
     if verbose:
         # Set the logging back to what it was before
         logging.root.setLevel(oldloglevel)
+    if testing: return worked
     return energy,orbe,orbs
 
 def USCF(atoms,**opts):
@@ -216,6 +223,9 @@ def USCF(atoms,**opts):
     grid_fineness 1       Radial shell fineness. 0->coarse, 1->medium, 2->fine
     etarget       None    Target energy for testing purposes
     targettol     1e-4    Tolerance for energy target sucess
+    testing       False   Return whether or not the energy target was met
+                          (see etarget and targettol, above), rather than
+                          the energy and orbitals
     """
     # Get the various options from the kwargs flags
     verbose = opts.get('verbose',False) 
@@ -226,6 +236,7 @@ def USCF(atoms,**opts):
     functional = opts.get('functional',None)
     etarget = opts.get('etarget',None)
     targettol = opts.get('targettol',1e-4)
+    testing = opts.get('testing',False)
 
     if verbose:
         oldloglevel = logging.root.level
@@ -345,11 +356,14 @@ def USCF(atoms,**opts):
             logging.info("Target energy met")
         else:
             logging.warning("Warning! energy should have been %f" % etarget)
+    else:
+        worked = False
 
     logging.info("\n")
     if verbose:
         # Set the logging back to what it was before
         logging.root.setLevel(oldloglevel)
+    if testing: return worked
     return energy,(orbea,orbeb),(orbsa,orbsb)
 
 def test():
@@ -362,28 +376,32 @@ def test():
     h2 = Molecule('H2',atomlist=[(1,(0.35,0,0)),(1,(-0.35,0,0))],units='Angs')
     he = Molecule('He',atomlist = [(2,(0,0,0))])
     li = Molecule('Li',atomlist = [(3,(0,0,0))],multiplicity=2)
+    li_p = Molecule('Li+',atomlist = [(3,(0,0,0))],charge=1)
+    li_m = Molecule('Li-',atomlist = [(3,(0,0,0))],charge=-1)
 
-    # RHF Tests:
-    en,orbe,orbs = SCF(h2,etarget=-1.130501)
-    en,orbe,orbs = SCF(he,etarget=-2.855160)
-    en,orbe,orbs = SCF(li)
+    logging.info("----RHF Tests----")
+    worked = SCF(h2,etarget=-1.130501,testing=True)
+    worked = SCF(he,etarget=-2.855160,testing=True)
+    worked = SCF(li) # No target b/c average occupation RHF
 
-    # RDFT Tests:
-    en,orbe,orbs = SCF(h2,functional='SVWN',etarget=-1.132710) 
-    en,orbe,orbs = SCF(he,functional='SVWN',etarget=-2.826697)
-    en,orbe,orbs = SCF(li,functional='SVWN',etarget=-7.332050)
+    logging.info("----Ion Tests----")
+    worked = SCF(li_p,etarget=-7.235536,testing=True)
+    worked = SCF(li_m,etarget=-7.407030,testing=True)
+    
+    logging.info("----DFT Tests----")
+    worked = SCF(h2,functional='SVWN',etarget=-1.132710,testing=True) 
+    worked = SCF(he,functional='SVWN',etarget=-2.826697,testing=True)
+    worked = SCF(li,functional='SVWN',etarget=-7.332050,testing=True)
 
-    # UHF Tests
-    # Jaguar gives an energy of -7.431365 for this (essentially what uhf() gives)
-    # Energy should be -7.431364. Doesn't quite work...
-    en,(orbea,orbeb),(orbsa,orbsb) = USCF(li,etarget=-7.431364)
+    logging.info("----UHF Tests----")
+    worked = USCF(li,etarget=-7.431364,testing=True)
 
-    # FT Tests
-    en,orbe,orbs = SCF(h2,etemp=1e4,etarget=-1.130502)
-    en,orbe,orbs = SCF(h2,functional='SVWN',etemp=1e4,etarget=-1.132473)
-    en,orbe,orbs = SCF(li,etemp=1e4)
-    en,orbe,orbs = SCF(li,functional='SVWN',etemp=1e4,etarget=-7.349422)
-    en,(orbea,orbeb),(orbsa,orbsb) = USCF(li,etemp=1e4)
+    logging.info("----Finite Temperature Tests----")
+    worked = SCF(h2,etemp=1e4,etarget=-1.130502,testing=True)
+    worked = SCF(h2,functional='SVWN',etemp=1e4,etarget=-1.132473,testing=True)
+    worked = SCF(li,etemp=1e4,testing=True)
+    worked = SCF(li,functional='SVWN',etemp=1e4,etarget=-7.349422,testing=True)
+    worked = USCF(li,etemp=1e4,testing=True)
     
 
 if __name__ == '__main__': test()
