@@ -8,7 +8,6 @@ unify these at some point in the near future.
 The goal in unifying these routines is to standardize the input and
 output, and hopefully to lower the barrier for people understanding and
 being able to modify the code.
-
 """
 
 # Todo:
@@ -18,7 +17,7 @@ being able to modify the code.
 
 from PyQuante import logging
 from PyQuante.Convergence import DIIS
-from PyQuante.DFunctionals import XC,need_gradients
+from PyQuante.DFunctionals import need_gradients
 from PyQuante.Ints import getbasis,getints,getJ,getK
 from PyQuante.LA2 import GHeigenvectors,mkdens,mkdens_spinavg,TraceProperty
 from PyQuante.MolecularGrid import MolecularGrid
@@ -173,6 +172,8 @@ def SCF(atoms,**opts):
                   (i,energy,Eone,Ej,Exc,Enuke))
         if abs(energy-eold) < etol: break
         eold = energy
+    else:
+        logging.warning("Warning! Maximum iterations (%d) exceeded" % max_iter)
     logging.info("Final energy for system %s is %f"
                  % (atoms.name,energy))
     if etarget:
@@ -348,6 +349,8 @@ def USCF(atoms,**opts):
                   (i,energy,Eone,Ej,Exc,Enuke))
         if abs(energy-eold) < etol: break
         eold = energy
+    else:
+        logging.warning("Warning! Maximum iterations (%d) exceeded" % max_iter)
     logging.info("Final energy for system %s is %f"
                  % (atoms.name,energy))
     if etarget:
@@ -372,6 +375,7 @@ def test():
         format="%(message)s",
         #filename='SCF.log',filemode='w',
         )
+
 
     h2 = Molecule('H2',atomlist=[(1,(0.35,0,0)),(1,(-0.35,0,0))],units='Angs')
     he = Molecule('He',atomlist = [(2,(0,0,0))])

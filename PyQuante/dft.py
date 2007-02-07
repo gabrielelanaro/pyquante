@@ -23,10 +23,14 @@ from Convergence import DIIS
 from PyQuante.cints import dist
 from PyQuante import logging
 
-def getXC(gr,nel,bfgrid,**opts):
+# This is the version before Ann Mattsson made her changes. I'm keeping
+#  it around for old time's sake. Putting this comment in 2007-02;
+#  should delete the function after 2007-08.
+def getXCold(gr,nel,bfgrid,**opts):
     "Form the exchange-correlation matrix"
     # Needs to be rewritten with a more intelligent
     # handling of the functionals
+    from DFunctionals import XCold
     verbose = opts.get('verbose',False)
 
     nbf = gr.nbf()
@@ -49,9 +53,8 @@ def getXC(gr,nel,bfgrid,**opts):
             Vxc[a,b] = dot(wva,bfgrid[:,b])
     return Exc,Vxc
 
-def getXCnew(gr,nel,bfgrid,**opts):
-    # going to need to do a
-    from DFunctionals import XCNEW
+def getXC(gr,nel,bfgrid,**opts):
+    "Form the exchange-correlation matrix"
 
     functional = opts.get('functional','SVWN')
     do_grad_dens = need_gradients[functional]
@@ -68,11 +71,12 @@ def getXCnew(gr,nel,bfgrid,**opts):
     if gamma is not None:
     	amgamma[0,:] = amgamma[1,:] = amgamma[2,:] = 0.25*gamma
 
-    fxc,dfxcdna,dfxcdnb,dfxcdgaa,dfxcdgab,dfxcdgbb = XCNEW(amdens,amgamma,
-                                                           **opts)
+    fxc,dfxcdna,dfxcdnb,dfxcdgaa,dfxcdgab,dfxcdgbb = XC(amdens,amgamma,
+                                                        **opts)
 
+    # Renormalize to the proper # electrons
     renorm_factor = nel/dot(weight,dens)
-    weight *= renorm_factor # Renormalize to the proper # electrons
+    weight *= renorm_factor 
 
     Exc = dot(weight,fxc)
     wv = weight*dfxcdna  # Combine w*v in a vector for multiplication by bfs
@@ -97,8 +101,10 @@ def getXCnew(gr,nel,bfgrid,**opts):
     # Here A contains the dfxcdgaa stuff
     #      B contains the grad(chia*chib)
     # Yuk. This is ugly...
+    #  And very very slow. The calls to gradbfab now dominate the calculation
     if do_grad_dens:
-        A = transpose(0.5*transpose(gr.grad())*(weight*(2*dfxcdgaa+dfxcdgab))) # should be (npts,3)
+        # A should be dimensioned (npts,3)
+        A = transpose(0.5*transpose(gr.grad())*(weight*(2*dfxcdgaa+dfxcdgab))) 
         for a in range(nbf):
             for b in range(nbf):
                 B = gr.gradbfab(a,b)
@@ -145,7 +151,7 @@ def dft(atoms,**opts):
     MaxIter = opts.get('MaxIter',20)
     DoAveraging = opts.get('DoAveraging',True)
     ETemp = opts.get('ETemp',False)
-    functional = opts.get('functional',None)
+    functional = opts.get('functional','SVWN')
     opts['do_grad_dens'] = need_gradients[functional]
 
     bfs = opts.get('bfs',None)
@@ -217,122 +223,6 @@ def dft(atoms,**opts):
         energy = Eone + Ej + Exc + enuke
         if ETemp: energy += entropy
         logging.debug("%d %10.4f %10.4f %10.4f %10.4f %10.4f" %
-                  (i,energy,Eone,Ej,Exc,enuke))
-        if abs(energy-eold) < ConvCriteria: break
-        eold = energy
-    logging.info("Final %s energy for system %s is %f"
-                 % (functional,atoms.name,energy))
-    return energy,orbe,orbs
-
-def dftnew(atoms,**opts):
-    """\
-    dft(atoms,**opts) - DFT driving routine
-
-    atoms       A Molecule object containing the molecule
-
-    Options:      Value   Description
-    --------      -----   -----------
-    verbose       False   Output terse information to stdout (default)
-                  True    Print out additional information 
-    ConvCriteria  1e-4    Convergence Criteria
-    MaxIter       20      Maximum SCF iterations
-    DoAveraging   True    Use DIIS for accelerated convergence (default)
-                  False   No convergence acceleration
-    ETemp         False   Use ETemp value for finite temperature DFT (default)
-                  float   Use (float) for the electron temperature
-    bfs           None    The basis functions to use. List of CGBF's
-    basis_data    None    The basis data to use to construct bfs
-    integrals     None    The one- and two-electron integrals to use
-                          If not None, S,h,Ints
-    orbs          None    If not none, the guess orbitals
-    functional    SVWN    Use the SVWN (LDA) DFT functional (default)
-                  S0      Use the Slater Xalpha DFT functional
-                  BLYP    Use the BLYP GGA DFT functional
-                  PBE     Use the PBE DFT functional
-    grid_nrad     32      Number of radial shells per atom
-    grid_fineness 1       Radial shell fineness. 0->coarse, 1->medium, 2->fine
-    spin_type     A       Average occupation method for open shell (default)
-                  R       Restricted open shell (not implemented yet)
-                  U       Unrestricted open shell (aka spin-polarized dft)
-                          Only A works now. Stay tuned.
-    """
-    verbose = opts.get('verbose',False) 
-    ConvCriteria = opts.get('ConvCriteria',1e-4)
-    MaxIter = opts.get('MaxIter',20)
-    DoAveraging = opts.get('DoAveraging',True)
-    ETemp = opts.get('ETemp',False)
-    functional = opts.get('functional','SVWN')
-    opts['do_grad_dens'] = need_gradients[functional]
-
-    bfs = opts.get('bfs',None)
-    if not bfs:
-        basis_data = opts.get('basis_data',None)
-        bfs = getbasis(atoms,basis_data)
-
-    integrals = opts.get('integrals',None)
-    if integrals:
-        S,h,Ints = integrals
-    else:
-        S,h,Ints = getints(bfs,atoms)
-
-    nel = atoms.get_nel()
-    enuke = atoms.get_enuke()
-
-    # default medium mesh
-    grid_nrad = opts.get('grid_nrad',32)
-    grid_fineness = opts.get('grid_fineness',1)
-
-    gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**opts) 
-    gr.set_bf_amps(bfs)
-
-    bfgrid = gr.allbfs() # bfs over all grid points
-
-    # It would be nice to have a more intelligent treatment of the guess
-    # so that I could pass in a density rather than a set of orbs.
-    orbs = opts.get('orbs',None)
-    if orbs is None: orbe,orbs = GHeigenvectors(h,S)
-
-    nclosed,nopen = atoms.get_closedopen()
-
-    logging.debug("DFT calculation on %s using functional %s"
-                 % (atoms.name,functional))
-    logging.debug("Nbf = %d" % len(bfs))
-    logging.debug("Nclosed = %d" % nclosed)
-    logging.debug("Nopen = %d" % nclosed)
-    if nopen: logging.debug("Using spin-averaged dft for open shell calculation")
-
-    eold = 0.
-    if DoAveraging:
-        logging.debug("Using DIIS averaging")
-        avg=DIIS(S)
-
-    # Converge the LDA density for the system:
-    logging.debug("Optimization of DFT density")
-    for i in range(MaxIter):
-        if ETemp:
-            efermi = get_efermi(nel,orbe,ETemp)
-            occs = get_fermi_occs(efermi,orbe,ETemp)
-            D = mkdens_occs(orbs,occs)
-            entropy = get_entropy(occs,ETemp)
-        else:
-            D = mkdens_spinavg(orbs,nclosed,nopen)
-    
-        gr.setdens(D)
-
-        J = getJ(Ints,D)
-
-        Exc,XC = getXCnew(gr,nel,bfgrid,**opts)
-            
-        F = h+2*J+XC
-        if DoAveraging: F = avg.getF(F,D)
-        
-        orbe,orbs = GHeigenvectors(F,S)
-        
-        Ej = 2*TraceProperty(D,J)
-        Eone = 2*TraceProperty(D,h)
-        energy = Eone + Ej + Exc + enuke
-        if ETemp: energy += entropy
-        logging.debug("%d %14.8f %14.8f %14.8f %14.8f %14.8f" %
                   (i,energy,Eone,Ej,Exc,enuke))
         if abs(energy-eold) < ConvCriteria: break
         eold = energy

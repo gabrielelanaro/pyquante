@@ -2,6 +2,10 @@
 """\
  DFunctionals.py Exchange and Correlation Density Functionals
 
+ This is the old version, that contains code prior to Ann Mattsson's
+ modifications, and is being kept around for archival purposes only.
+ Putting this comment in 2007-02; should delete the file after 2007-08.
+ 
  This program is part of the PyQuante quantum chemistry program suite.
 
  Copyright (c) 2004, Richard P. Muller. All Rights Reserved. 
@@ -16,6 +20,25 @@ from math import sqrt,pi,exp,log,atan
 from NumWrap import zeros,arcsinh,where
 
 def XC(dens,gamma,**opts):
+    """\
+    Simplified top level routine for all XC functionals.
+    """
+    functional = opts.get('functional','SVWN')
+    assert functional in xfuncs.keys() and functional in cfuncs.keys()
+    npts = len(dens)
+    exc = zeros(npts,'d')
+    vxc = zeros(npts,'d')
+    if xfuncs[functional]:
+        ex,vx = xfuncs[functional](dens,gamma)
+        vxc = vxc + vx
+        exc = exc + ex
+    if cfuncs[functional]:
+        ec,vc = cfuncs[functional](dens,gamma)
+        vxc = vxc + vc
+        exc = exc + ec
+    return exc,vxc
+
+def XCNEW(dens,gamma,**opts):
     """\
     New top level routine for all XC functionals.
     dens is a two x npts component matrix with spin-up and spin-down 
@@ -33,7 +56,7 @@ def XC(dens,gamma,**opts):
     """
     functional = opts.get('functional','SVWN')
     derivative = opts.get('derivative','analyt')
-    assert functional in xfuncs.keys() and functional in cfuncs.keys()
+    assert functional in xfuncsn.keys() and functional in cfuncsn.keys()
     #that npts is the same for all 5 vectors should be checked elsewhere    
     npts = len(dens[0]) 
     fxc = zeros(npts,'d')
@@ -42,30 +65,34 @@ def XC(dens,gamma,**opts):
     dfxcdgaa = zeros(npts,'d')
     dfxcdgab = zeros(npts,'d')
     dfxcdgbb = zeros(npts,'d')
-    if xfuncs[functional]:
+    if xfuncsn[functional]:
         if derivative == 'analyt' and analyt[functional]:
             fx,dfxdna,dfxdnb,dfxdgaa,dfxdgab,dfxdgbb = \
-	                      xfuncs[functional](dens,gamma)
+	                      xfuncsn[functional](dens,gamma)
         else:
 	    fx,dfxdna,dfxdnb,dfxdgaa,dfxdgab,dfxdgbb = \
-	                      xfuncs[functional](dens,gamma)	
+	                      xfuncsn[functional](dens,gamma)	
+	    #print fx,dfxdna,dfxdnb,dfxdgaa,dfxdgab,dfxdgbb
 	    dfxdna,dfxdnb,dfxdgaa,dfxdgab,dfxdgbb = \
 	                      numder('x',functional,dens,gamma)
+	    #print fx,dfxdna,dfxdnb,dfxdgaa,dfxdgab,dfxdgbb
         fxc = fxc + fx
 	dfxcdna = dfxcdna + dfxdna
         dfxcdnb = dfxcdnb + dfxdnb
         dfxcdgaa = dfxcdgaa + dfxdgaa
         dfxcdgab = dfxcdgab + dfxdgab
         dfxcdgbb = dfxcdgbb + dfxdgbb
-    if cfuncs[functional]:
+    if cfuncsn[functional]:
         if derivative == 'analyt' and analyt[functional]:
             fc,dfcdna,dfcdnb,dfcdgaa,dfcdgab,dfcdgbb = \
-	                      cfuncs[functional](dens,gamma)
+	                      cfuncsn[functional](dens,gamma)
         else:
             fc,dfcdna,dfcdnb,dfcdgaa,dfcdgab,dfcdgbb = \
-	                      cfuncs[functional](dens,gamma)
+	                      cfuncsn[functional](dens,gamma)
+	    #print fc,dfcdna,dfcdnb,dfcdgaa,dfcdgab,dfcdgbb
 	    dfcdna,dfcdnb,dfcdgaa,dfcdgab,dfcdgbb = \
 	                      numder('c',functional,dens,gamma)
+	    #print fc,dfcdna,dfcdnb,dfcdgaa,dfcdgab,dfcdgbb
         fxc = fxc + fc
 	dfxcdna = dfxcdna + dfcdna
         dfxcdnb = dfxcdnb + dfcdnb
@@ -75,6 +102,26 @@ def XC(dens,gamma,**opts):
     return fxc,dfxcdna,dfxcdnb,dfxcdgaa,dfxcdgab,dfxcdgbb
 
 def S(dens,gamma=None):
+    """
+    Slater exchange functional for a vector of densities. Based upon
+    the classic Slater exchange (which actually came from Dirac). See
+    JC Slater 'The self consistent field for molecules and solids',
+    McGraw Hill, New York, 1974.
+
+    Note that gamma is ignored, and is only included for consistency
+    with the other XC functionals.
+    """
+    npts = len(dens)
+    ex = zeros(npts,'d')
+    vx = zeros(npts,'d')
+    for i in range(npts):
+        rho = 0.5*float(dens[i]) # Density of the alpha spin
+        exa,vxa = xs(rho)
+        ex[i] = 2*exa
+        vx[i] = vxa
+    return ex,vx
+
+def SN(dens,gamma=None):
     """
     Slater exchange functional for vectors of spin-up and spin-down densities. 
     Based upon the classic Slater exchange (which actually came from Dirac). 
@@ -109,6 +156,27 @@ def S(dens,gamma=None):
 
 def VWN(dens,gamma=None):
     """
+    Vosko-Wilk-Nusair correlation functional for a vector of
+    densities. From 'Accurate spin-dependent electron liquid
+    correlation energies for local spin density calculations:
+    a critical analysis.' SH Vosko, L Wilk, M Nusair, Can J
+    Phys, 58, 1200 (1980).
+
+    Note that gamma is ignored, and is only included for consistency
+    with the other XC functionals.
+    """
+    npts = len(dens)
+    ec = zeros(npts,'d')
+    vc = zeros(npts,'d')
+    for i in range(npts):
+        rho = 0.5*float(dens[i]) # Density of the alpha spin
+        ecab,vca,vcb = cvwn(rho,rho)
+        ec[i] = ecab
+        vc[i] = vca
+    return ec,vc
+
+def VWNN(dens,gamma=None):
+    """
     Vosko-Wilk-Nusair correlation functional for vectors of
     spin up and spin down densities. From 'Accurate spin-dependent 
     electron liquid correlation energies for local spin density 
@@ -136,6 +204,28 @@ def VWN(dens,gamma=None):
 	dfcdna[i] = vca
         dfcdnb[i] = vcb
     return fc,dfcdna,dfcdnb,dfcdgaa,dfcdgab,dfcdgbb
+
+def PW(dens,gamma=None):
+    """
+    Perdew-Wang correlation functional for a vector of
+    densities. From 'Accurate and simple analytical representation
+    of the electron-gas correlation energy' 
+    John P. Perdew and Yue Wang, Phys. Rev. B 45, 13244 (1992).
+
+    Note that gamma is ignored, and is only included for consistency
+    with the other XC functionals.
+    
+    AEM June 2006.
+    """
+    npts = len(dens)
+    ec = zeros(npts,'d')
+    vc = zeros(npts,'d')
+    for i in range(npts):
+        rho = 0.5*float(dens[i]) # Density of the alpha spin
+        ecab,vca,vcb = pw(rho,rho)
+        ec[i] = ecab
+        vc[i] = vca
+    return ec,vc
 
 def PWN(dens,gamma=None):
     """
@@ -171,6 +261,24 @@ def B(dens,gamma):
     Becke 1988 Exchange Functional. From 'Density-functional exchange
     energy approximation with correct asymptotic behavior.' AD Becke,
     PRA 38, 3098 (1988).
+    """
+    npts = len(dens)
+    assert len(gamma) == npts
+    ex = zeros(npts,'d')
+    vx = zeros(npts,'d')
+    for i in range(npts):
+        rho = 0.5*float(dens[i])  # Density of the alpha spin
+        gam = 0.25*gamma[i]
+        exa,vxa = xb(rho,gam)
+        ex[i] = 2*exa
+        vx[i] = vxa
+    return ex,vx
+
+def BN(dens,gamma):
+    """
+    Becke 1988 Exchange Functional. From 'Density-functional exchange
+    energy approximation with correct asymptotic behavior.' AD Becke,
+    PRA 38, 3098 (1988).
     Chemistry way.
     AEM June 2006.
     """
@@ -198,6 +306,23 @@ def B(dens,gamma):
         dfxdgaa[i] = fxgaa
         dfxdgbb[i] = fxgbb
     return fx,dfxdna,dfxdnb,dfxdgaa,dfxdgab,dfxdgbb
+
+
+def LYP(dens,gamma):
+    """Transformed version of LYP. See 'Results obtained with correlation
+    energy density functionals of Becke and Lee, Yang, and Parr.' Miehlich,
+    Savin, Stoll and Preuss. CPL 157, 200 (1989).
+    """
+    npts = len(dens)
+    ec = zeros(npts,'d')
+    vc = zeros(npts,'d')
+    for i in range(npts):
+        rho = 0.5*float(dens[i]) # Density of the alpha spin
+        gam = 0.25*gamma[i]
+        ecab,vca,vcb = clyp(rho,rho,gam,gam,gam)
+        ec[i] = ecab
+        vc[i] = vca
+    return ec,vc
 
 def LYPN(dens,gamma):
     """Transformed version of LYP. See 'Results obtained with correlation
@@ -804,23 +929,22 @@ def numder(xc,functional,dens,gamma):
 def getf(xc,functional,dens,gamma):
 	# AEM June, 2006.
 	if (xc == 'x'):
-		f,t1,t2,t3,t4,t5 = xfuncs[functional](dens,gamma)
+		f,t1,t2,t3,t4,t5 = xfuncsn[functional](dens,gamma)
 	elif (xc == 'c'):
-		f,t1,t2,t3,t4,t5 = cfuncs[functional](dens,gamma)	
+		f,t1,t2,t3,t4,t5 = cfuncsn[functional](dens,gamma)	
 	return f
 	
 # Table mapping functional names into functions etc.
 # LDA -> SVWN, GGA -> PBE
-# xfuncs, cfuncs, and analyt added by AEM in June 2006.
+# xfuncsn, cfuncsn, and analyt added by AEM in June 2006.
 # PW, AM05 and EXXC1 added by AEM in June 2006.
-xfuncs = dict(LDA=S,S0=S,SVWN=S,BLYP=B,LYP=None,VWN=None,
-               PW=None,LDAPW=S,AM05=AM05)
-cfuncs = dict(LDA=None,S0=None,SVWN=VWN,BLYP=LYPN,LYP=LYPN,VWN=VWN,
-               PW=PWN,LDAPW=PWN,AM05=None)
+xfuncs = dict(LDA=S,S0=S,SVWN=S,BLYP=B,PBE=XPBE,LYP=None,CPBE=None,EXXC1=None,VWN=None,PW=None,LDAPW=S)
+cfuncs = dict(LDA=None,S0=None,SVWN=VWN,BLYP=LYP,PBE=CPBE,LYP=LYP,CPBE=CPBE,EXXC1=EXXC1,VWN=VWN,PW=PW,LDAPW=PW)
+xfuncsn = dict(LDA=SN,S0=SN,SVWN=SN,BLYP=BN,LYP=None,VWN=None,PW=None,LDAPW=SN,AM05=AM05)
+cfuncsn = dict(LDA=None,S0=None,SVWN=VWNN,BLYP=LYPN,LYP=LYPN,VWN=VWNN,PW=PWN,LDAPW=PWN,AM05=None)
 analyt = dict(LDA=True,S0=True,SVWN=True,BLYP=True,PBE=False,
               LYP=True,CPBE=False,EXXC1=False,VWN=True,PW=True,LDAPW=True,AM05=True)
 need_gradients = dict(LDA=False,S0=False,SVWN=False,BLYP=True,PBE=True,
-                      LYP=True,CPBE=True,EXXC1=True,VWN=False,PW=False,
-                      LDAPW=False,AM05=True)
+                      LYP=True,CPBE=True,EXXC1=True,VWN=False,PW=False,LDAPW=False,AM05=True)
 
 
