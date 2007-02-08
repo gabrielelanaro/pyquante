@@ -94,10 +94,11 @@ class LiTest(unittest.TestCase):
         "SVWN energy of Li at temp=1e4 is close to -7.349422"
         results = SCF(self.li,functional='SVWN',etemp=1e4)
         self.assertAlmostEqual(results[0],-7.349422,4)
+
+def suite():
+    import ricks_unit
+    return unittest.TestLoader().loadTestsFromModule(ricks_unit)
         
 if __name__ == '__main__':
-    fullsuite = unittest.TestSuite()
-    fullsuite.addTest(unittest.TestLoader().loadTestsFromTestCase(H2Test))
-    fullsuite.addTest(unittest.TestLoader().loadTestsFromTestCase(LiTest))
+    fullsuite = suite()
     unittest.TextTestRunner(verbosity=2).run(fullsuite)
-
