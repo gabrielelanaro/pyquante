@@ -23,7 +23,8 @@
 #include <assert.h>
 #include <math.h>
 
-#if defined(_WIN32)
+// Not required for MSVC since the code is included below
+#if defined(_WIN32) && !defined(_MSC_VER)
 double lgamma(double x);
 #endif
 
@@ -42,6 +43,37 @@ double lgamma(double x);
 
 double vrr_terms[MAXAM*MAXAM*MAXAM*MAXAM*MAXAM*MAXAM*MAXMTOT];
 double Fgterms[100];
+
+// lgamma not included in ANSI standard and so not available in MSVC
+#if defined(_MSC_VER)
+double lgamma(double z) {
+    double c[7];
+    double x,y ,tmp, ser, v;
+    int i;
+
+    if (z<=0) return 0;
+
+    c[0]=2.5066282746310005;
+    c[1]=76.18009172947146;
+    c[2]=-86.50532032941677;
+    c[3]=24.01409824083091;
+    c[4]=-1.231739572450155;
+    c[5]=0.1208650973866179e-2;
+    c[6]=-0.5395239384953e-5;
+   
+    x   = z;
+    y   = x;
+    tmp = x+5.5;
+    tmp = (x+0.5)*log(tmp)-tmp;
+    ser = 1.000000000190015;
+    for (i=1; i<7; i++) {
+        y   += 1.0;
+        ser += c[i]/y;
+        }
+    v = tmp+log(c[0]*ser/x);
+    return v;
+    }
+#endif
 
 static double contr_hrr(int lena, double xa, double ya, double za, double *anorms,
 		 int la, int ma, int na, double *aexps, double *acoefs,

@@ -8,6 +8,10 @@
  distribution. 
  **************************************************************************/
 
+#ifdef _MSC_VER
+double lgamma(double);
+#endif
+
 static double contr_hrr(int lena, double xa, double ya, double za, double *anorms,
 		 int la, int ma, int na, double *aexps, double *acoefs,
 		 int lenb, double xb, double yb, double zb, double *bnorms,

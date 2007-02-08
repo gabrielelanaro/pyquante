@@ -23,7 +23,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if defined(_WIN32)
+// Not required for MSVC since the code is included below
+#if defined(_WIN32) && !defined(_MSC_VER)
 double lgamma(double x);
 #endif
 
@@ -35,6 +36,37 @@ double lgamma(double x);
 #define EPS 3.0e-7
 #define FPMIN 1.0e-30
 #define SMALL 0.00000001
+
+// lgamma not included in ANSI standard and so not available in MSVC
+#if defined(_MSC_VER)
+double lgamma(double z) {
+    double c[7];
+    double x,y ,tmp, ser, v;
+    int i;
+
+    if (z<=0) return 0;
+
+    c[0]=2.5066282746310005;
+    c[1]=76.18009172947146;
+    c[2]=-86.50532032941677;
+    c[3]=24.01409824083091;
+    c[4]=-1.231739572450155;
+    c[5]=0.1208650973866179e-2;
+    c[6]=-0.5395239384953e-5;
+   
+    x   = z;
+    y   = x;
+    tmp = x+5.5;
+    tmp = (x+0.5)*log(tmp)-tmp;
+    ser = 1.000000000190015;
+    for (i=1; i<7; i++) {
+        y   += 1.0;
+        ser += c[i]/y;
+        }
+    v = tmp+log(c[0]*ser/x);
+    return v;
+    }
+#endif
 
 static double fB(int i, int l1, int l2, double px, double ax, double bx, 
 		 int r, double g){

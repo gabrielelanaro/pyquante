@@ -9,6 +9,10 @@
  distribution. 
  **************************************************************************/
 /* My routines */
+#ifdef _MSC_VER
+double lgamma(double);
+#endif
+
 static double fB(int i, int l1, int l2, double px, double ax, double bx, 
 	  int r, double g);
 static double Bfunc(int i, int r, double g);
