@@ -129,7 +129,7 @@ def SCF(atoms,**opts):
     if etemp:
         logging.info("Electron temperature set to %.0f" % etemp)
         if not functional:
-            logging.warning("Warning! Running finite temperature HF")
+            logging.info("Running finite temperature HF")
 
     eold = 0.
     if do_averaging:
@@ -291,7 +291,7 @@ def USCF(atoms,**opts):
     logging.debug("Nbeta = %d" % nbeta)
 
     if nalpha == nbeta:
-        logging.warning("Warning! nalpha = nbeta: should you be using SCF instead?")
+        logging.info("nalpha = nbeta: should you be using SCF instead?")
 
     if etemp:
         logging.info("Electron temperature set to %.0f" % etemp)
