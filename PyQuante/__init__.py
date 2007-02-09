@@ -26,3 +26,9 @@ PyQuante: Python Quantum Chemistry
  license. Please see the file LICENSE that is part of this
  distribution. 
 """
+
+from PyQuante.Molecule import Molecule
+from PyQuante.HFSolver import HFSolver
+from PyQuante.DFTSolver import DFTSolver
+from PyQuante.UHFSolver import UHFSolver
+

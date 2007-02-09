@@ -42,7 +42,7 @@ def simx(A,B,trans='N'):
     Perform the similarity transformation C = B'*A*B (trans='N') or
     C = B*A*B' (trans='T').
     """
-    if trans=='T': return matmul(B,matmul(A,transpose(B)))
+    if trans.startswith('T'): return matmul(B,matmul(A,transpose(B)))
     return matmul(transpose(B),matmul(A,B))
 
 def outprod(A):
