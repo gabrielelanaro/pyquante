@@ -19,7 +19,7 @@
 # Using the new version will be flagged by the 'test_numpy' variable.
 # Just set this to False to turn everything off
 
-test_numpy = False # This is the cutting edge version
+test_numpy = True # This is the cutting edge version
 use_numpy = True
 import re
 pat = re.compile('\D')
