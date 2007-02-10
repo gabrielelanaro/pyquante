@@ -30,7 +30,8 @@ def getbasis(atoms,basis_data=None):
     constructed as a list of CGBF basis functions objects.
     """
     if not basis_data:
-        from PyQuante.basis_631ss import basis_data
+        #from PyQuante.basis_631ss import basis_data
+        from PyQuante.Basis.p631ss import basis_data
     bfs = []
     for atom in atoms:
         bs = basis_data[atom.atno]
