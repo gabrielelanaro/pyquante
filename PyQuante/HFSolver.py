@@ -14,6 +14,8 @@ class HFSolver(AbstractSolver):
     --------      -----   -----------
     bfs           None    The basis functions to use. List of CGBF's
     basis_data    None    The basis data to use to construct bfs
+    basis         None    The name of a basis set, e.g. '6-31g**',
+                          'sto-3g','cc-pVTZ'
     integrals     None    The one- and two-electron integrals to use
                           If not None, S,h,Ints
     orbs          None    If not none, the guess orbitals
@@ -70,9 +72,14 @@ class HFSolver(AbstractSolver):
 
     def setup_basis(self,**opts):
         from PyQuante.Ints import getbasis
+        from PyQuante.Basis.Tools import get_basis_data
         self.bfs = opts.get('bfs',None)
         if not self.bfs:
             basis_data = opts.get('basis_data',None)
+            if not basis_data:
+                basis = opts.get('basis',None)
+                if basis:
+                    basis_data = get_basis_data(basis)
             self.bfs = getbasis(self.molecule,basis_data)
         return
 

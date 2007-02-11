@@ -29,6 +29,11 @@ class HFUnitTests(unittest.TestCase):
         h2_hf.iterate()
         self.assertAlmostEqual(h2_hf.energy,-1.130501,4)
 
+    def testH2HFSTO(self):
+        h2_hf = HFSolver(self.h2,basis='sto-3g')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.117349,4)
+
     def testH2HFFT(self):
         h2_hf = HFSolver(self.h2)
         h2_hf.iterate(etemp=1e4)

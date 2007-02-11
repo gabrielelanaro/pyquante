@@ -12,6 +12,8 @@ class DFTSolver(HFSolver):
     --------      -----   -----------
     bfs           None    The basis functions to use. List of CGBF's
     basis_data    None    The basis data to use to construct bfs
+    basis         None    The name of a basis set, e.g. '6-31g**',
+                          'sto-3g','cc-pVTZ'
     integrals     None    The one- and two-electron integrals to use
                           If not None, S,h,Ints
     orbs          None    If not none, the guess orbitals

@@ -13,6 +13,35 @@ Copyright (c) 2004, Richard P. Muller. All Rights Reserved.
 import re,pprint
 from PyQuante.Element import name2no
 
+basis_map = {
+    '6-31g**':'p631ss',
+    '6-31G(d,p)':'p631ss',
+    '3-21g':'p321',
+    'sto-3g':'sto3g',
+    'sto-6g':'sto6g',
+    'lacvp':'lacvp',
+    'ccpvtz':'ccpvtz',
+    'cc-pvtz':'ccpvtz',
+    'cc-pvtz(-f)':'ccpvtzmf',
+    'dzvp':'dzvp',
+    }
+
+def importname(modulename, name):
+    """Import from a module whose name is determined at runtime.
+
+    (Python Cookbook 2nd ed.)
+    """
+    module = __import__(modulename, globals(), locals(), [name])
+    if not module:
+        raise ImportError
+    return getattr(module, name)
+
+def get_basis_data(name):
+    dc_name = name.lower()
+    if name not in basis_map:
+        raise "Can't import basis set %s" % name
+    return importname(basis_map[dc_name],"basis_data")
+
 def split_comment(line):
     """Split a line into line,comment, where a comment is
     started by the ! character"""

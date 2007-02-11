@@ -106,12 +106,13 @@ def getXC(gr,nel,bfgrid,**opts):
         # A should be dimensioned (npts,3)
         A = transpose(0.5*transpose(gr.grad())*(weight*(2*dfxcdgaa+dfxcdgab))) 
         for a in range(nbf):
-            for b in range(nbf):
+            for b in range(a+1):
                 B = gr.gradbfab(a,b)
 		#test1 = A*B
 		#print A.shape,B.shape,test1.shape
                 Fxc[a,b] += sum(ravel(A*B))
-    return Exc,Fxc # do we need 2*Fxc here?
+                Fxc[b,a] = Fxc[a,b]
+    return Exc,Fxc
     
 
 def dft(atoms,**opts):

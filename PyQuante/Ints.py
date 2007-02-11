@@ -13,6 +13,7 @@
 from CGBF import CGBF,coulomb
 from NumWrap import zeros,dot,reshape
 from PyQuante.cints import ijkl2intindex
+from PyQuante.Basis.Tools import get_basis_data
 
 sym2powerlist = {
     'S' : [(0,0,0)],
@@ -30,8 +31,11 @@ def getbasis(atoms,basis_data=None):
     constructed as a list of CGBF basis functions objects.
     """
     if not basis_data:
-        #from PyQuante.basis_631ss import basis_data
         from PyQuante.Basis.p631ss import basis_data
+    elif type(basis_data) == type(''):
+        # Assume this is a name of a basis set, e.g. '6-31g**'
+        #  and import dynamically
+        basis_data = get_basis_data(basis_data)
     bfs = []
     for atom in atoms:
         bs = basis_data[atom.atno]
