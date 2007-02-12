@@ -148,8 +148,13 @@ Getting Started
 There is a file:userguide.html[User Guide] and other documentation in
 the Doc subdirectory, and tests in the Tests subdirectory.
 Subscription to the
-http://lists.sourceforge.net/lists/listinfo/pyquante-users[mailing list]
+http://lists.sourceforge.net/lists/listinfo/pyquante-users[users mailing list]
 is highly recommended for further support. 
+Additionally, people interested in day-to-day development issues
+in PyQuante are urged to subscribe to the
+http://lists.sourceforge.net/lists/listinfo/pyquante-devel[development
+mailing list]. 
+
 mailto:rmuller@sandia.gov[Email me] if you need additional help. 
 
 Contributors
