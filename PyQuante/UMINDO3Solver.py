@@ -32,10 +32,10 @@ class UMINDO3Solver(MINDO3Solver):
         self.Db = mkdens(self.orbsb,0,self.nbeta)
 
     def calculate_energy(self):
-        from PyQuante.LA2 import TraceProperty
+        from PyQuante.LA2 import trace2
         from PyQuante.MINDO3 import ev2kcal
-        self.Eel = 0.5*TraceProperty(self.Da,self.F0+self.Fa)+\
-                   0.5*TraceProperty(self.Db,self.F0+self.Fb)
+        self.Eel = 0.5*trace2(self.Da,self.F0+self.Fa)+\
+                   0.5*trace2(self.Db,self.F0+self.Fb)
         self.Etot = self.Eel+self.Enuke
         self.energy = self.Etot*ev2kcal+self.eref
 

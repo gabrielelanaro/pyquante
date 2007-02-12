@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """\
- Implementation of Niklasson, Tymczak and Challacombe's density matrix minimizer
+ dmm.py - Implementation of density matrix methods, including 
+  Niklasson, Tymczak and Challacombe's density matrix minimizer
   JCP 118, 8611 (2003)
 
  This program is part of the PyQuante quantum chemistry program suite.
@@ -97,7 +98,7 @@ def DMM(F,S,Ne,Method=0,MaxIter=50,ErrorLimit=1e-12):
 
     # Step 1: Orthogonalize the Fock matrix:
     X = SymOrth(S)
-    F = SimilarityTransform(F,X)
+    F = SimilarityTransformT(F,X)
 
     # Step 2: Initialize the density matrix:
     emin,emax = gershgorin_minmax(F)

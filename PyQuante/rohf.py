@@ -19,7 +19,7 @@
 """
 from PyQuante.Ints import getbasis,getints,getJ,getK,get2JmK
 from PyQuante.LA2 import mkdens,geigh,SimilarityTransform,\
-     TraceProperty,SimilarityTransformT
+     trace2,SimilarityTransformT
 from NumWrap import zeros,take,transpose,matrixmultiply,eigh
 
 def get_os_dens(orbs,f,noccsh):
@@ -207,7 +207,7 @@ def rohf(atoms,noccsh=None,f=None,a=None,b=None,**opts):
         orbe,orbs = ocbse(orbs,h,Hs,f,a,b,noccsh)
         # Compute the energy
         eone = 0
-        for ish in range(nsh): eone += TraceProperty(Ds[ish],h)
+        for ish in range(nsh): eone += trace2(Ds[ish],h)
         energy = enuke+eone+sum(orbe[:nocc])
         print "energy = ",energy
         if abs(energy-eold) < ConvCriteria: break

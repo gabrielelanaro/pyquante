@@ -14,7 +14,7 @@
 import string,sys,time
 
 from fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs,get_entropy
-from LA2 import geigh,mkdens,TraceProperty
+from LA2 import geigh,mkdens,trace2
 from Ints import get2JmK,getbasis,getints,getJ,getK
 from Convergence import DIIS
 from PyQuante import logging
@@ -28,8 +28,8 @@ def get_fock(D,Ints,h):
 
 def get_energy(h,F,D,enuke=0.,**opts):
     "Form the total energy of the closed-shell wave function."
-    eone = TraceProperty(D,h)
-    etwo = TraceProperty(D,F)
+    eone = trace2(D,h)
+    etwo = trace2(D,F)
     return eone+etwo+enuke
 
 def get_guess(h,S):

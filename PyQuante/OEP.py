@@ -6,7 +6,7 @@ from math import sqrt
 from PyQuante.NumWrap import zeros,matrixmultiply,transpose,dot,identity,\
      array,solve
 from PyQuante.Ints import getbasis, getints, getJ,get2JmK,getK
-from PyQuante.LA2 import geigh,mkdens,TraceProperty
+from PyQuante.LA2 import geigh,mkdens,trace2
 from PyQuante.hartree_fock import get_fock
 from PyQuante.CGBF import three_center
 from PyQuante.optimize import fminBFGS
@@ -143,7 +143,7 @@ def get_exx_energy(b,nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij,**opts):
         D = mkdens(orbs,0,nocc)
         
     F = get_fock(D,Ints,h)
-    energy = TraceProperty(h+F,D)+Enuke
+    energy = trace2(h+F,D)+Enuke
     if ETemp: energy += entropy
     iref = nel/2
     gap = 627.51*(orbe[iref]-orbe[iref-1])
@@ -302,7 +302,7 @@ def oep_hf_an(atoms,orbs,**opts):
         D = mkdens(orbs,0,nocc)
         Vhf = get2JmK(Ints,D)
 
-        energy = TraceProperty(2*h+Vhf,D)+Enuke
+        energy = trace2(2*h+Vhf,D)+Enuke
         if abs(energy-eold) < tol:
             break
         else:
@@ -440,7 +440,7 @@ def oep_uhf_an(atoms,orbsa,orbsb,**opts):
         Ka = getK(Ints,Da)
         Kb = getK(Ints,Db)
 
-        energy = (TraceProperty(2*h+J-Ka,Da)+TraceProperty(2*h+J-Kb,Db))/2\
+        energy = (trace2(2*h+J-Ka,Da)+trace2(2*h+J-Kb,Db))/2\
                  +Enuke
         if ETemp: energy += entropy
         

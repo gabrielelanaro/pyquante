@@ -15,7 +15,7 @@ from Constants import bohr2ang,e2,ev2kcal
 from MINDO3_Parameters import axy,Bxy
 from math import sqrt,exp,pow
 from NumWrap import zeros,eigh
-from LA2 import mkdens,TraceProperty
+from LA2 import mkdens,trace2
 A0 = bohr2ang
 
 def get_beta0(atnoi,atnoj):
@@ -318,7 +318,7 @@ def scfclosed(atoms,F0,nclosed,**opts):
         F1 = get_F1(atoms,D)
         F2 = get_F2(atoms,D)
         F = F0+F1+F2
-        Eel = 0.5*TraceProperty(D,F0+F)
+        Eel = 0.5*trace2(D,F0+F)
         if verbose: print i+1,Eel
         if abs(Eel-Eold) < 0.001:
             if verbose:
@@ -343,7 +343,7 @@ def scfopen(atoms,F0,nalpha,nbeta,**opts):
         F2b = get_F2_open(atoms,Db,Da)
         Fa = F0+F1a+F2a
         Fb = F0+F1b+F2b
-        Eel = 0.5*TraceProperty(Da,F0+Fa)+0.5*TraceProperty(Db,F0+Fb)
+        Eel = 0.5*trace2(Da,F0+Fa)+0.5*trace2(Db,F0+Fb)
         if verbose: print i,Eel
         if abs(Eel-Eold) < 0.001: break
         Eold = Eel
@@ -512,7 +512,7 @@ def get_energy_forces(atoms,**opts):
         F1 = get_F1(atoms,D)
         F2 = get_F2(atoms,D)
         F = F0+F1+F2
-        Eel = 0.5*TraceProperty(D,F0+F)
+        Eel = 0.5*trace2(D,F0+F)
         if verbose: print i+1,Eel
         if abs(Eel-Eold) < 0.001:
             if verbose:

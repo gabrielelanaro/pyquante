@@ -37,12 +37,12 @@ def simx(A,B,trans='N'):
     Perform the similarity transformation C = B'*A*B (trans='N') or
     C = B*A*B' (trans='T').
     """
-    if trans.startswith('T'): return matmul(B,matmul(A,transpose(B)))
-    return matmul(transpose(B),matmul(A,B))
+    if trans.startswith('T'): return matrixmultiply(B,matrixmultiply(A,transpose(B)))
+    return matrixmultiply(transpose(B),matrixmultiply(A,B))
 
 def outprod(A):
     "D = outprod(A) : Return the outer product A*A'"
-    return matmul(A,transpose(A))
+    return matrixmultiply(A,transpose(A))
 
 def geigh(H,A,**opts):
     """\
@@ -90,10 +90,10 @@ def CanOrth(X):
         vec[:,i] = vec[:,i] / sqrt(val[i])
     return vec
 
-def TraceProperty(H,D):
+def trace2(H,D):
     "Return the trace(H*D), used in computing QM energies"
-    return sum(diagonal(matrixmultiply(H,D)))
-#  ??? Can we just do sum(ravel(H)*ravel(D)) here to make O(N2) ???
+    return sum(sum(H*D)) # O(N^2) version 
+#    return sum(diagonal(matrixmultiply(H,D)))
 
 def SimilarityTransformT(H,X):
     "Return the similarity transformation XtHX of H"

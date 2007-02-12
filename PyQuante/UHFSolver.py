@@ -44,19 +44,19 @@ class UHFSolver(HFSolver):
 
     def update_J(self):
         from PyQuante.Ints import getJ
-        from PyQuante.LA2 import TraceProperty
+        from PyQuante.LA2 import trace2
         self.Ja = getJ(self.Ints,self.Da)
         self.Jb = getJ(self.Ints,self.Db)
-        self.Ej = TraceProperty(self.Dab,self.Ja+self.Jb)/2
+        self.Ej = trace2(self.Dab,self.Ja+self.Jb)/2
         return
 
     def update_K(self):
         from PyQuante.Ints import getK
-        from PyQuante.LA2 import TraceProperty
+        from PyQuante.LA2 import trace2
         self.Ka = getK(self.Ints,self.Da)
         self.Kb = getK(self.Ints,self.Db)
-        self.Exc = -TraceProperty(self.Da,self.Ka)/2 \
-                   -TraceProperty(self.Db,self.Kb)/2
+        self.Exc = -trace2(self.Da,self.Ka)/2 \
+                   -trace2(self.Db,self.Kb)/2
         return
 
     def update_fock(self):
@@ -77,8 +77,8 @@ class UHFSolver(HFSolver):
         return
 
     def calculate_energy(self):
-        from PyQuante.LA2 import TraceProperty
-        self.Eone = TraceProperty(self.Dab,self.h)
+        from PyQuante.LA2 import trace2
+        self.Eone = trace2(self.Dab,self.h)
         self.energy = self.Eone + self.Ej + self.Exc + self.Enuke + self.entropy
         return        
 

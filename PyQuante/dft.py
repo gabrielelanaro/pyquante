@@ -14,7 +14,7 @@
 #from math import *
 from Ints import getbasis,getJ,getints
 from MolecularGrid import MolecularGrid
-from LA2 import geigh,mkdens,mkdens_spinavg,TraceProperty
+from LA2 import geigh,mkdens,mkdens_spinavg,trace2
 from fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs, get_entropy
 from NumWrap import zeros,dot,array,ravel,transpose
 from DFunctionals import XC,need_gradients
@@ -101,7 +101,6 @@ def getXC(gr,nel,bfgrid,**opts):
     # Here A contains the dfxcdgaa stuff
     #      B contains the grad(chia*chib)
     # Yuk. This is ugly...
-    #  And very very slow. The calls to gradbfab now dominate the calculation
     if do_grad_dens:
         # A is dimensioned (npts,3)
         A = transpose(0.5*transpose(gr.grad())*(weight*(2*dfxcdgaa+dfxcdgab)))
@@ -114,7 +113,7 @@ def getXC(gr,nel,bfgrid,**opts):
                 bgradgrid = gr.bfgrad(b)
                 for i in range(3):
                     B[:,i] = agrid[:]*bgradgrid[:,i] + bgrid[:]*agradgrid[:,i]
-                # This is method one, which is painful:
+                # This is the original method, which was painfully slow:
                 #B = gr.gradbfab(a,b)
                 Fxc[a,b] += sum(ravel(A*B))
                 Fxc[b,a] = Fxc[a,b]
@@ -225,8 +224,8 @@ def dft(atoms,**opts):
         
         orbe,orbs = geigh(F,S)
         
-        Ej = 2*TraceProperty(D,J)
-        Eone = 2*TraceProperty(D,h)
+        Ej = 2*trace2(D,J)
+        Eone = 2*trace2(D,h)
         energy = Eone + Ej + Exc + enuke
         if ETemp: energy += entropy
         logging.debug("%d %10.4f %10.4f %10.4f %10.4f %10.4f" %
@@ -331,9 +330,9 @@ def udft(atoms,**opts):
         orbea,orbsa = geigh(Fa,S)
         orbeb,orbsb = geigh(Fb,S)
         
-        Eja = TraceProperty(D,Ja)
-        Ejb = TraceProperty(D,Jb)
-        Eone = 2*TraceProperty(D,h)
+        Eja = trace2(D,Ja)
+        Ejb = trace2(D,Jb)
+        Eone = 2*trace2(D,h)
         energy = Eone + Eja + Ejb + Exc + enuke
         logging.debug("%d %10.4f %10.4f %10.4f %10.4f %10.4f" %
                   (i,energy,Eone,Eja+Ejb,Exc,enuke))

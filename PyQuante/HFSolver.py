@@ -110,17 +110,17 @@ class HFSolver(AbstractSolver):
         return
 
     def update_J(self):
-        from PyQuante.LA2 import TraceProperty
+        from PyQuante.LA2 import trace2
         from PyQuante.Ints import getJ
         self.J = getJ(self.Ints,self.D)
-        self.Ej = 2*TraceProperty(self.D,self.J)
+        self.Ej = 2*trace2(self.D,self.J)
         return
 
     def update_K(self):
         from PyQuante.Ints import getK
-        from PyQuante.LA2 import TraceProperty
+        from PyQuante.LA2 import trace2
         self.K = getK(self.Ints,self.D)
-        self.Exc = -TraceProperty(self.D,self.K)
+        self.Exc = -trace2(self.D,self.K)
         return
     
     def update_fock(self):
@@ -138,8 +138,8 @@ class HFSolver(AbstractSolver):
         return
 
     def calculate_energy(self):
-        from PyQuante.LA2 import TraceProperty
-        self.Eone = 2*TraceProperty(self.D,self.h)
+        from PyQuante.LA2 import trace2
+        self.Eone = 2*trace2(self.D,self.h)
         self.energy = self.Eone + self.Ej + self.Exc + self.Enuke + self.entropy
         return        
 

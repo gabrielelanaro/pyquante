@@ -41,9 +41,9 @@ class MINDO3Solver(AbstractSolver):
         self.D = 2*mkdens(self.orbs,0,self.nclosed)
         
     def calculate_energy(self):
-        from PyQuante.LA2 import TraceProperty
+        from PyQuante.LA2 import trace2
         from PyQuante.MINDO3 import ev2kcal
-        self.Eel = 0.5*TraceProperty(self.D,self.F0+self.F)
+        self.Eel = 0.5*trace2(self.D,self.F0+self.F)
         self.Etot = self.Eel+self.Enuke
         self.energy = self.Etot*ev2kcal+self.eref
         
