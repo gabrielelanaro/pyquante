@@ -71,9 +71,9 @@ class UHFSolver(HFSolver):
         return
 
     def solve_fock(self):
-        from PyQuante.LA2 import GHeigenvectors
-        self.orbea,self.orbsa = GHeigenvectors(self.Fa,self.S)
-        self.orbeb,self.orbsb = GHeigenvectors(self.Fb,self.S)
+        from PyQuante.LA2 import geigh
+        self.orbea,self.orbsa = geigh(self.Fa,self.S)
+        self.orbeb,self.orbsb = geigh(self.Fb,self.S)
         return
 
     def calculate_energy(self):

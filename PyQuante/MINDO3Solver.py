@@ -35,12 +35,9 @@ class MINDO3Solver(AbstractSolver):
         self.F = self.F0+self.F1+self.F2
         
     def solve_fock(self):
-        from PyQuante.NumWrap import test_numpy, eigh
+        from PyQuante.NumWrap import eigh
         from PyQuante.LA2 import mkdens
-        if test_numpy:
-            self.orbe,self.orbs = eigh(self.F)
-        else:
-            self.orbe,self.orbs = Heigenvectors(self.F)
+        self.orbe,self.orbs = eigh(self.F)
         self.D = 2*mkdens(self.orbs,0,self.nclosed)
         
     def calculate_energy(self):

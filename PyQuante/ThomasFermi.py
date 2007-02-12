@@ -14,7 +14,6 @@
 from math import sqrt,pi,exp
 from Gnuplot import Gnuplot,Data
 from NumWrap import array,zeros
-from NumWrap import solve_linear_equations
 from Pistol.Util import frange
 
 # Chi is the dimensionless version of the potential

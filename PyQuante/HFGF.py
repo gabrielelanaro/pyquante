@@ -30,7 +30,7 @@ from Ints import getbasis, getints
 from CI import TransformInts
 from PyQuante.cints import ijkl2intindex
 from NumWrap import zeros
-from NumWrap import determinant
+from NumWrap import det
 
 class Sigma2:
     def __init__(self,orbe,orbs,ints,norb,nocc):
@@ -104,7 +104,7 @@ class Sigma2:
                 g[i,j] = -term
         for i in orbs:
             g[i,i] += E - self.e0[i]
-        return determinant(g)
+        return det(g)
 
 def print_orbe(orbe,nclosed,nvirt,tag=None):
     if tag: print tag

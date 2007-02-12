@@ -93,10 +93,10 @@ class HFSolver(AbstractSolver):
         return
 
     def setup_guess(self,**opts):
-        from PyQuante.LA2 import GHeigenvectors
+        from PyQuante.LA2 import geigh
         self.orbs = opts.get('orbs',None)
         if self.orbs is None:
-            self.orbe,self.orbs = GHeigenvectors(self.h,self.S)
+            self.orbe,self.orbs = geigh(self.h,self.S)
         return
 
     def update_density(self):
@@ -132,8 +132,8 @@ class HFSolver(AbstractSolver):
         return
 
     def solve_fock(self):
-        from PyQuante.LA2 import GHeigenvectors
-        self.orbe,self.orbs = GHeigenvectors(self.F,self.S)
+        from PyQuante.LA2 import geigh
+        self.orbe,self.orbs = geigh(self.F,self.S)
         self.update_density()
         return
 

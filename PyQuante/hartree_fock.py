@@ -14,7 +14,7 @@
 import string,sys,time
 
 from fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs,get_entropy
-from LA2 import GHeigenvectors,mkdens,TraceProperty
+from LA2 import geigh,mkdens,TraceProperty
 from Ints import get2JmK,getbasis,getints,getJ,getK
 from Convergence import DIIS
 from PyQuante import logging
@@ -34,7 +34,7 @@ def get_energy(h,F,D,enuke=0.,**opts):
 
 def get_guess(h,S):
     "Form an initial guess from the one-electron Hamiltonian"
-    evals,evecs = GHeigenvectors(h,S)
+    evals,evecs = geigh(h,S)
     return evecs
 
 def get_nel(atoms,charge=0):
@@ -97,7 +97,7 @@ def rhf(atoms,**opts):
     nel = atoms.get_nel()
 
     orbs = opts.get('orbs',None)
-    if orbs is None: orbe,orbs = GHeigenvectors(h,S)
+    if orbs is None: orbe,orbs = geigh(h,S)
 
     nclosed,nopen = atoms.get_closedopen()
     nocc = nclosed
@@ -124,7 +124,7 @@ def rhf(atoms,**opts):
         G = get2JmK(Ints,D)
         F = h+G
         if DoAveraging: F = avg.getF(F,D)
-        orbe,orbs = GHeigenvectors(F,S)
+        orbe,orbs = geigh(F,S)
         energy = get_energy(h,F,D,enuke)
         if ETemp:
             energy += entropy
@@ -174,7 +174,7 @@ def uhf(atoms,**opts):
 
     orbs = opts.get('orbs',None)
     if not orbs:
-        orbe,orbs = GHeigenvectors(h,S)
+        orbe,orbs = geigh(h,S)
         orbea = orbeb = orbe
     orbsa = orbsb = orbs
     
@@ -216,8 +216,8 @@ def uhf(atoms,**opts):
         Kb = getK(Ints,Db)
         Fa = h+Ja+Jb-Ka
         Fb = h+Ja+Jb-Kb
-        orbea,orbsa = GHeigenvectors(Fa,S)
-        orbeb,orbsb = GHeigenvectors(Fb,S)
+        orbea,orbsa = geigh(Fa,S)
+        orbeb,orbsb = geigh(Fb,S)
         energya = get_energy(h,Fa,Da)
         energyb = get_energy(h,Fb,Db)
         energy = (energya+energyb)/2+enuke

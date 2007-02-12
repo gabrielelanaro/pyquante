@@ -14,7 +14,7 @@
 #from math import *
 from Ints import getbasis,getJ,getints
 from MolecularGrid import MolecularGrid
-from LA2 import GHeigenvectors,mkdens,mkdens_spinavg,TraceProperty
+from LA2 import geigh,mkdens,mkdens_spinavg,TraceProperty
 from fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs, get_entropy
 from NumWrap import zeros,dot,array,ravel,transpose
 from DFunctionals import XC,need_gradients
@@ -187,7 +187,7 @@ def dft(atoms,**opts):
     # It would be nice to have a more intelligent treatment of the guess
     # so that I could pass in a density rather than a set of orbs.
     orbs = opts.get('orbs',None)
-    if orbs is None: orbe,orbs = GHeigenvectors(h,S)
+    if orbs is None: orbe,orbs = geigh(h,S)
 
     nclosed,nopen = atoms.get_closedopen()
 
@@ -223,7 +223,7 @@ def dft(atoms,**opts):
         F = h+2*J+XC
         if DoAveraging: F = avg.getF(F,D)
         
-        orbe,orbs = GHeigenvectors(F,S)
+        orbe,orbs = geigh(F,S)
         
         Ej = 2*TraceProperty(D,J)
         Eone = 2*TraceProperty(D,h)
@@ -299,7 +299,7 @@ def udft(atoms,**opts):
     # It would be nice to have a more intelligent treatment of the guess
     # so that I could pass in a density rather than a set of orbs.
     orbs = opts.get('orbs',None)
-    if not orbs: orbe,orbs = GHeigenvectors(h,S)
+    if not orbs: orbe,orbs = geigh(h,S)
     orbsa = orbsb = orbs
 
     nalpha,nbeta = atoms.get_alphabeta()
@@ -328,8 +328,8 @@ def udft(atoms,**opts):
         Fa = h+Ja+Jb-Ka
         Fb = h+Ja+Jb-Kb
         
-        orbea,orbsa = GHeigenvectors(Fa,S)
-        orbeb,orbsb = GHeigenvectors(Fb,S)
+        orbea,orbsa = geigh(Fa,S)
+        orbeb,orbsb = geigh(Fb,S)
         
         Eja = TraceProperty(D,Ja)
         Ejb = TraceProperty(D,Jb)

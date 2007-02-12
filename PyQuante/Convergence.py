@@ -12,7 +12,7 @@
 """
 
 from NumWrap import dot,ravel,matrixmultiply,zeros
-from NumWrap import solve_linear_equations
+from NumWrap import solve
 from LA2 import SymOrth, SimilarityTransform
 from math import sqrt
 
@@ -125,7 +125,7 @@ class DIIS:
         # The try loop makes this a bit more stable.
         #  Thanks to John Kendrick!
         try:
-            c = solve_linear_equations(a,b)
+            c = solve(a,b)
         except:
             self.Fold = F
             return F
@@ -183,7 +183,7 @@ class DIIS2:
         a[2,:] = -1
         a[2,2] = 0
         b[2] = -1
-        c = solve_linear_equations(a,b)
+        c = solve(a,b)
 
         # Handle a few special cases:
         alpha = c[1]
@@ -202,7 +202,7 @@ def dot1d(a,b):
 def test():
     from Ints import getbasis,getints,get2JmK
     from hartree_fock import get_nel, get_enuke,get_energy
-    from LA2 import GHeigenvectors,mkdens
+    from LA2 import geigh,mkdens
     from IO import mtx2file
     from Molecule import Molecule
 
@@ -212,7 +212,7 @@ def test():
                    units='Angstrom')
     bfs = getbasis(h2o)
     S,h,Ints = getints(bfs,h2o)
-    orbe,orbs = GHeigenvectors(h,S)
+    orbe,orbs = geigh(h,S)
     nel = get_nel(h2o)
     nocc = int(nel/2)
     enuke = get_enuke(h2o)
@@ -224,7 +224,7 @@ def test():
         G = get2JmK(Ints,D)
         F = h+G
         F = avg.getF(F,D) # do the DIIS extrapolation
-        orbe,orbs = GHeigenvectors(F,S)
+        orbe,orbs = geigh(F,S)
         energy = get_energy(h,F,D,enuke)
         print i+1,energy
         if abs(energy-eold) < ConvCriteria: break

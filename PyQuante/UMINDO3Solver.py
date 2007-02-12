@@ -24,14 +24,10 @@ class UMINDO3Solver(MINDO3Solver):
         return
 
     def solve_fock(self):
-        from PyQuante.NumWrap import test_numpy, eigh
+        from PyQuante.NumWrap import eigh
         from PyQuante.LA2 import mkdens
-        if test_numpy:
-            self.orbea,self.orbsa = eigh(self.Fa)
-            self.orbeb,self.orbsb = eigh(self.Fb)
-        else:
-            self.orbea,self.orbsa = Heigenvectors(self.Fa)
-            self.orbeb,self.orbsb = Heigenvectors(self.Fb)
+        self.orbea,self.orbsa = eigh(self.Fa)
+        self.orbeb,self.orbsb = eigh(self.Fb)
         self.Da = mkdens(self.orbsa,0,self.nalpha)
         self.Db = mkdens(self.orbsb,0,self.nbeta)
 

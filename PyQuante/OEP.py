@@ -4,10 +4,9 @@
 
 from math import sqrt
 from PyQuante.NumWrap import zeros,matrixmultiply,transpose,dot,identity,\
-     array,solve_linear_equations
-from PyQuante.NumWrap import test_numpy
+     array,solve
 from PyQuante.Ints import getbasis, getints, getJ,get2JmK,getK
-from PyQuante.LA2 import GHeigenvectors,mkdens,TraceProperty
+from PyQuante.LA2 import geigh,mkdens,TraceProperty
 from PyQuante.hartree_fock import get_fock
 from PyQuante.CGBF import three_center
 from PyQuante.optimize import fminBFGS
@@ -133,7 +132,7 @@ def get_exx_energy(b,nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij,**opts):
     """
     return_flag = opts.get('return_flag',0)
     Hoep = get_Hoep(b,H0,Gij)
-    orbe,orbs = GHeigenvectors(Hoep,S)
+    orbe,orbs = geigh(Hoep,S)
         
     if ETemp:
         efermi = get_efermi(nel,orbe,ETemp)
@@ -174,10 +173,7 @@ def get_exx_gradient(b,nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij,**opts):
     energy,orbe,orbs,F = get_exx_energy(b,nbf,nel,nocc,ETemp,Enuke,
                                         S,h,Ints,H0,Gij,return_flag=2)
 
-    if test_numpy:
-        Fmo = matrixmultiply(transpose(orbs),matrixmultiply(F,orbs))
-    else:
-        Fmo = matrixmultiply(orbs,matrixmultiply(F,transpose(orbs)))
+    Fmo = matrixmultiply(transpose(orbs),matrixmultiply(F,orbs))
 
     norb = nbf
     bp = zeros(nbf,'d') # dE/db
@@ -186,10 +182,7 @@ def get_exx_gradient(b,nbf,nel,nocc,ETemp,Enuke,S,h,Ints,H0,Gij,**opts):
         # Transform Gij[g] to MOs. This is done over the whole
         #  space rather than just the parts we need. I can speed
         #  this up later by only forming the i,a elements required
-        if test_numpy:
-            Gmo = matrixmultiply(transpose(orbs),matrixmultiply(Gij[g],orbs))
-        else:
-            Gmo = matrixmultiply(orbs,matrixmultiply(Gij[g],transpose(orbs)))
+        Gmo = matrixmultiply(transpose(orbs),matrixmultiply(Gij[g],orbs))
 
         # Now sum the appropriate terms to get the b gradient
         for i in range(nocc):
@@ -304,7 +297,7 @@ def oep_hf_an(atoms,orbs,**opts):
 
     for iter in range(maxiter):
         Hoep = get_Hoep(b,H0,Gij)
-        orbe,orbs = GHeigenvectors(Hoep,S)
+        orbe,orbs = geigh(Hoep,S)
         
         D = mkdens(orbs,0,nocc)
         Vhf = get2JmK(Ints,D)
@@ -317,10 +310,7 @@ def oep_hf_an(atoms,orbs,**opts):
         
         logging.debug("OEP AN Opt: %d %f" % (iter,energy))
         dV_ao = Vhf-Vfa
-        if test_numpy:
-            dV = matrixmultiply(transpose(orbs),matrixmultiply(dV_ao,orbs))
-        else:
-            dV = matrixmultiply(orbs,matrixmultiply(dV_ao,transpose(orbs)))
+        dV = matrixmultiply(transpose(orbs),matrixmultiply(dV_ao,orbs))
 
         X = zeros((nbf,nbf),'d')
         c = zeros(nbf,'d')
@@ -328,24 +318,18 @@ def oep_hf_an(atoms,orbs,**opts):
 
         for k in range(nbf):
             # This didn't work; in fact, it made things worse:
-            if test_numpy:
-                Gk = matrixmultiply(transpose(orbs),matrixmultiply(Gij[k],orbs))
-            else:
-                Gk = matrixmultiply(orbs,matrixmultiply(Gij[k],transpose(orbs)))
+            Gk = matrixmultiply(transpose(orbs),matrixmultiply(Gij[k],orbs))
             for i in range(nocc):
                 for a in range(nocc,norb):
                     c[k] += dV[i,a]*Gk[i,a]/(orbe[i]-orbe[a])
                     
             for l in range(nbf):
-                if test_numpy:
-                    Gl = matrixmultiply(transpose(orbs),matrixmultiply(Gij[l],orbs))
-                else:
-                    Gl = matrixmultiply(orbs,matrixmultiply(Gij[l],transpose(orbs)))
+                Gl = matrixmultiply(transpose(orbs),matrixmultiply(Gij[l],orbs))
                 for i in range(nocc):
                     for a in range(nocc,norb):
                         X[k,l] += Gk[i,a]*Gl[i,a]/(orbe[i]-orbe[a])
         # This should actually be a pseudoinverse...
-        b = solve_linear_equations(X,c)
+        b = solve(X,c)
 
     logging.info("Final OEP energy = %f" % energy)
     return energy,orbe,orbs
@@ -437,8 +421,8 @@ def oep_uhf_an(atoms,orbsa,orbsb,**opts):
         Hoepa = get_Hoep(ba,H0,Gij)
         Hoepb = get_Hoep(ba,H0,Gij)
 
-        orbea,orbsa = GHeigenvectors(Hoepa,S)
-        orbeb,orbsb = GHeigenvectors(Hoepb,S)
+        orbea,orbsa = geigh(Hoepa,S)
+        orbeb,orbsb = geigh(Hoepb,S)
 
         if ETemp:
             efermia = get_efermi(2*nalpha,orbea,ETemp)
@@ -486,7 +470,7 @@ def oep_uhf_an(atoms,orbsa,orbsb,**opts):
                     for a in range(nalpha,norb):
                         X[k,l] += Gk[i,a]*Gl[i,a]/(orbea[i]-orbea[a])
         # This should actually be a pseudoinverse...
-        ba = solve_linear_equations(X,c)
+        ba = solve(X,c)
         # Betas
         dV_ao = J-Kb-Vfa
         dV = matrixmultiply(orbsb,matrixmultiply(dV_ao,transpose(orbsb)))
@@ -505,7 +489,7 @@ def oep_uhf_an(atoms,orbsa,orbsb,**opts):
                     for a in range(nbeta,norb):
                         X[k,l] += Gk[i,a]*Gl[i,a]/(orbeb[i]-orbeb[a])
         # This should actually be a pseudoinverse...
-        bb = solve_linear_equations(X,c)
+        bb = solve(X,c)
 
     logging.info("Final OEP energy = %f" % energy)
     return energy,(orbea,orbeb),(orbsa,orbsb)

@@ -18,14 +18,9 @@
  distribution. 
 """
 from PyQuante.Ints import getbasis,getints,getJ,getK,get2JmK
-from PyQuante.LA2 import mkdens,GHeigenvectors,SimilarityTransform,\
+from PyQuante.LA2 import mkdens,geigh,SimilarityTransform,\
      TraceProperty,SimilarityTransformT
-from NumWrap import zeros,take,transpose,matrixmultiply
-from NumWrap import test_numpy
-if test_numpy:
-    from NumWrap import eigh
-else:
-    from NumWrap import Heigenvectors
+from NumWrap import zeros,take,transpose,matrixmultiply,eigh
 
 def get_os_dens(orbs,f,noccsh):
     istart = iend = 0
@@ -68,10 +63,7 @@ def ocbse(orbs,h,Hs,f,a,b,noccsh):
         #F = SimilarityTransform(F,T) # SimilarityTransformT??
         FT = matrixmultiply(F,T)
         F = matrixmultiply(transpose(T),FT)
-        if test_numpy:
-            orbe2,orbs2 = eigh(F)
-        else:
-            orbe2,orbs2 = Heigenvectors(F)
+        orbe2,orbs2 = eigh(F)
         print orbe2
         print orbs2[:,0]
         raise "stopping"
@@ -180,7 +172,7 @@ def rohf(atoms,noccsh=None,f=None,a=None,b=None,**opts):
     nel = atoms.get_nel()
 
     orbs = opts.get('orbs',None)
-    if not orbs: orbe,orbs = GHeigenvectors(h,S)
+    if not orbs: orbe,orbs = geigh(h,S)
 
     nclosed,nopen = atoms.get_closedopen()
     nocc = nopen+nclosed

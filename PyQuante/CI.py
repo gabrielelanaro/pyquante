@@ -15,19 +15,8 @@
 
 import os,sys
 from PyQuante.cints import ijkl2intindex
-from NumWrap import zeros,dot,matrixmultiply
-from NumWrap import test_numpy
+from NumWrap import zeros,dot,matrixmultiply,eigh
 from Ints import getbasis, get2ints
-if test_numpy:
-    from NumWrap import eigh
-else:
-    from NumWrap import Heigenvectors
-
-def getorb(i,orbs):
-    # This wrapper is written to make the transition to new numpy go a little
-    #  more smoothly. It can be deleted once the transition is done
-    if test_numpy: return orbs[:,i]
-    return orbs[i,:]
 
 def SingleExcitations(occs,virts):
     singles = []
@@ -47,10 +36,7 @@ def DoubleExcitations(occs,virts):
 
 def CIS(Ints,orbs,orbe,occs,ehf):
     CIMatrix = CISMatrix(Ints,orbs,ehf,orbe,occs)
-    if test_numpy:
-        Ecis,Vectors = eigh(CIMatrix)
-    else:
-        Ecis,Vectors = Heigenvectors(CIMatrix)
+    Ecis,Vectors = eigh(CIMatrix)
     return Ecis
 
 def get_occ_unocc(occs):
@@ -135,24 +121,21 @@ def TransformInts(Ints,orbs):
                 for l in mos:
                     for eta in bfs:
                         tempvec[eta] = Ints[ijkl2intindex(mu,nu,sigma,eta)]
-                    orbl = getorb(l,orbs)
-                    temp[mu,nu,sigma,l] = dot(orbl,tempvec)
+                    temp[mu,nu,sigma,l] = dot(orbs[:,l],tempvec)
 
     # Transform sigma -> k
     for mu in bfs:
         for nu in bfs:
             for l in mos:
                 for k in mos:
-                    orbk = getorb(k,orbs)
-                    temp2[mu,nu,k,l] = dot(orbk,temp[mu,nu,:,l])
+                    temp2[mu,nu,k,l] = dot(orbs[:,k],temp[mu,nu,:,l])
 
     # Transform nu -> j
     for mu in bfs:
         for k in mos:
             for l in mos:
                 for j in mos:
-                    orbj = getorb(j,orbs)
-                    temp[mu,j,k,l] = dot(orbj,temp2[mu,:,k,l])
+                    temp[mu,j,k,l] = dot(orbs[:,j],temp2[mu,:,k,l])
 
     # Transform mu -> i and repack integrals:
     MOInts = zeros(totlen,'d')
@@ -164,8 +147,7 @@ def TransformInts(Ints,orbs):
                     kl = k*(k+1)/2+l
                     if ij >= kl:
                         ijkl = ijkl2intindex(i,j,k,l)
-                        orbi = getorb(i,orbs)
-                        MOInts[ijkl] = dot(orbi,temp[:,j,k,l])
+                        MOInts[ijkl] = dot(orbs[:,i],temp[:,j,k,l])
 
     del temp,temp2,tempvec #force garbage collection now
     return MOInts

@@ -16,18 +16,13 @@
 
 
 from math import sqrt
-from NumWrap import test_numpy
-from NumWrap import matrixmultiply,transpose,diagonal,identity,zeros
-if test_numpy:
-    from NumWrap import eigh
-else:
-    from NumWrap import Heigenvectors
+from NumWrap import matrixmultiply,transpose,diagonal,identity,zeros,eigh
 
 # Note: to be really smart in a quantum chemistry program, we would
 #  want to only symmetrically orthogonalize the S matrix once, since
 #  the matrix doesn't change during the SCF procedure. Thus, we would
-#  want to call X = SymOrth(S), and then GHeigenvectorsD(H,X), rather
-#  than calling GHeigenvectors(H,S) every time, since the latter
+#  want to call X = SymOrth(S), and then geighD(H,X), rather
+#  than calling geigh(H,S) every time, since the latter
 #  recomputes the symmetric orthogonalization every SCF cycle.
 
 def norm(vec):
@@ -49,7 +44,7 @@ def outprod(A):
     "D = outprod(A) : Return the outer product A*A'"
     return matmul(A,transpose(A))
 
-def GHeigenvectors(H,A,**opts):
+def geigh(H,A,**opts):
     """\
     Generalized eigenproblem using a symmetric matrix H.
 
@@ -68,49 +63,31 @@ def GHeigenvectors(H,A,**opts):
         else:
             X = SymOrth(A)
         opts['have_xfrm'] = True
-        return GHeigenvectors(H,X,**opts)
-    if test_numpy:
-        val,vec = eigh(SimilarityTransformT(H,A))
-        vec = matrixmultiply(A,vec)
-    else:
-        val,vec = Heigenvectors(SimilarityTransform(H,A))
-        vec = matrixmultiply(vec,A)
+        return geigh(H,X,**opts)
+    val,vec = eigh(SimilarityTransformT(H,A))
+    vec = matrixmultiply(A,vec)
     return val,vec
 
 def SymOrth(X):
     """Symmetric orthogonalization of the real symmetric matrix X.
     This is given by Ut(1/sqrt(lambda))U, where lambda,U are the
     eigenvalues/vectors."""
-    if test_numpy:
-        val,vec = eigh(X)
-    else:
-        val,vec = Heigenvectors(X)
+    val,vec = eigh(X)
     n = vec.shape[0]
     shalf = identity(n,'d')
     for i in range(n):
         shalf[i,i] /= sqrt(val[i])
-    if test_numpy:
-        X = SimilarityTransform(shalf,vec)
-    else:
-        X = SimilarityTransformT(shalf,vec) 
+    X = SimilarityTransform(shalf,vec)
     return X
 
 def CanOrth(X): 
     """Canonical orthogonalization of matrix X. This is given by
     U(1/sqrt(lambda)), where lambda,U are the eigenvalues/vectors."""
     n = vec.shape[0]
-    if test_numpy:
-        val,vec = eigh(X)
-    else:
-        val,vec = Heigenvectors(X)
+    val,vec = eigh(X)
 
-    if test_numpy:
-        for i in range(n):
-            vec[:,i] = vec[:,i] / sqrt(val[i])
-    else:
-        for i in range(n):
-            for j in range(n):
-                vec[i,j] = vec[i,j]/sqrt(val[i])
+    for i in range(n):
+        vec[:,i] = vec[:,i] / sqrt(val[i])
     return vec
 
 def TraceProperty(H,D):
@@ -128,12 +105,8 @@ def SimilarityTransform(H,X):
 
 def mkdens(c,nstart,nstop):
     "Form a density matrix C*Ct given eigenvectors C[nstart:nstop,:]"
-    if test_numpy:
-        d = c[:,nstart:nstop]
-        Dmat = matrixmultiply(d,transpose(d))
-    else:
-        d = c[nstart:nstop,:]
-        Dmat = matrixmultiply(transpose(d),d)
+    d = c[:,nstart:nstop]
+    Dmat = matrixmultiply(d,transpose(d))
     return Dmat
 
 def mkdens2(c,nstart,nstop):
