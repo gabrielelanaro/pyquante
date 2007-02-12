@@ -144,7 +144,15 @@ class MolecularGrid:
             pt = pts[i]
             grab[i,:] = pt.bfs[ibf]*pt.bfgrads[jbf,:] +\
                         pt.bfs[jbf]*pt.bfgrads[ibf,:]
-        return grab        
+        return grab
+
+    def bfgrad(self,ibf):
+        pts = self.points()
+        npts = len(pts)
+        gra = zeros((npts,3),'d')
+        for i in range(npts):
+            gra[i,:] = pts[i].bfgrads[ibf,:]
+        return gra        
     
     def bfs(self,i):
         "Return a basis function over the entire grid"
