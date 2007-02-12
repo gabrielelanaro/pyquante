@@ -111,7 +111,7 @@ class Molecule:
     def get_nel(self,charge=None):
         if charge:
             # Deprecation warning inserted 8/2005
-            print "Warning: use of mol.get_nel(charge) has been deprecated"
+            print "Warning: use of get_nel(charge) has been deprecated"
             print "Please supply charge at construction of molecule or use"
             print "mol.set_charge(charge)"
             self.set_charge(charge)

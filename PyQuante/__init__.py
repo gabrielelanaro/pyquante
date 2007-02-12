@@ -31,4 +31,5 @@ from PyQuante.Molecule import Molecule
 from PyQuante.HFSolver import HFSolver
 from PyQuante.DFTSolver import DFTSolver
 from PyQuante.UHFSolver import UHFSolver
-
+from PyQuante.MINDO3Solver import MINDO3Solver
+from PyQuante.UMINDO3Solver import UMINDO3Solver

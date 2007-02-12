@@ -103,13 +103,11 @@ def getXC(gr,nel,bfgrid,**opts):
     # Yuk. This is ugly...
     #  And very very slow. The calls to gradbfab now dominate the calculation
     if do_grad_dens:
-        # A should be dimensioned (npts,3)
+        # A is dimensioned (npts,3)
         A = transpose(0.5*transpose(gr.grad())*(weight*(2*dfxcdgaa+dfxcdgab))) 
         for a in range(nbf):
             for b in range(a+1):
                 B = gr.gradbfab(a,b)
-		#test1 = A*B
-		#print A.shape,B.shape,test1.shape
                 Fxc[a,b] += sum(ravel(A*B))
                 Fxc[b,a] = Fxc[a,b]
     return Exc,Fxc

@@ -14,6 +14,8 @@ from PyQuante.UHFSolver import UHFSolver
 from PyQuante.DFTSolver import DFTSolver
 from PyQuante.OEP import oep_hf,oep_hf_an
 from PyQuante.MINDO3 import scf
+from PyQuante.MINDO3Solver import MINDO3Solver
+from PyQuante.UMINDO3Solver import UMINDO3Solver
 
 class HFUnitTests(unittest.TestCase):
     def setUp(self):
@@ -116,15 +118,20 @@ class OtherUnitTests(unittest.TestCase):
                            units='Angs')
         self.lih = Molecule('LiH',[(1,(0,0,1.5)),(3,(0,0,-1.5))],units = 'Bohr')
         self.h2o = Molecule('h2o',[(8,(0,0,0)),(1,(1.,0,0)),(1,(0,1.,0))])
-        self.ohm = Molecule('oh',[(8,(0,0,0)),(1,(1.,0,0))])
+        self.oh = Molecule('oh',[(8,(0,0,0)),(1,(1.,0,0))])
 
+    # Note: tolerance for MINDO tests scaled back since the results are
+    # in kcals/mol and not hartrees
     def testH2OMINDO(self):
-        en = scf(self.h2o)
-        self.assertAlmostEqual(en,-48.825159,4)
+        h2o_mindo3 = MINDO3Solver(self.h2o)
+        h2o_mindo3.iterate()
+        #en = scf(self.h2o)
+        self.assertAlmostEqual(h2o_mindo3.energy,-48.826208,2)
 
-    def testOHMMINDO(self):
-        en = scf(self.ohm)
-        self.assertAlmostEqual(en,18.127533,4)
+    def testOHMINDO(self):
+        oh_mindo = UMINDO3Solver(self.oh)
+        oh_mindo.iterate()
+        self.assertAlmostEqual(oh_mindo.energy,18.1258,2)
 
     def testMP2(self):
         h2_hf = HFSolver(self.h2)
@@ -151,7 +158,8 @@ class OtherUnitTests(unittest.TestCase):
                                             integrals=ints)
         self.assertAlmostEqual(E_exx,-7.981044,4)
 
-    # Don't think it necessary to test both OEP and OEP_AN...
+    # Don't think it necessary to test both OEP and OEP_AN, especially
+    # since this one is really slow
     #def testLiH_OEP(self):
     #    do_oep_an = True
     #    lih_hf = HFSolver(self.lih)
