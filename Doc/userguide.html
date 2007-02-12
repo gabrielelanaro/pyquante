@@ -385,6 +385,15 @@ bfs = getbasis(h2o,basis_data)</tt></pre>
 </div></div>
 <p>If the <strong>basis_data</strong> argument is omitted, the program will default
 to 6-31G**.</p>
+<p>As of version 1.6, you may now specify a string for the basis_data
+argument, e.g. "6-31G**" so you may do things like</p>
+<div class="listingblock">
+<div class="content">
+<pre><tt>bfs = getbasis(h2o,'6-31G**')
+bfs2 = getbasis(h2o,'sto-3g')</tt></pre>
+</div></div>
+<p>and so on. Use PyQuante.Basis.Tools.basis_map.keys() for a
+list of the supported basis strings.</p>
 </div>
 <h2>Computation of One-Electron Integrals</h2>
 <div class="sectionbody">
@@ -527,8 +536,10 @@ integrals     None    The one- and two-electron integrals to use
 orbs          None    If not None, the guess orbitals</tt></pre>
 </div></div>
 <p>See the PyQuante Cookbook below for examples of this function's use.</p>
-<p>## Density Functional Theory Calculations
-Here is the docstring information for the <strong>dft</strong> function that details
+</div>
+<h2>Density Functional Theory Calculations</h2>
+<div class="sectionbody">
+<p>Here is the docstring information for the <strong>dft</strong> function that details
 the basic calling options:</p>
 <div class="listingblock">
 <div class="content">
@@ -554,13 +565,13 @@ grid_nrad     32      Number of radial shells per atom
 grid_fineness 1       Radial shell fineness. 0-&gt;coarse, 1-&gt;medium, 2-&gt;fine</tt></pre>
 </div></div>
 <p>See the PyQuante Cookbook below for examples of this function's use.</p>
-<p>MINDO/3 (semiempirical) Calculations</p>
-<div class="listingblock">
-<div class="content">
-<pre><tt>To be completed.
-
-PyQuante Cookbook</tt></pre>
-</div></div>
+</div>
+<h2>MINDO/3 (semiempirical) Calculations</h2>
+<div class="sectionbody">
+<p>To be completed.</p>
+</div>
+<h2>PyQuante Cookbook</h2>
+<div class="sectionbody">
 <h3>A Simple RHF Calculation on Hydrogen</h3>
 <p>Here's an example of running a simple restricted Hartree-Fock (RHF)
 calculation on the hydrogen molecule</p>
@@ -640,7 +651,7 @@ print "BLYP total energy = ",enblyp</tt></pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.5.0<br />
-Last updated 08-Sep-2006 11:15:38 MDT
+Last updated 12-Feb-2007 11:55:30 MDT
 </div>
 </div>
 </body>

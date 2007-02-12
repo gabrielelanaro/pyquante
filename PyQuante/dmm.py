@@ -22,8 +22,7 @@
 
 from PyQuante.Ints import getbasis,getints,get2JmK
 from PyQuante.Molecule import Molecule
-from PyQuante.LA2 import mkdens,SymOrth,SimilarityTransform,\
-     SimilarityTransformT
+from PyQuante.LA2 import mkdens,SymOrth,simx
 from PyQuante.hartree_fock import get_energy
 from NumWrap import diagonal,matrixmultiply,identity
 
@@ -98,7 +97,8 @@ def DMM(F,S,Ne,Method=0,MaxIter=50,ErrorLimit=1e-12):
 
     # Step 1: Orthogonalize the Fock matrix:
     X = SymOrth(S)
-    F = SimilarityTransformT(F,X)
+    #F = SimilarityTransformT(F,X)
+    F = simx(F,X)
 
     # Step 2: Initialize the density matrix:
     emin,emax = gershgorin_minmax(F)
@@ -163,7 +163,8 @@ def DMM(F,S,Ne,Method=0,MaxIter=50,ErrorLimit=1e-12):
     else: print "DMM: Warning MaxIters reached"
     print "%s converged in %d iters" % (methods[Method],iter)
     D = matclean(D)
-    D = SimilarityTransform(D,X)
+    #D = SimilarityTransform(D,X)
+    D = simx(D,X,'T')
     return D
         
 def test_iters(atoms,MaxIt=10,charge=0):

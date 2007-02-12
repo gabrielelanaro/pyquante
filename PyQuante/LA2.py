@@ -14,7 +14,7 @@
 # Todo
 # - update SimilarityTransformation to simx
 
-
+from PyQuante import logging
 from math import sqrt
 from NumWrap import matrixmultiply,transpose,diagonal,identity,zeros,eigh
 
@@ -37,7 +37,8 @@ def simx(A,B,trans='N'):
     Perform the similarity transformation C = B'*A*B (trans='N') or
     C = B*A*B' (trans='T').
     """
-    if trans.startswith('T'): return matrixmultiply(B,matrixmultiply(A,transpose(B)))
+    if trans.lower().startswith('t'):
+        return matrixmultiply(B,matrixmultiply(A,transpose(B)))
     return matrixmultiply(transpose(B),matrixmultiply(A,B))
 
 def outprod(A):
@@ -64,7 +65,8 @@ def geigh(H,A,**opts):
             X = SymOrth(A)
         opts['have_xfrm'] = True
         return geigh(H,X,**opts)
-    val,vec = eigh(SimilarityTransformT(H,A))
+    #val,vec = eigh(SimilarityTransformT(H,A))
+    val,vec = eigh(simx(H,A))
     vec = matrixmultiply(A,vec)
     return val,vec
 
@@ -77,7 +79,8 @@ def SymOrth(X):
     shalf = identity(n,'d')
     for i in range(n):
         shalf[i,i] /= sqrt(val[i])
-    X = SimilarityTransform(shalf,vec)
+    X = simx(shalf,vec,'T')
+    #X = SimilarityTransform(shalf,vec)
     return X
 
 def CanOrth(X): 
@@ -95,13 +98,18 @@ def trace2(H,D):
     return sum(sum(H*D)) # O(N^2) version 
 #    return sum(diagonal(matrixmultiply(H,D)))
 
+# SimilarityTransform/T are deprecated in favor of simx
 def SimilarityTransformT(H,X):
     "Return the similarity transformation XtHX of H"
-    return matrixmultiply(transpose(X),matrixmultiply(H,X))
+    logging.warning("SimilarityTransformT is deprecated: use simx")
+    return simx(H,X)
+    #return matrixmultiply(transpose(X),matrixmultiply(H,X))
 
 def SimilarityTransform(H,X): 
     "Return the transpose similarity transformation XHXt of H"
-    return matrixmultiply(X,matrixmultiply(H,transpose(X)))
+    logging.warning("SimilarityTransform is deprecated: use simx")
+    return simx(H,X,'T')
+    #return matrixmultiply(X,matrixmultiply(H,transpose(X)))
 
 def mkdens(c,nstart,nstop):
     "Form a density matrix C*Ct given eigenvectors C[nstart:nstop,:]"

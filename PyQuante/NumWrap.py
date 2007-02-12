@@ -15,7 +15,7 @@
 # - Remove NumWrap and Numeric support (maybe never do this)
 #
 
-use_numpy = True
+use_numpy = False
 import re
 pat = re.compile('\D')
 

@@ -13,7 +13,7 @@
 
 from NumWrap import dot,ravel,matrixmultiply,zeros
 from NumWrap import solve
-from LA2 import SymOrth, SimilarityTransform
+from LA2 import SymOrth
 from math import sqrt
 
 VERBOSE=0
@@ -88,7 +88,6 @@ class DIIS:
         n,m = F.shape
         err = matrixmultiply(F,matrixmultiply(D,self.S)) -\
               matrixmultiply(self.S,matrixmultiply(D,F))
-        #err = SimilarityTransform(err,self.X)
         err = ravel(err)
         maxerr = max(abs(err))
         self.maxerr = maxerr
@@ -152,7 +151,6 @@ class DIIS2:
         n,m = F.shape
         err = matrixmultiply(F,matrixmultiply(D,self.S)) -\
               matrixmultiply(self.S,matrixmultiply(D,F))
-        #err = SimilarityTransform(err,self.X)
         err = ravel(err)
         maxerr = max(abs(err))
 

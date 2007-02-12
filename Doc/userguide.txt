@@ -92,7 +92,7 @@ bfs = getbasis(atoms,basis_data=None)
 Given a Molecule object and a basis library, form a basis set
 constructed as a list of CGBF basis functions objects.
 -----------------------------------------
-	
+
 The basis data can be input from a number of data files in the
 PyQuante suite. Here are some of the more commonly used basis sets:
 
@@ -113,6 +113,18 @@ bfs = getbasis(h2o,basis_data)
 
 If the *basis_data* argument is omitted, the program will default
 to 6-31G**.
+
+As of version 1.6, you may now specify a string for the basis_data
+argument, e.g. "6-31G**" so you may do things like
+
+-----------------------------------------
+bfs = getbasis(h2o,'6-31G**')
+bfs2 = getbasis(h2o,'sto-3g')
+-----------------------------------------
+
+and so on. Use PyQuante.Basis.Tools.basis_map.keys() for a 
+list of the supported basis strings.
+
 
 Computation of One-Electron Integrals
 -------------------------------------
@@ -222,7 +234,8 @@ orbs          None    If not None, the guess orbitals
 
 See the PyQuante Cookbook below for examples of this function's use.
 
-## Density Functional Theory Calculations
+Density Functional Theory Calculations
+--------------------------------------
 Here is the docstring information for the *dft* function that details
 the basic calling options:
 
@@ -252,8 +265,10 @@ grid_fineness 1       Radial shell fineness. 0->coarse, 1->medium, 2->fine
 See the PyQuante Cookbook below for examples of this function's use.
 
 MINDO/3 (semiempirical) Calculations
------------------------------------------
+------------------------------------
 To be completed.
+
+
 
 PyQuante Cookbook
 -----------------

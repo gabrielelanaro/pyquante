@@ -18,8 +18,7 @@
  distribution. 
 """
 from PyQuante.Ints import getbasis,getints,getJ,getK,get2JmK
-from PyQuante.LA2 import mkdens,geigh,SimilarityTransform,\
-     trace2,SimilarityTransformT
+from PyQuante.LA2 import mkdens,geigh,trace2
 from NumWrap import zeros,take,transpose,matrixmultiply,eigh
 
 def get_os_dens(orbs,f,noccsh):
@@ -60,7 +59,6 @@ def ocbse(orbs,h,Hs,f,a,b,noccsh):
         orbrange = range(istart,iend)+range(vstart,vend)
         T = take(orbs,orbrange,1)
         # Transform to MO space
-        #F = SimilarityTransform(F,T) # SimilarityTransformT??
         FT = matrixmultiply(F,T)
         F = matrixmultiply(transpose(T),FT)
         orbe2,orbs2 = eigh(F)
