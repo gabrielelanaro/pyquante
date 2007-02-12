@@ -64,31 +64,8 @@ def Dinit_mcw(F,Ne,tol=1e-7,maxit=100):
     alpha = min(beta/(emax-efermi),(1-beta)/(efermi-emin))
     return alpha*(efermi*I-F)+beta*I
 
-def DMM_orthog(F,Ne,MaxIter=50,ErrorLimit=1e-12):
-    # Simplified version of DMM for timing tests. Only does TCP,
-    #  and does not include the orthogonalization step.
-    emin,emax = gershgorin_minmax(F)
-    N = F.shape[0]
-    I = identity(N,'d')
-    D = (emax*I-F)/(emax-emin)
-
-    Dsumold = sum(sum(D))
-    # Step 3: Iterate on DM updates:
-    for iter in range(MaxIter):
-        Ne_curr = trace(D)
-        D2 = matrixmultiply(D,D)
-        if Ne_curr < Ne:
-            D = 2.0*D-D2
-        else:
-            D = D2
-        if abs(Ne_curr-Ne) < ErrorLimit: break
-    else: print "DMM: Warning MaxIters reached"
-    print "Converged in %d iters" % iter
-    D = matclean(D)
-    return D
-
-def DMM(F,S,Ne,Method=0,MaxIter=50,ErrorLimit=1e-12):
-    # DMM Methods
+def DMP(F,S,Ne,Method=0,MaxIter=50,ErrorLimit=1e-12):
+    # Density Matrix Purification Methods
     # 0 -> Trace correcting purification (default)
     # 1 -> Trace resetting
     # 2 -> McWeeny purification
@@ -97,7 +74,6 @@ def DMM(F,S,Ne,Method=0,MaxIter=50,ErrorLimit=1e-12):
 
     # Step 1: Orthogonalize the Fock matrix:
     X = SymOrth(S)
-    #F = SimilarityTransformT(F,X)
     F = simx(F,X)
 
     # Step 2: Initialize the density matrix:
@@ -107,11 +83,6 @@ def DMM(F,S,Ne,Method=0,MaxIter=50,ErrorLimit=1e-12):
     if Method == 0 or Method == 1:
         D = (emax*I-F)/(emax-emin)
     elif Method == 2:
-        # Guess efermi:
-        #raise "No efermi guess yet"
-        #beta = 0.5
-        #alpha = min(beta/(emax-efermi),(1-beta)/(efermi-emin))
-        #D = alpha*(efermi*I-F)+beta*I
         D = Dinit_mcw(F,Ne)
     elif Method == 3:
         efermi = trace(F)/N
@@ -161,48 +132,8 @@ def DMM(F,S,Ne,Method=0,MaxIter=50,ErrorLimit=1e-12):
             if Dsum-Dsumold  < ErrorLimit: break
             Dsumold = Dsum
     else: print "DMM: Warning MaxIters reached"
-    print "%s converged in %d iters" % (methods[Method],iter)
-    D = matclean(D)
-    #D = SimilarityTransform(D,X)
+    #print "%s converged in %d iters" % (methods[Method],iter)
     D = simx(D,X,'T')
     return D
         
-def test_iters(atoms,MaxIt=10,charge=0):
-    bfs = getbasis(atoms)
-    S,h,Ints = getints(bfs,atoms)
-    nclosed,nopen = atoms.get_closedopen()
     
-    nocc = nclosed
-    enuke = atoms.get_enuke()
-
-    D = DMM(h,S,nocc,0)
-    for i in range(MaxIt):
-        G = get2JmK(Ints,D)
-        F = h+G
-        Dnew = DMM(F,S,nocc,0)
-        D = 0.5*(Dnew+D) # stupid averaging
-        print get_energy(h,F,D,enuke)
-    return
-
-def matclean(A,lowcut=1e-12):
-    # Symmetrize and filter small values of matrix
-    n,m = A.shape
-    for i in range(n):
-        for j in range(i):
-            aij = 0.5*(A[i,j]+A[j,i])
-            if abs(aij) < lowcut: aij = 0.
-            A[i,j] = A[j,i] = aij
-    return A
-
-def test():
-    h2 = Molecule('h2',atomlist=[(1,(0,0,0)),(1,(0.75,0,0))],
-                  units='Angstrom')
-    h2o = Molecule('h2o',
-                   atomlist=[(8,(0,0,0)),
-                             (1,(1.0,0,0)),
-                             (1,(0,1.0,0))],
-                   units='Angstrom')
-    test_iters(h2o)
-    return
-    
-if __name__ == '__main__': test()
