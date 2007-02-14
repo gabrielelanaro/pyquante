@@ -4,7 +4,8 @@ Solvers.py - explores ways to use different eigensolvers in Python
 """
 
 from PyQuante import HFSolver, Molecule, logging
-from PyQuante.NumWrap import eigh,zeros,matrixmultiply,transpose,dot
+from PyQuante.NumWrap import eigh,zeros,matrixmultiply,transpose,dot,\
+     identity,diagonal,array
 from math import sqrt
 
 class SubspaceSolver(HFSolver):
@@ -60,21 +61,18 @@ def orthog(q,qs,**kwopts):
     return norm
 
 def davidson(A,nroots,**kwargs):
-    etol = kwargs.get('etol',1e-6) # tolerance on the eigenvalues before declaring converged
-    ntol = kwargs.get('ntol',1e-10) # tolerance on the norms for adding a vector
+    etol = kwargs.get('etol',1e-6) # tolerance on the eigenval convergence
+    ntol = kwargs.get('ntol',1e-10) # tolerance on the vector norms for addn
     n,m = A.shape
     ninit = max(nroots,2)
     B = zeros((n,ninit),'d')
     for i in range(ninit): B[i,i] = 1.
-    #from numpy.random import rand
-    #B = rand(n,1)
 
     nc = 0 # number of converged roots
     eigold = 1e10
     for iter in range(n):
         if nc >= nroots: break
         D = matrixmultiply(A,B)
-        #olap = matrixmultiply(transpose(B),B)
         S = matrixmultiply(transpose(B),D)
         m = len(S)
         eval,evec = eigh(S)
@@ -84,7 +82,7 @@ def davidson(A,nroots,**kwargs):
             bnew += evec[i,nc]*(D[:,i] - eval[nc]*B[:,i])
 
         for i in range(n):
-            denom = max(eval[nc]-A[i,i],1e-8) # Set a maximum amplification factor
+            denom = max(eval[nc]-A[i,i],1e-8) # Maximum amplification factor
             bnew[i] /= denom
 
         norm = orthog(bnew,B)
@@ -100,12 +98,97 @@ def davidson(A,nroots,**kwargs):
     V = matrixmultiply(B[:,:nv],evec)
     return E,V
 
-# Easy way to remove arguments from Davidson, allowing one to make a davidson() call
-# into a single-argument call, along the same lines as the new partial function application
-# stuff in Py2.5
+#  General routine and auxilliary functions for Jacobi
+def jacobi(A,**opts):
+    """\
+    E,V = jacobi(A,**opts) - Solve the eigenvalues/vectors of matrix
+                             A using Jacobi's method.
+    Options:
+    Name        Default  Definition
+    tol         1e-10    The tolerance for an element to be declared zero
+    max_sweeps  100      Maximum number of sweeps through the matrix
+    """
+    max_sweeps = opts.get('max_sweeps',100)
+    tol = opts.get('tol',1e-10)
+    n = len(A)
+    V = identity(n,'d')
+    b = diagonal(A)
+    d = diagonal(A)
+    z = zeros(n,'d')
+    nrot = 0
+    for irot in range(max_sweeps):
+        sm = 0
+        for ip in range(n-1):
+            for iq in range(ip+1,n):
+                sm += abs(A[ip,iq])
+        print irot,sm
+        if sm < tol:
+            # Normal return
+            return evsort(b,V)
+
+        thresh = 0
+        if  irot < 3: thresh = 0.2*sm/n/n
+
+        for ip in range(n-1):
+            for iq in range(ip+1,n):
+                g = 100*abs(A[ip,iq])
+                if irot > 3 and g < tol:
+                    A[ip,iq] = 0
+                elif abs(A[ip,iq]) > thresh:
+                    h = d[iq]-d[ip]
+                    if g < tol:
+                        t = A[ip,iq]/h  # t = 1/(2\theta)
+                    else:
+                        theta = 0.5*h/A[ip,iq] #  eq 11.1.10
+                        t = 1./(abs(theta)+sqrt(1.+theta*theta))
+                        if theta < 0: t = -t
+                    c = 1.0/sqrt(1+t*t)
+                    s = t*c
+                    tau = s/(1.0+c)
+                    h = t*A[ip,iq]
+                    z[ip] -= h
+                    z[iq] += h
+                    d[ip] -= h
+                    d[iq] += h
+                    A[ip,iq] = 0
+                    for j in range(ip):
+                        A[j,ip],A[j,iq] = rotate(A[j,ip],A[j,iq],s,tau)
+                    for j in range(ip+1,iq):
+                        A[ip,j],A[j,iq] = rotate(A[ip,j],A[j,iq],s,tau)
+                    for j in range(iq+1,n):
+                        A[ip,j],A[iq,j] = rotate(A[ip,j],A[iq,j],s,tau)
+                    for j in range(n):
+                        V[j,ip],V[j,iq] = rotate(V[j,ip],V[j,iq],s,tau)
+                    nrot += 1
+        for ip in range(n):
+            b[ip] += z[ip]
+            d[ip] = b[ip]
+            z[ip] = 0
+    else:
+        print "Too many iterations"
+    return None
+
+def evsort(E,V):
+    n = len(E)
+    EV = [(E[i],V[:,i]) for i in range(n)]
+    EV.sort()
+    E = [Ei for (Ei,Vi) in EV]
+    V = [Vi for (Ei,Vi) in EV]
+    V = transpose(array(V))
+    return E,V
+
+def rotate(g,h,s,tau): return g-s*(h+g*tau),h+s*(g-h*tau)
+
+# Easy way to remove arguments from multi-argument calls allowing one
+# to make them as a single-argument call, using closures
 def init_davidson(nroots,**opts):
     def func(A):
         return davidson(A,nroots,**opts)
+    return func
+
+def init_jacobi(**opts):
+    def func(A):
+        return jacobi(A,**opts)
     return func
 
 def test():
@@ -117,14 +200,19 @@ def test():
     h2_normal = HFSolver(h2)
     h2_normal.iterate()
 
-    logging.info("\nNormal eigensolver, solved in the subspace of existing orbitals")
+    logging.info("\nNormal eigensolver, in subspace of existing orbitals")
     h2_sub = SubspaceSolver(h2,eigh)
     h2_sub.iterate()
 
-    logging.info("\nDavidson eigensolver in the subspace of existing orbitals")
+    logging.info("\nDavidson eigensolve in subspace of existing orbitals")
     dav = init_davidson(2) # Have to look for more than 1 root
     h2_dav = SubspaceSolver(h2,dav)
     h2_dav.iterate()
+
+    logging.info("\nJacobi eigensolve in subspace of existing orbitals")
+    jac = init_jacobi()
+    h2_jac = SubspaceSolver(h2,jac)
+    h2_jac.iterate()
 
     logging.info("\nDensity Matrix Purification")
     from PyQuante.dmm import DMP
