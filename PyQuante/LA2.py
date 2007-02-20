@@ -16,7 +16,7 @@
 
 from PyQuante import logging
 from math import sqrt
-from NumWrap import matrixmultiply,transpose,diagonal,identity,zeros,eigh
+from NumWrap import matrixmultiply,transpose,diagonal,identity,zeros,eigh,cholesky,inv
 
 # Note: to be really smart in a quantum chemistry program, we would
 #  want to only symmetrically orthogonalize the S matrix once, since
@@ -54,6 +54,7 @@ def geigh(H,A,**opts):
                True    A is the canonical transformation matrix
     orthog     'Sym'   Use Symmetric Orthogonalization (default)
                'Can'   Use Canonical Orthogonalization
+               'Chol'  Use a Cholesky decompositoin
                 
     """
     have_xfrm = opts.get('have_xfrm',False)
@@ -61,37 +62,41 @@ def geigh(H,A,**opts):
     if not have_xfrm:
         if orthog == 'Can':
             X = CanOrth(A)
+        elif orthog == 'Chol':
+            X = CholOrth(A)
         else:
             X = SymOrth(A)
         opts['have_xfrm'] = True
         return geigh(H,X,**opts)
-    #val,vec = eigh(SimilarityTransformT(H,A))
     val,vec = eigh(simx(H,A))
     vec = matrixmultiply(A,vec)
     return val,vec
 
-def SymOrth(X):
-    """Symmetric orthogonalization of the real symmetric matrix X.
+def SymOrth(S):
+    """Symmetric orthogonalization of the real symmetric matrix S.
     This is given by Ut(1/sqrt(lambda))U, where lambda,U are the
     eigenvalues/vectors."""
-    val,vec = eigh(X)
+    val,vec = eigh(S)
     n = vec.shape[0]
     shalf = identity(n,'d')
     for i in range(n):
         shalf[i,i] /= sqrt(val[i])
     X = simx(shalf,vec,'T')
-    #X = SimilarityTransform(shalf,vec)
     return X
 
-def CanOrth(X): 
-    """Canonical orthogonalization of matrix X. This is given by
+def CanOrth(S): 
+    """Canonical orthogonalization of matrix S. This is given by
     U(1/sqrt(lambda)), where lambda,U are the eigenvalues/vectors."""
+    val,vec = eigh(S)
     n = vec.shape[0]
-    val,vec = eigh(X)
-
     for i in range(n):
         vec[:,i] = vec[:,i] / sqrt(val[i])
     return vec
+
+def CholOrth(S):
+    """Cholesky orthogonalization of matrix X. This is given by
+    LL^T=S; X = transpose(inv(L))"""
+    return transpose(inv(cholesky(S)))
 
 def trace2(H,D):
     "Return the trace(H*D), used in computing QM energies"

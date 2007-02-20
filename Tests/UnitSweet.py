@@ -181,6 +181,24 @@ class SolverUnitTests(unittest.TestCase):
         self.assertAlmostEqual(solver.energy,-1.1305,4)
         return
 
+    def testOrthog(self):
+        from PyQuante.HFSolver import HFSolver
+        from PyQuante.LA2 import CanOrth, SymOrth, CholOrth, simx
+        from PyQuante.NumWrap import eigh
+        solver = HFSolver(self.h2)
+        h,S = solver.h, solver.S
+        X1 = CanOrth(S)
+        X2 = SymOrth(S)
+        X3 = CholOrth(S)
+        h1 = simx(h,X1)
+        h2 = simx(h,X2)
+        h3 = simx(h,X3)
+        e1,v1 = eigh(h1)
+        e2,v2 = eigh(h2)
+        e3,v3 = eigh(h3)
+        self.assertAlmostEqual(e1[0],e2[0],6)
+        self.assertAlmostEqual(e1[0],e3[0],6)
+
 
 class OtherUnitTests(unittest.TestCase):
     def setUp(self):

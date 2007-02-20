@@ -32,6 +32,8 @@ if use_numpy:
     from numpy.linalg import det
     from numpy.linalg import eigh
     from numpy.linalg import solve
+    from numpy.linalg import inv
+    from numpy.linalg import cholesky
 
     # still need to kill these two, which are used by Optimize:
     import numpy.oldnumeric.mlab as MLab
@@ -47,6 +49,8 @@ else:
     from LinearAlgebra import Heigenvectors
     from LinearAlgebra import determinant as det
     from LinearAlgebra import solve_linear_equations as solve
+    from LinearAlgebra import inverse as inv
+    from LinearAlgebra import cholesky_decomposition as cholesky
     import Numeric
     import MLab
     matmul = matrixmultiply
