@@ -121,7 +121,6 @@ def jacobi(A,**opts):
         for ip in range(n-1):
             for iq in range(ip+1,n):
                 sm += abs(A[ip,iq])
-        print irot,sm
         if sm < tol:
             # Normal return
             return evsort(b,V)
@@ -215,8 +214,27 @@ def test():
     h2_jac.iterate()
 
     logging.info("\nDensity Matrix Purification")
-    from PyQuante.dmm import DMP
-    h2solv = DmatSolver(h2,DMP)
+    from PyQuante.DMP import TCP, simple_dmat_factory
+    solver = simple_dmat_factory(TCP)
+    h2solv = DmatSolver(h2,solver)
+    h2solv.iterate()
+
+    logging.info("\nCanonical Purification")
+    from PyQuante.DMP import CP, simple_dmat_factory
+    solver = simple_dmat_factory(CP)
+    h2solv = DmatSolver(h2,solver)
+    h2solv.iterate()
+    
+    logging.info("\nMcWeeny Purification")
+    from PyQuante.DMP import McWeeny, simple_dmat_factory
+    solver = simple_dmat_factory(McWeeny)
+    h2solv = DmatSolver(h2,solver)
+    h2solv.iterate()
+    
+    logging.info("\nTrace Resetting Purification")
+    from PyQuante.DMP import TRP, simple_dmat_factory
+    solver = simple_dmat_factory(TRP)
+    h2solv = DmatSolver(h2,solver)
     h2solv.iterate()
     
 if __name__ == '__main__': test()
