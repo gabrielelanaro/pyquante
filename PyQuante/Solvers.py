@@ -26,16 +26,6 @@ class SubspaceSolver(HFSolver):
         self.update_density()
         return
 
-class DmatSolver(HFSolver):
-    def __init__(self,molecule,solver,**opts):
-        HFSolver.__init__(self,molecule,**opts)
-        self.solver = solver
-        return
-
-    def solve_fock(self):
-        self.D = self.solver(self.F, self.S, self.nclosed)
-        return
-
 ### General functions required for the davidson solver
 def appendColumn(A,newVec):
     """\
@@ -191,6 +181,7 @@ def init_jacobi(**opts):
     return func
 
 def test():
+    from PyQuante.DMP import DmatSolver
     logging.basicConfig(level=logging.DEBUG,
                         format="%(message)s")
     h2 = Molecule('H2',atomlist=[(1,(0.35,0,0)),(1,(-0.35,0,0))],units='Angs')
@@ -214,26 +205,26 @@ def test():
     h2_jac.iterate()
 
     logging.info("\nDensity Matrix Purification")
-    from PyQuante.DMP import TCP, simple_dmat_factory
-    solver = simple_dmat_factory(TCP)
+    from PyQuante.DMP import TCP, init_dmat_solver
+    solver = init_dmat_solver(TCP)
     h2solv = DmatSolver(h2,solver)
     h2solv.iterate()
 
     logging.info("\nCanonical Purification")
-    from PyQuante.DMP import CP, simple_dmat_factory
-    solver = simple_dmat_factory(CP)
+    from PyQuante.DMP import CP, init_dmat_solver
+    solver = init_dmat_solver(CP)
     h2solv = DmatSolver(h2,solver)
     h2solv.iterate()
     
     logging.info("\nMcWeeny Purification")
-    from PyQuante.DMP import McWeeny, simple_dmat_factory
-    solver = simple_dmat_factory(McWeeny)
+    from PyQuante.DMP import McWeeny, init_dmat_solver
+    solver = init_dmat_solver(McWeeny)
     h2solv = DmatSolver(h2,solver)
     h2solv.iterate()
     
     logging.info("\nTrace Resetting Purification")
-    from PyQuante.DMP import TRP, simple_dmat_factory
-    solver = simple_dmat_factory(TRP)
+    from PyQuante.DMP import TRP, init_dmat_solver
+    solver = init_dmat_solver(TRP)
     h2solv = DmatSolver(h2,solver)
     h2solv.iterate()
     

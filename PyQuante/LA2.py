@@ -96,7 +96,6 @@ def CanOrth(X):
 def trace2(H,D):
     "Return the trace(H*D), used in computing QM energies"
     return sum(sum(H*D)) # O(N^2) version 
-#    return sum(diagonal(matrixmultiply(H,D)))
 
 # SimilarityTransform/T are deprecated in favor of simx
 def SimilarityTransformT(H,X):

@@ -112,6 +112,76 @@ class UHFUnitTests(unittest.TestCase):
         li_uhf.iterate(etemp=1e4)
         return
 
+class SolverUnitTests(unittest.TestCase):
+    def setUp(self):
+        from PyQuante.Molecule import Molecule
+        self.h2 = Molecule('H2',atomlist=[(1,(0.35,0,0)),(1,(-0.35,0,0))],units='Angs')
+        return
+
+    def testRegularSolver(self):
+        from PyQuante.HFSolver import HFSolver
+        solver = HFSolver(self.h2)
+        solver.iterate()
+        self.assertAlmostEqual(solver.energy,-1.1305,4)
+        return
+
+    def testSubspaceSolver(self):
+        from PyQuante.Solvers import SubspaceSolver
+        from PyQuante.NumWrap import eigh
+        solver = SubspaceSolver(self.h2,eigh)
+        solver.iterate()
+        self.assertAlmostEqual(solver.energy,-1.1305,4)
+        return
+
+    def testDavidsonSolver(self):
+        from PyQuante.Solvers import SubspaceSolver,init_davidson
+        dav = init_davidson(2)
+        solver = SubspaceSolver(self.h2,dav)
+        solver.iterate()
+        self.assertAlmostEqual(solver.energy,-1.1305,4)
+        return
+
+    def testJacobiSolver(self):
+        from PyQuante.Solvers import SubspaceSolver,init_jacobi
+        jac = init_jacobi()
+        solver = SubspaceSolver(self.h2,jac)
+        solver.iterate()
+        self.assertAlmostEqual(solver.energy,-1.1305,4)
+        return
+
+    def testTCPSolver(self):
+        from PyQuante.DMP import DmatSolver,TCP,init_dmat_solver
+        tcp = init_dmat_solver(TCP)
+        solver = DmatSolver(self.h2,tcp)
+        solver.iterate()
+        self.assertAlmostEqual(solver.energy,-1.1305,4)
+        return
+
+    def testTRPSolver(self):
+        from PyQuante.DMP import DmatSolver,TRP,init_dmat_solver
+        trp = init_dmat_solver(TRP)
+        solver = DmatSolver(self.h2,trp)
+        solver.iterate()
+        self.assertAlmostEqual(solver.energy,-1.1305,4)
+        return
+
+    def testCPSolver(self):
+        from PyQuante.DMP import DmatSolver,CP,init_dmat_solver
+        cp = init_dmat_solver(CP)
+        solver = DmatSolver(self.h2,cp)
+        solver.iterate()
+        self.assertAlmostEqual(solver.energy,-1.1305,4)
+        return
+
+    def testMCWSolver(self):
+        from PyQuante.DMP import DmatSolver,McWeeny,init_dmat_solver
+        mcw = init_dmat_solver(McWeeny)
+        solver = DmatSolver(self.h2,mcw)
+        solver.iterate()
+        self.assertAlmostEqual(solver.energy,-1.1305,4)
+        return
+
+
 class OtherUnitTests(unittest.TestCase):
     def setUp(self):
         self.h2 = Molecule('H2',atomlist=[(1,(0.35,0,0)),(1,(-0.35,0,0))],

@@ -24,7 +24,7 @@ pat = re.compile('\D')
 if use_numpy:
     from numpy import array,zeros,concatenate,dot,ravel,arange
     from numpy import arcsinh,diagonal,identity,choose,transpose
-    from numpy import reshape,take
+    from numpy import reshape,take,trace
     from numpy import where
     matrixmultiply = dot
     matmul = dot
@@ -38,10 +38,10 @@ if use_numpy:
     from numpy.oldnumeric import NewAxis
     import numpy as Numeric
 else:
-    from Numeric import array,zeros,concatenate,dot,ravel,matrixmultiply
-    from Numeric import arange
+    from Numeric import array,zeros,concatenate,dot,ravel,arange
+    from Numeric import matrixmultiply
     from Numeric import arcsinh,diagonal,identity,choose,transpose
-    from Numeric import reshape,take
+    from Numeric import reshape,take,trace
     from Numeric import where
     from Numeric import NewAxis
     from LinearAlgebra import Heigenvectors

@@ -25,7 +25,18 @@ from PyQuante.Ints import getbasis,getints,get2JmK
 from PyQuante.Molecule import Molecule
 from PyQuante.LA2 import mkdens,SymOrth,simx
 from PyQuante.hartree_fock import get_energy
-from NumWrap import diagonal,matrixmultiply,identity
+from PyQuante.NumWrap import diagonal,matrixmultiply,identity,trace
+from PyQuante.HFSolver import HFSolver
+
+class DmatSolver(HFSolver):
+    def __init__(self,molecule,solver,**opts):
+        HFSolver.__init__(self,molecule,**opts)
+        self.solver = solver
+        return
+
+    def solve_fock(self):
+        self.D = self.solver(self.F, self.S, self.nclosed)
+        return
 
 class AbstractDMP:
     "AbstractDMP - Functions common to all density matrix purifiers"
@@ -191,7 +202,7 @@ class McWeeny(AbstractDMP):
     def converged(self): return abs(trace(self.D) - self.Ne) < self.tol
 
 
-def simple_dmat_factory(Method,**opts):
+def init_dmat_solver(Method,**opts):
     "Wrapper around Dmat classes to make them work like simple solvers"
     def solver(F,S,Ne):
         solve = Method(F,Ne,S)
@@ -208,11 +219,13 @@ def gershgorin_minmax(A):
         mins.append(A[i,i]-offsum)
         maxs.append(A[i,i]+offsum)
     return min(mins),max(maxs)
-        
-def trace(A): return sum(diagonal(A))
+
+
+### The following two routines are deprecated, and may be removed without warning:
 
 def Dinit_mcw(F,Ne,tol=1e-7,maxit=100):
     #Solve for efermi and D0 using bisection:
+    logging.warning("2/20/07: Dinit_mcw is now deprecated. Use DMP.McWeeny instead")
     beta = 0.5
     emin,emax = gershgorin_minmax(F)
     I = identity(F.shape[0],'d')
@@ -245,6 +258,7 @@ def DMP(F,S,Ne,Method=0,MaxIter=50,ErrorLimit=1e-12):
     # 1 -> Trace resetting
     # 2 -> McWeeny purification
     # 3 -> Canonical purification
+    logging.warning("2/20/07: DMP is now deprecated. Use DMP.TCP instead")
     methods = ['TCP','TRS','MCW','PM']
 
     # Step 1: Orthogonalize the Fock matrix:
