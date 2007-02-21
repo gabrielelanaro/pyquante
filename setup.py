@@ -53,7 +53,7 @@ setup(name="PyQuante",
       licence = "BSD",
       platforms = ["any"],
       classifiers = filter(None,classifiers.split("\n")),
-      packages = ['PyQuante','PyQuante.Basis'],
+      packages = ['PyQuante','PyQuante.Basis','PyQuante.IO'],
       ext_modules=[Extension("PyQuante.cints",["Src/cints.c"],libraries=libs),
                    Extension("PyQuante.chgp",["Src/chgp.c"],libraries=libs),
                    Extension("PyQuante.crys",["Src/crys.c"],libraries=libs)])

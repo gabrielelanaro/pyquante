@@ -33,3 +33,4 @@ from PyQuante.DFTSolver import DFTSolver
 from PyQuante.UHFSolver import UHFSolver
 from PyQuante.MINDO3Solver import MINDO3Solver
 from PyQuante.UMINDO3Solver import UMINDO3Solver
+from PyQuante.CGBF import CGBF

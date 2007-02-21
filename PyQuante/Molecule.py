@@ -168,6 +168,10 @@ class Molecule:
         for i in indices: submol.add_atom(self.atoms[i])
         return submol
 
+    def copy(self):
+        import copy
+        return copy.deepcopy(self)
+
 def toBohr(*args):
     if len(args) == 1: return ang2bohr*args[0]
     return [ang2bohr*arg for arg in args]
