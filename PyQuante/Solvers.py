@@ -181,12 +181,9 @@ def init_jacobi(**opts):
     return func
 
 def test():
-    from PyQuante.DMP import DmatSolver
-    logging.basicConfig(level=logging.DEBUG,
-                        format="%(message)s")
     h2 = Molecule('H2',atomlist=[(1,(0.35,0,0)),(1,(-0.35,0,0))],units='Angs')
 
-    logging.info("\nRegular eigensolver")
+    #logging.info("\nRegular eigensolver")
     h2_normal = HFSolver(h2)
     h2_normal.iterate()
 
