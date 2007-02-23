@@ -1,7 +1,3 @@
-
-  EMSL Basis Set Library
-  Generated Wed Feb 21 08:40:57 PST 2007
-
 !
 ! BASIS="6-31G**"
 !Elements                             References                                
@@ -803,7 +799,3 @@ ZINC         ! (22s,16p,4d) -> [5s,4p,2d]
 ZINC         ! (1f)                                              
  F   1
   1       0.800000000          1.00000000    
-
-------------------------------------------------------------------------
-
-    * Descriptive Information about 6-31G** <javascript:void(0)>

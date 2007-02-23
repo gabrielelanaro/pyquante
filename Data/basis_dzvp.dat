@@ -1,7 +1,3 @@
-
-  EMSL Basis Set Library
-  Generated Wed Feb 21 08:52:46 PST 2007
-
 !
 ! BASIS="DZVP (DFT Orbital)"
 !N. Godbout, D. R. Salahub, J. Andzelm, and E. Wimmer, Can. J. Chem. 70, 560    
@@ -2141,7 +2137,3 @@ XENON        ! (18s,14p,9d) -> [6s,5p,3d]
   3       0.9422192000        -0.3511078000    
  D   1
   1       0.2750000000          1.000000000    
-
-------------------------------------------------------------------------
-
-    * Descriptive Information about DZVP (DFT Orbital) <javascript:void(0)>

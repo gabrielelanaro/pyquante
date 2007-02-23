@@ -1,7 +1,3 @@
-
-  EMSL Basis Set Library
-  Generated Wed Feb 21 08:50:14 PST 2007
-
 !
 ! BASIS="cc-pVTZ"
 !Elements                             References                                
@@ -2118,8 +2114,3 @@ KRYPTON      ! (20s,13p,9d,1f) -> [6s,5p,3d,1f]
   1       0.3006000000          1.000000000    
  F   1
   1       0.6622000000          1.000000000    
-
-------------------------------------------------------------------------
-
-    * Descriptive Information about cc-pVTZ <javascript:void(0)>
-    * Graphical Representation </images/cce/text_basissets/cc-pVTZ.p2.gif>

@@ -1,7 +1,3 @@
-
-  EMSL Basis Set Library
-  Generated Wed Feb 21 08:45:04 PST 2007
-
 !
 ! BASIS="3-21G"
 !Elements                             References                                
@@ -1212,8 +1208,3 @@ CESIUM       ! (18s,12p,6d) -> [6s,5p,2d]
   1        7.371578000         0.2537250000    
   2        2.724824000         0.5788860000    
   3        1.026678000         0.3325980000    
-
-------------------------------------------------------------------------
-
-    * Descriptive Information about 3-21G <javascript:void(0)>
-    * Graphical Representation </images/cce/text_basissets/3-21G.p2.gif>
