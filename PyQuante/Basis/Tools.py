@@ -18,6 +18,10 @@ basis_map = {
     '6-31g(d,p)':'p631ss',
     '6-31g**++':'p631ppss',
     '6-31g++**':'p631ppss',
+    '6-311g**':'p6311ss',
+    '6-311g++(2d,2p)':'p6311pp_2d_2p',
+    '6-311g++(3d,3p)':'p6311pp_3d_3p',
+    '6-311g++(3df,3pd)':'p6311pp_3df_3pd',
     '3-21g':'p321',
     'sto-3g':'sto3g',
     'sto-6g':'sto6g',
@@ -27,8 +31,6 @@ basis_map = {
     'ccpvtz':'ccpvtz',
     'cc-pvtz':'ccpvtz',
     'dzvp':'dzvp',
-    '6-311g**':'p6311ss',
-    '6-311g++(2d,2p)':'p6311pp_2d_2p',
     }
 
 def importname(modulename, name):

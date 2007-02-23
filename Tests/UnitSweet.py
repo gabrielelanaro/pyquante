@@ -125,6 +125,11 @@ class BasisUnitTests(unittest.TestCase):
         h2_hf.iterate()
         self.assertAlmostEqual(h2_hf.energy,-1.132122,4)
 
+    def test6311G3d3p(self):
+        h2_hf = HFSolver(self.h2,basis='6-311G++(3d,3p)')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.132166,4)
+
 class DFTUnitTests(unittest.TestCase):
     def setUp(self):
         from PyQuante.Molecule import Molecule
