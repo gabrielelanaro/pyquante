@@ -11,6 +11,7 @@ class UMINDO3Solver(MINDO3Solver):
     def get_guess(self):
         from PyQuante.MINDO3 import get_guess_D
         self.Da = self.Db = 0.5*get_guess_D(self.molecule)
+        self.start = True
         return
 
     def update_fock(self):
@@ -28,8 +29,14 @@ class UMINDO3Solver(MINDO3Solver):
         from PyQuante.LA2 import mkdens
         self.orbea,self.orbsa = eigh(self.Fa)
         self.orbeb,self.orbsb = eigh(self.Fb)
-        self.Da = mkdens(self.orbsa,0,self.nalpha)
-        self.Db = mkdens(self.orbsb,0,self.nbeta)
+
+    def update_density(self):
+        from PyQuante.LA2 import mkdens
+        if self.start:
+            self.start = False
+        else:
+            self.Da = mkdens(self.orbsa,0,self.nalpha)
+            self.Db = mkdens(self.orbsb,0,self.nbeta)
 
     def calculate_energy(self):
         from PyQuante.LA2 import trace2

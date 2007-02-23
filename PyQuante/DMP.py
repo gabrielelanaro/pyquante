@@ -32,10 +32,19 @@ class DmatSolver(HFSolver):
     def __init__(self,molecule,solver,**opts):
         HFSolver.__init__(self,molecule,**opts)
         self.solver = solver
+        self.start = True
+        self.entropy = 0
         return
 
+    def update_density(self):
+        from PyQuante.LA2 import mkdens_spinavg
+        if self.start:
+            self.start = False
+            self.D = mkdens_spinavg(self.orbs,self.nclosed,self.nopen)
+        else:
+            self.D = self.solver(self.F, self.S, self.nclosed)
+
     def solve_fock(self):
-        self.D = self.solver(self.F, self.S, self.nclosed)
         return
 
 class AbstractDMP:

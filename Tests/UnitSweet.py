@@ -160,7 +160,7 @@ class UHFUnitTests(unittest.TestCase):
     def testLiUHF(self):
         li_uhf = UHFSolver(self.li)
         li_uhf.iterate()
-        self.assertAlmostEqual(li_uhf.energy,-7.431085,4)
+        self.assertAlmostEqual(li_uhf.energy,-7.431364,4)
 
     def testLiUHFFT(self):
         li_uhf = UHFSolver(self.li)

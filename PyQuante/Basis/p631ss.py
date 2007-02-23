@@ -9,7 +9,7 @@
  license. Please see the file LICENSE that is part of this
  distribution. 
 """
-basis_dat = \
+basis_data = \
 {1: [('S',
       [(18.731137, 0.033494599999999999),
        (2.8253936999999998, 0.23472694999999999),

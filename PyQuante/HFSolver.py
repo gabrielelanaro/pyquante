@@ -67,7 +67,6 @@ class HFSolver(AbstractSolver):
         self.setup_basis(**opts)
         self.setup_integrals(**opts)
         self.setup_guess(**opts)
-        self.update_density()
         return
 
     def setup_basis(self,**opts):
@@ -134,7 +133,6 @@ class HFSolver(AbstractSolver):
     def solve_fock(self):
         from PyQuante.LA2 import geigh
         self.orbe,self.orbs = geigh(self.F,self.S)
-        self.update_density()
         return
 
     def calculate_energy(self):

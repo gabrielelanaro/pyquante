@@ -26,6 +26,7 @@ class MINDO3Solver(AbstractSolver):
     def get_guess(self):
         from PyQuante.MINDO3 import get_guess_D
         self.D = get_guess_D(self.molecule)
+        self.start = True
         return
 
     def update_fock(self):
@@ -36,9 +37,14 @@ class MINDO3Solver(AbstractSolver):
         
     def solve_fock(self):
         from PyQuante.NumWrap import eigh
-        from PyQuante.LA2 import mkdens
         self.orbe,self.orbs = eigh(self.F)
-        self.D = 2*mkdens(self.orbs,0,self.nclosed)
+
+    def update_density(self):
+        from PyQuante.LA2 import mkdens
+        if self.start:
+            self.start = False
+        else:
+            self.D = 2*mkdens(self.orbs,0,self.nclosed)
         
     def calculate_energy(self):
         from PyQuante.LA2 import trace2

@@ -18,13 +18,14 @@ class AbstractSolver:
         return
 
     def setup_iterations(self,**opts):
-        self.etol = opts.get('etol',1e-4)
+        self.etol = opts.get('etol',1e-5)
         self.etemp = opts.get('etemp',None)
         self.max_iter = opts.get('max_iter',40)
         self.energy_history = []
         return
 
     def iteration(self):
+        self.update_density()
         self.update_fock()
         self.solve_fock()
         self.calculate_energy()
@@ -37,6 +38,7 @@ class AbstractSolver:
         self.nclosed,self.nopen = self.molecule.get_closedopen()
         self.Enuke = self.molecule.get_enuke()
         self.energy = 0
+        self.do_averaging = False
         return
 
     def print_setup_info(self):

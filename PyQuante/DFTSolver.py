@@ -50,7 +50,6 @@ class DFTSolver(HFSolver):
         self.method = self.functional
         opts['do_grad_dens'] = need_gradients[self.functional]
         self.setup_grid(**opts)
-        self.update_density()
         return
 
     def setup_grid(self,**opts):
