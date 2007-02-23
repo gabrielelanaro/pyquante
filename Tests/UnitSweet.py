@@ -65,6 +65,61 @@ class HFUnitTests(unittest.TestCase):
         li_m_hf.iterate()
         self.assertAlmostEqual(li_m_hf.energy,-7.407030,4)
 
+class BasisUnitTests(unittest.TestCase):
+    def setUp(self):
+        from PyQuante.Molecule import Molecule
+        self.h2 = Molecule('H2',atomlist=[(1,(0.35,0,0)),(1,(-0.35,0,0))],units='Angs')
+
+    def testSTO3G(self):
+        h2_hf = HFSolver(self.h2,basis='sto-3g')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.117349,4)
+
+    def testSTO6G(self):
+        h2_hf = HFSolver(self.h2,basis='sto-3g')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.117349,4)
+
+    def test321G(self):
+        h2_hf = HFSolver(self.h2,basis='3-21g')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.121998,4)
+
+    def test631Gss(self):
+        h2_hf = HFSolver(self.h2,basis='6-31g**')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.130501,4)
+
+    def test631Gdp(self):
+        h2_hf = HFSolver(self.h2,basis='6-31G(d,p)')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.130501,4)
+
+    def testVDZ(self):
+        h2_hf = HFSolver(self.h2,basis='cc-pvdz')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.126923,4)
+
+    def testVTZ(self):
+        h2_hf = HFSolver(self.h2,basis='cc-pvtz')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.132136,4)
+
+    def testDZVP(self):
+        h2_hf = HFSolver(self.h2,basis='dzvp')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.126728,4)
+
+    def test6311G(self):
+        h2_hf = HFSolver(self.h2,basis='6-311G**')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.131516,4)
+
+    def test6311Gdp(self):
+        h2_hf = HFSolver(self.h2,basis='6-311G++(2d,2p)')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.132122,4)
+
 class DFTUnitTests(unittest.TestCase):
     def setUp(self):
         from PyQuante.Molecule import Molecule
@@ -105,7 +160,7 @@ class UHFUnitTests(unittest.TestCase):
     def testLiUHF(self):
         li_uhf = UHFSolver(self.li)
         li_uhf.iterate()
-        self.assertAlmostEqual(li_uhf.energy,-7.431364,4)
+        self.assertAlmostEqual(li_uhf.energy,-7.431085,4)
 
     def testLiUHFFT(self):
         li_uhf = UHFSolver(self.li)

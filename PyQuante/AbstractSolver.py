@@ -20,7 +20,7 @@ class AbstractSolver:
     def setup_iterations(self,**opts):
         self.etol = opts.get('etol',1e-4)
         self.etemp = opts.get('etemp',None)
-        self.max_iter = opts.get('max_iter',20)
+        self.max_iter = opts.get('max_iter',40)
         self.energy_history = []
         return
 
@@ -52,7 +52,7 @@ class AbstractSolver:
         return
     
     def print_post_iteration_info(self):
-        if self.iter == self.max_iter-1:
+        if self.iter == self.max_iter:
             logging.warning("Warning! Maximum iterations (%d) reached" % self.max_iter)
         logging.info("%s final energy is %.6f reached in %d iterations"
                      % (self.molecule.name,self.energy,self.iter))

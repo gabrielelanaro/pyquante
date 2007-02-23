@@ -65,8 +65,14 @@ class UHFSolver(HFSolver):
         self.Fa = self.h + self.Ja + self.Jb - self.Ka
         self.Fb = self.h + self.Ja + self.Jb - self.Kb
         if self.do_averaging:
-            self.Fa = self.avga.getF(self.Fa,self.Da)
-            self.Fb = self.avgb.getF(self.Fb,self.Db)
+            #self.Fa = self.avga.getF(self.Fa,self.Da)
+            #self.Fb = self.avgb.getF(self.Fb,self.Db)
+            # DIIS doesn't work well for UHF, so try simple averaging:
+            if self.iter > 1:
+                self.Fa = 0.5*(self.Fa + self.Fa_old)
+                self.Fb = 0.5*(self.Fb + self.Fb_old)
+            self.Fa_old = self.Fa
+            self.Fb_old = self.Fb
         self.update_density()
         return
 

@@ -11,10 +11,11 @@
  distribution. 
 """
 
-from NumWrap import dot,ravel,matrixmultiply,zeros
-from NumWrap import solve
-from LA2 import SymOrth
+from PyQuante.NumWrap import dot,ravel,matrixmultiply,zeros
+from PyQuante.NumWrap import solve
+from PyQuante.LA2 import SymOrth
 from math import sqrt
+from PyQuante import logging
 
 VERBOSE=0
 
@@ -79,7 +80,7 @@ class DIIS:
         self.S = S
         #self.X = SymOrth(S)
         self.started = 0
-        self.errcutoff = 0.5
+        self.errcutoff = 0.1
         return
 
     def error(self): return self.maxerr
@@ -126,6 +127,7 @@ class DIIS:
         try:
             c = solve(a,b)
         except:
+            logging.warning("Solve failed in DIIS")
             self.Fold = F
             return F
         

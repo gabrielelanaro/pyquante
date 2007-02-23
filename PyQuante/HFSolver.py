@@ -56,7 +56,7 @@ class HFSolver(AbstractSolver):
         if self.etemp:
             logging.info("Electron temperature = %.0f" % self.etemp)
         if self.do_averaging:
-            logging.debug("Using DIIS averaging")
+            logging.debug("Using orbital averaging")
         AbstractSolver.print_pre_iteration_info(self)
         return
     

@@ -12,15 +12,15 @@
 """
 
 symbol = [
-    'X','H','He',
-    'Li','Be','B','C','N','O','F','Ne',
-    'Na','Mg','Al','Si','P','S','Cl','Ar',
-    'K', 'Ca', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe',
-    'Co', 'Ni', 'Cu', 'Zn',
-    'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr',
-    'Rb', 'Sr', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru',
-    'Rh', 'Pd', 'Ag', 'Cd',
-    'In', 'Sn', 'Sb', 'Te', 'I', 'Xe']
+    "X","H","He",
+    "Li","Be","B","C","N","O","F","Ne",
+    "Na","Mg","Al","Si","P","S","Cl","Ar",
+    "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe",
+    "Co", "Ni", "Cu", "Zn",
+    "Ga", "Ge", "As", "Se", "Br", "Kr",
+    "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru",
+    "Rh", "Pd", "Ag", "Cd",
+    "In", "Sn", "Sb", "Te", "I", "Xe"]
 
 
 sym2no = {}
@@ -29,19 +29,19 @@ for i in range(len(symbol)):
     sym2no[symbol[i].lower()] = i
     
 name = [
-    'dummy',
-    'hydrogen', 'helium',
-    'lithium','beryllium','boron','carbon','nitrogen',
-    'oxygen','fluorine','neon','sodium','magnesium',
-    'aluminum','silicon','phosphorus','sulfur','chlorine',
-    'argon','potassium', 'calcium', 'scandium', 'titanium',
-    'vanadium', 'chromium', 'manganese', 'iron',
-    'cobalt', 'nickel', 'copper', 'zinc',
-    'gallium', 'germanium', 'arsenic', 'selenium', 'bromine',
-    'krypton', 'rubidium', 'strontium', 'yttrium', 'zirconium',
-    'niobium', 'molybdenum', 'technetium', 'ruthenium','rhodium',
-    'palladium', 'silver', 'cadmium','indium', 'tin', 'antimony',
-    'tellerium', 'iodine', 'xenon']
+    "dummy",
+    "hydrogen", "helium",
+    "lithium","beryllium","boron","carbon","nitrogen",
+    "oxygen","fluorine","neon","sodium","magnesium",
+    "aluminum","silicon","phosphorus","sulfur","chlorine",
+    "argon","potassium", "calcium", "scandium", "titanium",
+    "vanadium", "chromium", "manganese", "iron",
+    "cobalt", "nickel", "copper", "zinc",
+    "gallium", "germanium", "arsenic", "selenium", "bromine",
+    "krypton", "rubidium", "strontium", "yttrium", "zirconium",
+    "niobium", "molybdenum", "technetium", "ruthenium","rhodium",
+    "palladium", "silver", "cadmium","indium", "tin", "antimony",
+    "tellerium", "iodine", "xenon","cesium", "barium"]
 
 name2no = {}
 for i in range(len(name)):

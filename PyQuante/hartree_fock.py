@@ -151,7 +151,7 @@ def uhf(atoms,**opts):
     orbs          None    If not None, the guess orbitals
     """
     ConvCriteria = opts.get('ConvCriteria',1e-5)
-    MaxIter = opts.get('MaxIter',20)
+    MaxIter = opts.get('MaxIter',40)
     DoAveraging = opts.get('DoAveraging',True)
     averaging = opts.get('averaging',0.5)
     ETemp = opts.get('ETemp',False)
@@ -221,8 +221,12 @@ def uhf(atoms,**opts):
         energya = get_energy(h,Fa,Da)
         energyb = get_energy(h,Fb,Db)
         energy = (energya+energyb)/2+enuke
+        Dab = Da+Db
+        Eone = trace2(Dab,h)
+        Ej = 0.5*trace2(Dab,Ja+Jb)
+        Ek = -0.5*(trace2(Da,Ka)+trace2(Db,Kb))
         if ETemp: energy += entropy
-        logging.debug("%d %f" % (i,energy))
+        logging.debug("%d %f %f %f %f" % (i,energy,Eone,Ej,Ek))
         if abs(energy-eold) < ConvCriteria: break
         eold = energy
     logging.info("Final UHF energy for system %s is %f" % (atoms.name,energy))

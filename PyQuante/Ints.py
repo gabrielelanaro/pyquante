@@ -23,13 +23,15 @@ sym2powerlist = {
            (0,3,0),(0,2,1),(0,1,2), (0,0,3)]
     }
 
-def getbasis(atoms,basis_data=None):
+def getbasis(atoms,basis_data=None,**opts):
     """\
     bfs = getbasis(atoms,basis_data=None)
     
     Given a Molecule object and a basis library, form a basis set
     constructed as a list of CGBF basis functions objects.
     """
+    # Option to omit f basis functions from imported basis sets
+    omit_f = opts.get('omit_f',True)
     if not basis_data:
         from PyQuante.Basis.p631ss import basis_data
     elif type(basis_data) == type(''):
@@ -40,6 +42,7 @@ def getbasis(atoms,basis_data=None):
     for atom in atoms:
         bs = basis_data[atom.atno]
         for sym,prims in bs:
+            if omit_f and sym == "F": continue
             for power in sym2powerlist[sym]:
                 bf = CGBF(atom.pos(),power)
                 for expnt,coef in prims:
