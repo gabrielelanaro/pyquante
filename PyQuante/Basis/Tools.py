@@ -24,7 +24,6 @@ basis_map = {
     'cc-pvdz':'ccpvdz',
     'ccpvtz':'ccpvtz',
     'cc-pvtz':'ccpvtz',
-    'cc-pvtz(-f)':'ccpvtzmf',
     'dzvp':'dzvp',
     '6-311g**':'p6311ss',
     '6-311g++(2d,2p)':'p6311pp_2d_2p',
