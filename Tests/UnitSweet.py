@@ -90,6 +90,11 @@ class BasisUnitTests(unittest.TestCase):
         h2_hf.iterate()
         self.assertAlmostEqual(h2_hf.energy,-1.130501,4)
 
+    def test631Gppss(self):
+        h2_hf = HFSolver(self.h2,basis='6-31g++**')
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.130553,4)
+
     def test631Gdp(self):
         h2_hf = HFSolver(self.h2,basis='6-31G(d,p)')
         h2_hf.iterate()

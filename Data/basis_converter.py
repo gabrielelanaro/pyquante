@@ -37,10 +37,12 @@ header = """\
 """
 
 def main():
-    fnames = ["basis_321.dat","basis_6311pp_2d_2p.dat",
-              "basis_6311ss.dat","basis_ccpvdz.dat",
-              "basis_ccpvtz.dat","basis_dzvp.dat",
-              "basis_sto3g.dat","basis_sto6g.dat"]
+    import sys
+    #fnames = ["basis_321.dat","basis_6311pp_2d_2p.dat",
+    #          "basis_6311ss.dat","basis_ccpvdz.dat",
+    #          "basis_ccpvtz.dat","basis_dzvp.dat",
+    #          "basis_sto3g.dat","basis_sto6g.dat"]
+    fnames = sys.argv[1:]
     do_write = True
     for fname in fnames:
         print "Processing ",fname
