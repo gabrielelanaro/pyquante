@@ -102,7 +102,8 @@ class HFSolver(AbstractSolver):
         from PyQuante.LA2 import mkdens_spinavg
         from PyQuante.fermi_dirac import mkdens_fermi
         if self.etemp:
-            self.D,self.entropy = mkdens_fermi(self.nel,self.orbe,self.orbs,self.etemp)
+            self.D,self.entropy = mkdens_fermi(self.nel,self.orbe,self.orbs,
+                                               self.etemp)
         else:
             self.D = mkdens_spinavg(self.orbs,self.nclosed,self.nopen)
             self.entropy=0

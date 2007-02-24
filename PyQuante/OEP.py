@@ -6,16 +6,205 @@ from math import sqrt
 from PyQuante.NumWrap import zeros,matrixmultiply,transpose,dot,identity,\
      array,solve
 from PyQuante.Ints import getbasis, getints, getJ,get2JmK,getK
-from PyQuante.LA2 import geigh,mkdens,trace2
+from PyQuante.LA2 import geigh,mkdens,trace2,simx
 from PyQuante.hartree_fock import get_fock
 from PyQuante.CGBF import three_center
 from PyQuante.optimize import fminBFGS
 from PyQuante.fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs,\
-     get_entropy
+     get_entropy,mkdens_fermi
 from PyQuante import logging
 
 gradcall=0
 
+class EXXSolver:
+    "EXXSolver(solver)"
+    def __init__(self,solver):
+        # Solver is a pointer to a HF or a DFT calculation that has
+        #  already converged
+        self.solver = solver
+        self.bfs = self.solver.bfs
+        self.nbf = len(self.bfs)
+        self.S = self.solver.S
+        self.h = self.solver.h
+        self.Ints = self.solver.Ints
+        self.molecule = self.solver.molecule
+        self.nel = self.molecule.get_nel()
+        self.nclosed, self.nopen = self.molecule.get_closedopen()
+        self.Enuke = self.molecule.get_enuke()
+        self.norb = self.nbf
+        self.orbs = self.solver.orbs
+        self.orbe = self.solver.orbe
+        self.Gij = []
+        for g in range(self.nbf):
+            gmat = zeros((self.nbf,self.nbf),'d')
+            self.Gij.append(gmat)
+            gbf = self.bfs[g]
+            for i in range(self.nbf):
+                ibf = self.bfs[i]
+                for j in range(i+1):
+                    jbf = self.bfs[j]
+                    gij = three_center(ibf,gbf,jbf)
+                    gmat[i,j] = gij
+                    gmat[j,i] = gij
+        D0 = mkdens(self.orbs,0,self.nclosed)
+        J0 = getJ(self.Ints,D0)
+        Vfa = (2.0*(self.nel-1.0)/self.nel)*J0
+        self.H0 = self.h + Vfa
+        self.b = zeros(self.nbf,'d')
+        return
+
+    def iterate(self,**opts):
+        self.iter = 0
+        self.etemp = opts.get("etemp",False)
+        logging.debug("iter    Energy     <b|b>")
+        logging.debug("----    ------     -----")
+        self.b = fminBFGS(self.get_energy,self.b,self.get_gradient,logger=logging)
+        return
+
+    def get_energy(self,b):
+        self.iter += 1
+        self.Hoep = get_Hoep(b,self.H0,self.Gij)
+        self.orbe,self.orbs = geigh(self.Hoep,self.S)
+        if self.etemp:
+            self.D,self.entropy = mkdens_fermi(self.nel,self.orbe,self.orbs,
+                                               self.etemp)
+        else:
+            self.D = mkdens(self.orbs,0,self.nclosed)
+            self.entropy=0
+        self.F = get_fock(self.D,self.Ints,self.h)
+        self.energy = trace2(self.h+self.F,self.D)+self.Enuke + self.entropy
+        if self.iter == 1 or self.iter % 10 == 0:
+            logging.debug("%4d %10.5f %10.5f" % (self.iter,self.energy,dot(b,b)))
+        return self.energy
+
+    def get_gradient(self,b):
+        energy = self.get_energy(b)
+        Fmo = simx(self.F,self.orbs)
+        bp = zeros(self.nbf,'d')
+
+        for g in range(self.nbf):
+            # Transform Gij[g] to MOs. This is done over the whole
+            #  space rather than just the parts we need. I can speed
+            #  this up later by only forming the i,a elements required
+            Gmo = simx(self.Gij[g],self.orbs)
+
+            # Now sum the appropriate terms to get the b gradient
+            for i in range(self.nclosed):
+                for a in range(self.nclosed,self.norb):
+                    bp[g] = bp[g] + Fmo[i,a]*Gmo[i,a]/(self.orbe[i]-self.orbe[a])
+
+        #logging.debug("EXX  Grad: %10.5f" % (sqrt(dot(bp,bp))))
+        return bp
+
+class UEXXSolver:
+    "EXXSolver(solver)"
+    def __init__(self,solver):
+        # Solver is a pointer to a UHF calculation that has
+        #  already converged
+        self.solver = solver
+        self.bfs = self.solver.bfs
+        self.nbf = len(self.bfs)
+        self.S = self.solver.S
+        self.h = self.solver.h
+        self.Ints = self.solver.Ints
+        self.molecule = self.solver.molecule
+        self.nel = self.molecule.get_nel()
+        self.nalpha, self.nbeta = self.molecule.get_alphabeta()
+        self.Enuke = self.molecule.get_enuke()
+        self.norb = self.nbf
+        self.orbsa = self.solver.orbsa
+        self.orbsb = self.solver.orbsb
+        self.orbea = self.solver.orbea
+        self.orbeb = self.solver.orbeb
+        self.Gij = []
+        for g in range(self.nbf):
+            gmat = zeros((self.nbf,self.nbf),'d')
+            self.Gij.append(gmat)
+            gbf = self.bfs[g]
+            for i in range(self.nbf):
+                ibf = self.bfs[i]
+                for j in range(i+1):
+                    jbf = self.bfs[j]
+                    gij = three_center(ibf,gbf,jbf)
+                    gmat[i,j] = gij
+                    gmat[j,i] = gij
+        D0 = mkdens(self.orbsa,0,self.nalpha)+mkdens(self.orbsb,0,self.nbeta)
+        J0 = getJ(self.Ints,D0)
+        Vfa = ((self.nel-1.)/self.nel)*J0
+        self.H0 = self.h + Vfa
+        self.b = zeros(2*self.nbf,'d')
+        return
+
+    def iterate(self,**opts):
+        self.etemp = opts.get("etemp",False)
+        self.iter = 0
+        logging.debug("iter    Energy     <b|b>")
+        logging.debug("----    ------     -----")
+        self.b = fminBFGS(self.get_energy,self.b,self.get_gradient,logger=logging)
+        return
+
+    def get_energy(self,b):
+        self.iter += 1
+        ba = b[:self.nbf]
+        bb = b[self.nbf:]
+        self.Hoepa = get_Hoep(ba,self.H0,self.Gij)
+        self.Hoepb = get_Hoep(bb,self.H0,self.Gij)
+        self.orbea,self.orbsa = geigh(self.Hoepa,self.S)
+        self.orbeb,self.orbsb = geigh(self.Hoepb,self.S)
+        if self.etemp:
+            self.Da,entropya = mkdens_fermi(2*self.nalpha,self.orbea,self.orbsa,
+                                            self.etemp)
+            self.Db,entropyb = mkdens_fermi(2*self.nbeta,self.orbeb,self.orbsb,
+                                            self.etemp)
+            self.entropy = 0.5*(entropya+entropyb)
+        else:
+            self.Da = mkdens(self.orbsa,0,self.nalpha)
+            self.Db = mkdens(self.orbsb,0,self.nbeta)
+            self.entropy=0
+        J = getJ(self.Ints,self.Da+self.Db)
+        Ka = getK(self.Ints,self.Da)
+        Kb = getK(self.Ints,self.Db)
+        self.Fa = self.h + J - Ka
+        self.Fb = self.h + J - Kb
+        self.energy = 0.5*(trace2(self.h+self.Fa,self.Da) +
+                           trace2(self.h+self.Fb,self.Db))\
+                           + self.Enuke + self.entropy
+        if self.iter == 1 or self.iter % 10 == 0:
+            logging.debug("%4d %10.5f %10.5f" % (self.iter,self.energy,dot(b,b)))
+        return self.energy
+
+    def get_gradient(self,b):
+        energy = self.get_energy(b)
+        Fmoa = simx(self.Fa,self.orbsa)
+        Fmob = simx(self.Fb,self.orbsb)
+
+        bp = zeros(2*self.nbf,'d')
+
+        for g in range(self.nbf):
+            # Transform Gij[g] to MOs. This is done over the whole
+            #  space rather than just the parts we need. I can speed
+            #  this up later by only forming the i,a elements required
+            Gmo = simx(self.Gij[g],self.orbsa)
+
+            # Now sum the appropriate terms to get the b gradient
+            for i in range(self.nalpha):
+                for a in range(self.nalpha,self.norb):
+                    bp[g] += Fmoa[i,a]*Gmo[i,a]/(self.orbea[i]-self.orbea[a])
+
+        for g in range(self.nbf):
+            # Transform Gij[g] to MOs. This is done over the whole
+            #  space rather than just the parts we need. I can speed
+            #  this up later by only forming the i,a elements required
+            Gmo = simx(self.Gij[g],self.orbsb)
+
+            # Now sum the appropriate terms to get the b gradient
+            for i in range(self.nbeta):
+                for a in range(self.nbeta,self.norb):
+                    bp[self.nbf+g] += Fmob[i,a]*Gmo[i,a]/(self.orbeb[i]-self.orbeb[a])
+
+        #logging.debug("EXX  Grad: %10.5f" % (sqrt(dot(bp,bp))))
+        return bp
+        
 def exx(atoms,orbs,**opts):
     return oep_hf(atoms,orbs,**opts)
 
@@ -494,7 +683,7 @@ def oep_uhf_an(atoms,orbsa,orbsb,**opts):
     logging.info("Final OEP energy = %f" % energy)
     return energy,(orbea,orbeb),(orbsa,orbsb)
 
-if __name__ == '__main__':
+def test_old():
     from PyQuante.Molecule import Molecule
     from PyQuante.Ints import getbasis,getints
     from PyQuante.hartree_fock import rhf
@@ -511,3 +700,43 @@ if __name__ == '__main__':
     E_hf,orbe_hf,orbs_hf = rhf(mol,bfs=bfs,integrals=(S,h,Ints),DoAveraging=True)
     print "RHF energy = ",E_hf
     E_exx,orbe_exx,orbs_exx = exx(mol,orbs_hf,bfs=bfs,integrals=(S,h,Ints))
+    return
+
+def test():
+    from PyQuante import Molecule, HFSolver, DFTSolver, UHFSolver
+    logging.basicConfig(level=logging.DEBUG,format="%(message)s")
+    mol = Molecule("He",[(2,(0,0,0))])
+    solver = HFSolver(mol)
+    solver.iterate()
+    print "HF energy = ",solver.energy
+    dft_solver = DFTSolver(mol)
+    dft_solver.iterate()
+    print "DFT energy = ",dft_solver.energy
+    oep = EXXSolver(solver)
+    # Testing 0 temp
+    oep.iterate()
+    # Testing finite temp
+    oep.iterate(etemp=40000)
+    return
+    
+def utest():
+    from PyQuante import Molecule, HFSolver, DFTSolver, UHFSolver
+    logging.basicConfig(level=logging.DEBUG,format="%(message)s")
+    mol = Molecule("He",[(2,(0,0,0))])
+    mol = Molecule("Li",[(3,(0,0,0))],multiplicity=2)
+    solver = UHFSolver(mol)
+    solver.iterate()
+    print "HF energy = ",solver.energy
+    dft_solver = DFTSolver(mol)
+    dft_solver.iterate()
+    print "DFT energy = ",dft_solver.energy
+    oep = UEXXSolver(solver)
+    # Testing 0 temp
+    oep.iterate()
+    # Testing finite temp
+    oep.iterate(etemp=10000)
+    return
+    
+if __name__ == '__main__':
+    test()
+    utest()

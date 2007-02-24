@@ -21,9 +21,12 @@ class UHFSolver(HFSolver):
         return
 
     def setup_averaging(self,**opts):
+        # Taken out because DIIS just doesn't work for UHF
+        #  without some additional hacking
         #from PyQuante.Convergence import DIIS
         #self.avga = DIIS(self.S)
         #self.avgb = DIIS(self.S)
+        self.avgfact = opts.get('avgfact',0.5)
         return        
 
     def update_density(self):
@@ -41,8 +44,8 @@ class UHFSolver(HFSolver):
             self.entropy=0
         if self.do_averaging:
             if self.iter > 1:
-                self.Da = 0.5*(self.Da + self.Da_old)
-                self.Db = 0.5*(self.Db + self.Db_old)
+                self.Da = self.avgfact*self.Da + (1.0-self.avgfact)*self.Da_old
+                self.Db = self.avgfact*self.Db + (1.0-self.avgfact)*self.Db_old
             self.Da_old = self.Da
             self.Db_old = self.Db
         self.Dab = self.Da + self.Db
@@ -67,15 +70,10 @@ class UHFSolver(HFSolver):
         self.update_K()
         self.Fa = self.h + self.Ja + self.Jb - self.Ka
         self.Fb = self.h + self.Ja + self.Jb - self.Kb
+        # DIIS doesn't work well for UHF:
         #if self.do_averaging:
         ##    self.Fa = self.avga.getF(self.Fa,self.Da)
         ##    self.Fb = self.avgb.getF(self.Fb,self.Db)
-        #    # DIIS doesn't work well for UHF, so try simple averaging:
-        #    if self.iter > 1:
-        #        self.Fa = 0.5*(self.Fa + self.Fa_old)
-        #        self.Fb = 0.5*(self.Fb + self.Fb_old)
-        #    self.Fa_old = self.Fa
-        #    self.Fb_old = self.Fb
         return
 
     def solve_fock(self):

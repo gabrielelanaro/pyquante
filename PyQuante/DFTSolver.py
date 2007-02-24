@@ -110,8 +110,14 @@ class UnitTests(unittest.TestCase):
         h2_blyp.iterate()
         self.assertAlmostEqual(h2_blyp.energy,-1.166221,4)
         
-def test():
+def test_suite():
     suite = unittest.TestLoader().loadTestsFromTestCase(UnitTests)
     unittest.TextTestRunner(verbosity=2).run(suite)
+
+def test():
+    from PyQuante import Molecule
+    al = Molecule('Al',atomlist = [(13,(0,0,0))],multiplicity=2)
+    al_lda = DFTSolver(al)
+    al_lda.iterate()
     
 if __name__ == '__main__': test()
