@@ -25,7 +25,7 @@ if use_numpy:
     from numpy import array,zeros,concatenate,dot,ravel,arange
     from numpy import arcsinh,diagonal,identity,choose,transpose
     from numpy import reshape,take,trace
-    from numpy import where
+    from numpy import where,argsort
     matrixmultiply = dot
     matmul = dot
 
@@ -44,7 +44,7 @@ else:
     from Numeric import matrixmultiply
     from Numeric import arcsinh,diagonal,identity,choose,transpose
     from Numeric import reshape,take,trace
-    from Numeric import where
+    from Numeric import where,argsort
     from Numeric import NewAxis
     from LinearAlgebra import Heigenvectors
     from LinearAlgebra import determinant as det

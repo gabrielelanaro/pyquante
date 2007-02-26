@@ -158,12 +158,10 @@ def jacobi(A,**opts):
     return None
 
 def evsort(E,V):
-    n = len(E)
-    EV = [(E[i],list(V[:,i])) for i in range(n)]
-    EV.sort()
-    E = [Ei for (Ei,Vi) in EV]
-    V = [Vi for (Ei,Vi) in EV]
-    V = transpose(array(V))
+    from PyQuante.NumWrap import argsort
+    ind = argsort(E)
+    E = E[ind]
+    V = V[:,ind]
     return E,V
 
 def rotate(g,h,s,tau): return g-s*(h+g*tau),h+s*(g-h*tau)
