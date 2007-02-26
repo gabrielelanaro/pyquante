@@ -29,7 +29,7 @@ class DFTSolver(HFSolver):
 
     Options:      Value   Description
     --------      -----   -----------
-    etol          1e-4    Energy convergence criteria
+    etol          1e-5    Energy convergence criteria
     max_iter      20      Maximum SCF iterations
     do_averaging  True    Use DIIS for accelerated convergence (default)
                   False   No convergence acceleration

@@ -17,7 +17,7 @@ from fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs,get_entropy
 from LA2 import geigh,mkdens,trace2
 from Ints import get2JmK,getbasis,getints,getJ,getK
 from Convergence import DIIS
-from PyQuante import logging
+import logging
 
 from math import sqrt,pow
 from PyQuante.cints import dist

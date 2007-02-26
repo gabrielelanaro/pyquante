@@ -21,7 +21,7 @@ from DFunctionals import XC,need_gradients
 from time import time
 from Convergence import DIIS
 from PyQuante.cints import dist
-from PyQuante import logging
+import logging
 
 # This is the version before Ann Mattsson made her changes. I'm keeping
 #  it around for old time's sake. Putting this comment in 2007-02;

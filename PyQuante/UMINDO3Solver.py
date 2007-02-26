@@ -1,4 +1,4 @@
-from PyQuante import logging
+import logging
 from MINDO3Solver import MINDO3Solver
 
 class UMINDO3Solver(MINDO3Solver):

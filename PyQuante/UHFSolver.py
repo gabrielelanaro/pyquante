@@ -1,6 +1,6 @@
 import unittest
 from PyQuante.HFSolver import HFSolver
-from PyQuante import logging
+import logging
 class UHFSolver(HFSolver):
     def setup(self,**opts):
         self.nalpha,self.nbeta = self.molecule.get_alphabeta()

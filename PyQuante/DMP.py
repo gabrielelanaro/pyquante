@@ -20,7 +20,7 @@
 #     normally kicks in around 70 or 80 iterations.
 #  MCW works, provided we have a guess for efermi
 
-from PyQuante import logging
+import logging
 from PyQuante.Ints import getbasis,getints,get2JmK
 from PyQuante.Molecule import Molecule
 from PyQuante.LA2 import mkdens,SymOrth,simx

@@ -11,7 +11,7 @@
  it. Woe be unto the man who denies his pregnant wife.
 """
 
-from PyQuante import logging
+import logging
 import h2,he,he_dft,h2o,h2o_mindo,oh_mindo,h2o_dft,ne,no_uhf,h2_cis,\
        h2_mp2,h2_dft,lih_dft,h_dft,li_dft,no_dft,\
        h2_ft_dft,li_ft_dft,be_oep

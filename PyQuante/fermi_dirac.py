@@ -15,7 +15,7 @@ from NumWrap import matrixmultiply,transpose
 from math import exp,log
 from Constants import Kboltz
 from LA2 import mkdens
-from PyQuante import logging
+import logging
 
 def mkdens_fermi(nel,orbe,orbs,e_temp):
     efermi = get_efermi(nel,orbe,e_temp)

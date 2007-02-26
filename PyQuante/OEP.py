@@ -12,7 +12,7 @@ from PyQuante.CGBF import three_center
 from PyQuante.optimize import fminBFGS
 from PyQuante.fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs,\
      get_entropy,mkdens_fermi
-from PyQuante import logging
+import logging
 
 gradcall=0
 
@@ -687,7 +687,7 @@ def test_old():
     from PyQuante.Molecule import Molecule
     from PyQuante.Ints import getbasis,getints
     from PyQuante.hartree_fock import rhf
-    from PyQuante import logging
+
     logging.basicConfig(level=logging.DEBUG,format="%(message)s")
 
     #mol = Molecule('HF',[('H',(0.,0.,0.)),('F',(0.,0.,0.898369))],

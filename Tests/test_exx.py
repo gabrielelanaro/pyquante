@@ -6,7 +6,7 @@ from PyQuante.Molecule import Molecule
 from PyQuante.Ints import getbasis,getints
 from PyQuante.hartree_fock import rhf
 from PyQuante.dft import dft
-from PyQuante import logging
+import logging
 import time
 
 def test_exx():

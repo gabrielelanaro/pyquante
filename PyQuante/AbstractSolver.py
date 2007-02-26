@@ -1,4 +1,4 @@
-from PyQuante import logging
+import logging
 
 class AbstractSolver:
     def __init__(self,molecule,**opts):

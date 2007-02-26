@@ -15,7 +15,7 @@ from PyQuante.NumWrap import dot,ravel,matrixmultiply,zeros
 from PyQuante.NumWrap import solve
 from PyQuante.LA2 import SymOrth
 from math import sqrt
-from PyQuante import logging
+import logging
 
 VERBOSE=0
 

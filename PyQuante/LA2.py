@@ -14,7 +14,7 @@
 # Todo
 # - update SimilarityTransformation to simx
 
-from PyQuante import logging
+import logging
 from math import sqrt
 from NumWrap import matrixmultiply,transpose,diagonal,identity,zeros,eigh,cholesky,inv
 
