@@ -159,7 +159,7 @@ def jacobi(A,**opts):
 
 def evsort(E,V):
     n = len(E)
-    EV = [(E[i],V[:,i]) for i in range(n)]
+    EV = [(E[i],list(V[:,i])) for i in range(n)]
     EV.sort()
     E = [Ei for (Ei,Vi) in EV]
     V = [Vi for (Ei,Vi) in EV]
