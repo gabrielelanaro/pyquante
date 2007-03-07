@@ -121,10 +121,6 @@ def mkdens(c,nstart,nstop):
     Dmat = matrixmultiply(d,transpose(d))
     return Dmat
 
-def mkdens2(c,nstart,nstop):
-    "2*normal density matrix, since that's more common"
-    return 2*mkdens(c,nstart,nstop)
-
 def mkdens_spinavg(c,nclosed,nopen):
     """Form a spin averaged density matrix with *nclosed* closed
        shell orbitals and *nopen* open shell orbitals"""
