@@ -3,7 +3,7 @@
 Solvers.py - explores ways to use different eigensolvers in Python
 """
 
-from PyQuante import HFSolver, Molecule, logging
+from PyQuante import HFSolver, Molecule
 from PyQuante.NumWrap import eigh,zeros,matrixmultiply,transpose,dot,\
      identity,diagonal,array
 from math import sqrt
@@ -179,6 +179,7 @@ def init_jacobi(**opts):
     return func
 
 def test():
+    import logging
     h2 = Molecule('H2',atomlist=[(1,(0.35,0,0)),(1,(-0.35,0,0))],units='Angs')
 
     #logging.info("\nRegular eigensolver")
