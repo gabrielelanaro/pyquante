@@ -30,6 +30,7 @@ class MolecularGrid:
         self.nrad = nrad 
         self.fineness = fineness
         self.make_atom_grids(**opts)
+        #self.patch_atoms_naive(**opts)
         self.patch_atoms(**opts)
         self._length = None
         return
@@ -49,7 +50,33 @@ class MolecularGrid:
             self.atomgrids.append(atom.grid)
         return
 
+    def patch_atoms_naive(self,**opts):
+        """\
+        This was the original PyQuante patching scheme. It simply
+        cuts off the grid at the voronai polyhedra. That is, if a
+        grid point is closer to another nucleus than it is to its
+        parent nucleus, its weight is set to zero.
+        """
+        nat = len(self.atoms)
+        for iat in range(nat):
+            ati = self.atoms[iat]
+            npts = len(self.atomgrids[iat])
+            for i in range(npts):
+                point = self.atomgrids[iat].points[i]
+                xp,yp,zp,wp = point.xyzw()
+                rip2 = dist2(ati.pos(),(xp,yp,zp))
+                for jat in range(nat):
+                    if jat == iat: continue
+                    atj = self.atoms[jat]
+                    rjp2 = dist2(atj.pos(),(xp,yp,zp))
+                    if rjp2 < rip2: point._w = 0
+        return
+    
     def patch_atoms(self,**opts):
+        """\
+        This is Becke's patching algorithm. I have not implemented
+        the normalization that is in eq 22.
+        """
         do_becke_hetero = opts.get('do_becke_hetero',False)
         nat = len(self.atoms)
         for iat in range(nat):
@@ -78,7 +105,7 @@ class MolecularGrid:
                         a = max(a,-0.5)
                         mu += a*(1-mu*mu)
                     sprod *= sbecke(mu)
-                    #if rjp2 < rip2: point.flag = True
+                    #if rjp2 < rip2: point._w = 0
                 point._w *= sprod
         return
     
