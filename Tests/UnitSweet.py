@@ -328,5 +328,6 @@ def suite():
     return unittest.TestLoader().loadTestsFromModule(UnitSweet)
         
 if __name__ == '__main__':
-    fullsuite = suite()
-    unittest.TextTestRunner(verbosity=2).run(fullsuite)
+    #fullsuite = suite()
+    #unittest.TextTestRunner(verbosity=2).run(fullsuite)
+    unittest.main()

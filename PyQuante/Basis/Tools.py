@@ -23,6 +23,7 @@ basis_map = {
     '6-311g++(3d,3p)':'p6311pp_3d_3p',
     '6-311g++(3df,3pd)':'p6311pp_3df_3pd',
     '3-21g':'p321',
+    'sto3g':'sto3g',
     'sto-3g':'sto3g',
     'sto-6g':'sto6g',
     'lacvp':'lacvp',

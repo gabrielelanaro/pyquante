@@ -127,7 +127,6 @@ class DIIS:
         try:
             c = solve(a,b)
         except:
-            logging.warning("Solve failed in DIIS")
             self.Fold = F
             return F
         

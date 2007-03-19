@@ -4,7 +4,6 @@
  grids. The technique behind this is based upon:
   A.D. Becke, 'A multicenter numerical integration scheme for
    polyatomic molecules.' J. Chem. Phys 88(4) 1988.
- although I haven't coded the Becke projection operators yet.
 
  The atomic grids are constructed from atomic grids that use
  Lebedev grids for the angular part, and Legendre grids for
