@@ -50,7 +50,7 @@ class MolecularGrid:
         return
 
     def patch_atoms(self,**opts):
-        do_becke_hetero = opts.get('do_becke_hetero',True)
+        do_becke_hetero = opts.get('do_becke_hetero',False)
         nat = len(self.atoms)
         for iat in range(nat):
             ati = self.atoms[iat]
@@ -61,7 +61,6 @@ class MolecularGrid:
                 rip2 = dist2(ati.pos(),(xp,yp,zp))
                 rip = sqrt(rip2)
                 sprod = 1
-                point.flag = False
                 for jat in range(nat):
                     if jat == iat: continue
                     atj = self.atoms[jat]
@@ -79,7 +78,7 @@ class MolecularGrid:
                         a = max(a,-0.5)
                         mu += a*(1-mu*mu)
                     sprod *= sbecke(mu)
-                    if rjp2 < rip2: point.flag = True
+                    #if rjp2 < rip2: point.flag = True
                 point._w *= sprod
         return
     

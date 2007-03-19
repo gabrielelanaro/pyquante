@@ -2,7 +2,7 @@ import logging
 
 class AbstractSolver:
     def __init__(self,molecule,**opts):
-        logging.basicConfig(level=logging.INFO,format="%(message)s")
+        #logging.basicConfig(level=logging.INFO,format="%(message)s")
         self.molecule = molecule
         self.setup(**opts)
         self.print_setup_info()
