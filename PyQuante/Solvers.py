@@ -3,28 +3,10 @@
 Solvers.py - explores ways to use different eigensolvers in Python
 """
 
-from PyQuante import HFSolver, Molecule
+from PyQuante import Molecule
 from PyQuante.NumWrap import eigh,zeros,matrixmultiply,transpose,dot,\
      identity,diagonal,array
 from math import sqrt
-
-class SubspaceSolver(HFSolver):
-    def __init__(self,molecule,solver,**opts):
-        HFSolver.__init__(self,molecule,**opts)
-        self.solver = solver
-        return
-    
-    def solve_fock(self):
-        from PyQuante.NumWrap import matrixmultiply, eigh, transpose
-        from PyQuante.LA2 import simx
-        # Transform F to the subspace of the previous iteration's orbitals:
-        F = simx(self.F,self.orbs)
-        # Solve in the subspace:
-        self.orbe,orbs = self.solver(F)
-        # Update the orbitals
-        self.orbs = matrixmultiply(self.orbs,orbs)
-        self.update_density()
-        return
 
 ### General functions required for the davidson solver
 def appendColumn(A,newVec):
