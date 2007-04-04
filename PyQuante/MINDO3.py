@@ -418,7 +418,7 @@ def energy_forces_factories(atoms,**kwargs):
     # optimizer functions.
     verbose_level = kwargs.get('verbose_level',0)
     return_etot_as_e = kwargs.get('return_etot_as_e',False)
-    numeric_forces = kwargs.get('numeric_forces',True)
+    numeric_forces = kwargs.get('numeric_forces',False)
     nat = len(atoms)
     coords = zeros(3*nat,'d')
     for i in range(nat):
@@ -452,6 +452,7 @@ def energy_forces_factories(atoms,**kwargs):
         if verbose_level > 0:
             print "MINDO3 gradient calculation requested:"
             print atoms
+            print Hf
         return F
 
     def Ffunc_num(cnew):
@@ -468,6 +469,7 @@ def energy_forces_factories(atoms,**kwargs):
         if verbose_level > 0:
             print "MINDO3 gradient calculation requested:"
             print atoms
+            print Hf
         return F
 
     if numeric_forces: return coords,Efunc,Ffunc_num
@@ -477,15 +479,18 @@ def opt(atoms,**kwargs):
     from PyQuante.optimize import fminBFGS
     c0,Efunc,Ffunc = energy_forces_factories(atoms,**kwargs)
 
+    print "C0 = ",c0
+
     # Currently optimization works when I use Energies and numerical
     #  forces, but not using the analytical forces. Obviously something
     #  is wrong somewhere here, but I don't have time to fix this now.
     #  Hopefully the final fix won't be too hard.
 
     copt = fminBFGS(Efunc,c0,Ffunc,avegtol=1e-4)
+    #copt = fminBFGS(Efunc,c0,None,avegtol=1e-4)
     
     Efinal = Efunc(copt)
-    return Efinal
+    return Efinal,copt
 
 def get_energy_forces(atoms,**opts):
     from Convergence import SimpleAverager
@@ -494,6 +499,7 @@ def get_energy_forces(atoms,**opts):
     averaging = opts.get('averaging',0.5)
     doforces = opts.get('doforces',True)
     verbose = opts.get('verbose',False)
+    numforces = opts.get('numforces',True)
     
     atoms = initialize(atoms)
     nel = get_nel(atoms)-int(chg)
@@ -533,12 +539,33 @@ def get_energy_forces(atoms,**opts):
     Hf = Etot*ev2kcal+eref
 
     if doforces:
-        Forces = forces(atoms,D)
-        #Forces = numeric_forces(atoms,D)
+        if numforces:
+            Forces = numeric_forces(atoms,D)
+        else:
+            Forces = forces(atoms,D)
     else:
         Forces = None
 
     return Hf,Forces
+
+def numeric_forces(atoms,D,**opts):
+    "Compute numerical forces on atoms"
+    # D is ignored here.
+    dx = opts.get('dx',1e-8)
+    nat = len(atoms)
+    Forces = zeros((nat,3),'d')
+    E0,fbs = get_energy_forces(atoms,doforces=False)
+    for iat in range(nat):
+        for idir in range(3):
+            dr = zeros(3,'d')
+            dr[idir] = dx
+            atoms[iat].translate(dr)
+            E,fbs = get_energy_forces(atoms,doforces=False)
+            atoms[iat].translate(-dr)
+            Forces[iat,idir] = (E-E0)/dx
+    return Forces
+            
+    
 
 def forces(atoms,D):
     "Compute analytic forces on list of atoms"

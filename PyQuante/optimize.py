@@ -20,6 +20,7 @@ fminNCG     ---      Line-search Newton Conjugate Gradient (uses function, gradi
 """
 from NumWrap import Numeric,identity,NewAxis
 from NumWrap import MLab
+import logging
 Num = Numeric
 max = MLab.max
 min = MLab.min
@@ -65,9 +66,9 @@ def rosen3_hess(x):
     return hessp
     
         
-def fmin(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=None, maxfun=None, fulloutput=0, logger=None):
+def fmin(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=None, maxfun=None, fulloutput=0):
     """xopt,{fval,warnflag} = fmin(function, x0, args=(), xtol=1e-4, ftol=1e-4,
-    maxiter=200*len(x0), maxfun=200*len(x0), fulloutput=0, logger=None)
+    maxiter=200*len(x0), maxfun=200*len(x0), fulloutput=0)
 
     Uses a Nelder-Mead Simplex algorithm to find the minimum of function
     of one or more variables.
@@ -174,20 +175,15 @@ def fmin(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=None, maxfun=None, ful
 
     if funcalls >= maxfun:
         warnflag = 1
-        if logger:
-            logger.write(
-                "Warning: Maximum number of function evaluations has been exceeded."
-                )
+        logging.debug("Warning: Maximum number of function evaluations has been exceeded.")
     elif iterations >= maxiter:
         warnflag = 2
-        if logger:
-            logger.write("Warning: Maximum number of iterations has been exceeded")
+        logging.debug("Warning: Maximum number of iterations has been exceeded")
     else:
-        if logger:
-            logger.write("Optimization terminated successfully.")
-            logger.write("         Current function value: %f" % fval)
-            logger.write("         Iterations: %d" % iterations)
-            logger.write("         Function evaluations: %d" % funcalls)
+        logging.debug("Optimization terminated successfully.")
+        logging.debug("         Current function value: %f" % fval)
+        logging.debug("         Iterations: %d" % iterations)
+        logging.debug("         Function evaluations: %d" % funcalls)
 
     if fulloutput:
         return x, fval, warnflag
@@ -324,9 +320,9 @@ def approx_fhess_p(x0,p,fprime,*args):
     return (f2 - f1)/epsilon
 
 
-def fminBFGS(f, x0, fprime=None, args=(), avegtol=1e-5, maxiter=None, fulloutput=0, logger=None):
+def fminBFGS(f, x0, fprime=None, args=(), avegtol=1e-5, maxiter=None, fulloutput=0):
     """xopt = fminBFGS(f, x0, fprime=None, args=(), avegtol=1e-5,
-                       maxiter=None, fulloutput=0, logger=None)
+                       maxiter=None, fulloutput=0)
 
     Optimize the function, f, whose gradient is given by fprime using the
     quasi-Newton method of Broyden, Fletcher, Goldfarb, and Shanno (BFGS)
@@ -383,24 +379,21 @@ def fminBFGS(f, x0, fprime=None, args=(), avegtol=1e-5, maxiter=None, fulloutput
         gfk = gfkp1
 
 
-    if logger or fulloutput:
-        fval = apply(f,(xk,)+args)
+    fval = apply(f,(xk,)+args)
     if k >= maxiter:
         warnflag = 1
-        if logger:
-            logger.info("Warning: Maximum number of iterations has been exceeded")
-            logger.info("         Current function value: %f" % fval)
-            logger.info("         Iterations: %d" % k)
-            logger.info("         Function evaluations: %d" % func_calls)
-            logger.info("         Gradient evaluations: %d" % grad_calls)
+        logging.info("Warning: Maximum number of iterations has been exceeded")
+        logging.info("         Current function value: %f" % fval)
+        logging.info("         Iterations: %d" % k)
+        logging.info("         Function evaluations: %d" % func_calls)
+        logging.info("         Gradient evaluations: %d" % grad_calls)
     else:
         warnflag = 0
-        if logger:
-            logger.info("Optimization terminated successfully.")
-            logger.info("         Current function value: %f" % fval)
-            logger.info("         Iterations: %d" % k)
-            logger.info("         Function evaluations: %d" % func_calls)
-            logger.info("         Gradient evaluations: %d" % grad_calls)
+        logging.info("Optimization terminated successfully.")
+        logging.info("         Current function value: %f" % fval)
+        logging.info("         Iterations: %d" % k)
+        logging.info("         Function evaluations: %d" % func_calls)
+        logging.info("         Gradient evaluations: %d" % grad_calls)
 
     if fulloutput:
         return xk, fval, func_calls, grad_calls, warnflag
@@ -408,9 +401,9 @@ def fminBFGS(f, x0, fprime=None, args=(), avegtol=1e-5, maxiter=None, fulloutput
         return xk
 
 
-def fminNCG(f, x0, fprime, fhess_p=None, fhess=None, args=(), avextol=1e-5, maxiter=None, fulloutput=0, logger=None):
+def fminNCG(f, x0, fprime, fhess_p=None, fhess=None, args=(), avextol=1e-5, maxiter=None, fulloutput=0):
     """xopt = fminNCG(f, x0, fprime, fhess_p=None, fhess=None, args=(), avextol=1e-5,
-                       maxiter=None, fulloutput=0, logger=None)
+                       maxiter=None, fulloutput=0)
 
     Optimize the function, f, whose gradient is given by fprime using the
     Newton-CG method.  fhess_p must compute the hessian times an arbitrary
@@ -486,26 +479,23 @@ def fminNCG(f, x0, fprime, fhess_p=None, fhess=None, args=(), avextol=1e-5, maxi
         xk = xk + update
         k = k + 1
 
-    if logger or fulloutput:
-        fval = apply(f,(xk,)+args)
+    fval = apply(f,(xk,)+args)
     if k >= maxiter:
         warnflag = 1
-        if logger:
-            logger.info("Warning: Maximum number of iterations has been exceeded")
-            logger.info("         Current function value: %f" % fval)
-            logger.info("         Iterations: %d" % k)
-            logger.info("         Function evaluations: %d" % fcalls)
-            logger.info("         Gradient evaluations: %d" % gcalls)
-            logger.info("         Hessian evaluations: %d" % hcalls)
+        logging.info("Warning: Maximum number of iterations has been exceeded")
+        logging.info("         Current function value: %f" % fval)
+        logging.info("         Iterations: %d" % k)
+        logging.info("         Function evaluations: %d" % fcalls)
+        logging.info("         Gradient evaluations: %d" % gcalls)
+        logging.info("         Hessian evaluations: %d" % hcalls)
     else:
         warnflag = 0
-        if logger:
-            logger.info("Optimization terminated successfully.")
-            logger.info("         Current function value: %f" % fval)
-            logger.info("         Iterations: %d" % k)
-            logger.info("         Function evaluations: %d" % fcalls)
-            logger.info("         Gradient evaluations: %d" % gcalls)
-            logger.info("         Hessian evaluations: %d" % hcalls)
+        logging.info("Optimization terminated successfully.")
+        logging.info("         Current function value: %f" % fval)
+        logging.info("         Iterations: %d" % k)
+        logging.info("         Function evaluations: %d" % fcalls)
+        logging.info("         Gradient evaluations: %d" % gcalls)
+        logging.info("         Hessian evaluations: %d" % hcalls)
             
     if fulloutput:
         return xk, fval, fcalls, gcalls, hcalls, warnflag
