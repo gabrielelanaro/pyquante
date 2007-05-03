@@ -191,7 +191,27 @@ def ParseXYZLines(name,xyz_lines,**opts):
         sym = cleansym(words[0])
         xyz = map(float,words[1:4])
         atoms.append((sym,xyz))
-    return Molecule(name,atoms,**opts)
+    return Molecule(name,atoms,units="Angstrom",**opts)
+
+def ParseXYZFile(fname,**opts):
+    from PyQuante.Util import parseline
+    name = fname.replace(".xyz","")
+    file = open(fname)
+    while 1:
+        line = file.readline()
+        if not line: break
+        nat = parseline(line,'d')
+        line = file.readline()
+        if not line: break
+        title = line.strip()
+        atoms = []
+        for i in range(nat):
+            line = file.readline()
+            if not line: break
+            sym,x,y,z = parseline(line,'sfff')
+            sym = cleansym(sym)
+            atoms.append((sym,(x,y,z)))
+    return Molecule(name,atoms,units="Angstrom",**opts)
 
 if __name__ == '__main__':
     h2o = Molecule('h2o',

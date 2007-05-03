@@ -20,10 +20,10 @@ def appendColumn(A,newVec):
     Anew[:,m] = newVec
     return Anew
 
-def orthog(q,qs,**kwopts):
+def orthog(q,qs,**kwargs):
     "Orthonormalize vector q to set of vectors qs"
     nbasis,nvec = qs.shape
-    north = kwopts.get('north',nvec)
+    north = kwargs.get('north',nvec)
     #if north==-1: north = nvec
     #north = min(north,nvec)
     for i in range(north):
@@ -70,18 +70,19 @@ def davidson(A,nroots,**kwargs):
     V = matrixmultiply(B[:,:nv],evec)
     return E,V
 
+
 #  General routine and auxilliary functions for Jacobi
-def jacobi(A,**opts):
+def jacobi(A,**kwargs):
     """\
-    E,V = jacobi(A,**opts) - Solve the eigenvalues/vectors of matrix
+    E,V = jacobi(A,**kwargs) - Solve the eigenvalues/vectors of matrix
                              A using Jacobi's method.
     Options:
     Name        Default  Definition
     tol         1e-10    The tolerance for an element to be declared zero
     max_sweeps  100      Maximum number of sweeps through the matrix
     """
-    max_sweeps = opts.get('max_sweeps',100)
-    tol = opts.get('tol',1e-10)
+    max_sweeps = kwargs.get('max_sweeps',100)
+    tol = kwargs.get('tol',1e-10)
     n = len(A)
     V = identity(n,'d')
     b = diagonal(A)
@@ -150,14 +151,14 @@ def rotate(g,h,s,tau): return g-s*(h+g*tau),h+s*(g-h*tau)
 
 # Easy way to remove arguments from multi-argument calls allowing one
 # to make them as a single-argument call, using closures
-def init_davidson(nroots,**opts):
+def init_davidson(nroots,**kwargs):
     def func(A):
-        return davidson(A,nroots,**opts)
+        return davidson(A,nroots,**kwargs)
     return func
 
-def init_jacobi(**opts):
+def init_jacobi(**kwargs):
     def func(A):
-        return jacobi(A,**opts)
+        return jacobi(A,**kwargs)
     return func
 
 def test():

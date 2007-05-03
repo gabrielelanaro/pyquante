@@ -5,7 +5,7 @@ UnitSweet.py - Unit testing for Python.
 <beavis>heh, heh, he said *unit*</beavis>
 """
 
-import unittest
+import unittest,logging
 from PyQuante.CI import CIS
 from PyQuante.Molecule import Molecule
 from PyQuante.MP import MP2
@@ -261,4 +261,5 @@ class UnitTests(unittest.TestCase):
 if __name__ == '__main__':
     #suite = unittest.TestLoader().loadTestsFromTestCase(UnitTests)
     #unittest.TextTestRunner(verbosity=2).run(suite)
+    #logging.basicConfig(format="%(message)s",level=logging.DEBUG)
     unittest.main()

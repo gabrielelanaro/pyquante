@@ -171,12 +171,14 @@ def get_F2(atoms,D):
                 for i in range(atomi.nbf):
                     for j in range(atomj.nbf):
                         pij = D[ibf+i,jbf+j]
-                        qj = D[jbf+j,jbf+j]
-                        qi = D[ibf+i,ibf+i]
                         F2[ibf+i,jbf+j] -= 0.25*pij*gammaij
                         F2[jbf+j,ibf+i] = F2[ibf+i,jbf+j]
-                        # The following 0.5 is a kludge
+                    # The following 0.5 is a kludge
+                    for j in range(atomj.nbf):
+                        qj = D[jbf+j,jbf+j]
                         F2[ibf+i,ibf+i] += 0.5*qj*gammaij
+                    for j in range(atomj.nbf):
+                        qi = D[ibf+i,ibf+i]
                         F2[jbf+j,jbf+j] += 0.5*qi*gammaij
             jbf += atomj.nbf
         ibf += atomi.nbf

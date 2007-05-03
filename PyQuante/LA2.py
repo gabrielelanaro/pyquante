@@ -72,6 +72,24 @@ def geigh(H,A,**opts):
     vec = matrixmultiply(A,vec)
     return val,vec
 
+def orthog(H,S,**opts):
+    """\
+    Transform the matrix from the AO basis to an orthogonalized basis.
+
+    Options:
+    method     'Sym'   Use Symmetric Orthogonalization (default)
+               'Can'   Use Canonical Orthogonalization
+               'Chol'  Use a Cholesky decompositoin
+    """
+    method = opts.get('method','Sym')
+    if method == 'Can':
+        X = CanOrth(S)
+    elif orthog == 'Chol':
+        X = CholOrth(S)
+    else:
+        X = SymOrth(S)
+    return simx(H,X)
+
 def SymOrth(S):
     """Symmetric orthogonalization of the real symmetric matrix S.
     This is given by Ut(1/sqrt(lambda))U, where lambda,U are the
