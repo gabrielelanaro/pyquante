@@ -72,7 +72,7 @@ class MolecularGrid:
                     if rjp2 < rip2: point._w = 0
         return
     
-    def patch_atoms(self,**opts):
+    def patch_atoms_old(self,**opts):
         """\
         This is Becke's patching algorithm. I have not implemented
         the normalization that is in eq 22.
@@ -107,6 +107,31 @@ class MolecularGrid:
                     sprod *= sbecke(mu)
                     #if rjp2 < rip2: point._w = 0
                 point._w *= sprod
+        return
+
+    def patch_atoms(self,**opts):
+        """\
+        This is Becke's patching algorithm. Attempting to implement
+        the normalization that is in eq 22.
+        """
+        nat = len(self.atoms)
+        for iat in range(nat):
+            ati = self.atoms[iat]
+            npts = len(self.atomgrids[iat])
+            for i in range(npts):
+                point = self.atomgrids[iat].points[i]
+                xp,yp,zp,wp = point.xyzw()
+                rip2 = dist2(ati.pos(),(xp,yp,zp))
+                rip = sqrt(rip2)
+                #Pat = [None]*nat
+                Pnum = 1
+                Pdenom = 0
+                Ps = []
+                for jat in range(nat):
+                    Ps.append(becke_atomic_grid_p(jat,(xp,yp,zp),self.atoms,**opts))
+                Ptot = Ps[iat]/sum(Ps)
+                #if abs(Pdenom) > 1e-9:  Ptot = Pnum/Pdenom
+                point._w *= Ptot
         return
     
 
@@ -217,6 +242,32 @@ def fbecke(x,n=3):
     return x
 def pbecke(x): return 1.5*x-0.5*pow(x,3)
 def sbecke(x,n=3): return 0.5*(1-fbecke(x,n))
+
+def becke_atomic_grid_p(iat,(xp,yp,zp),atoms,**opts):
+    do_becke_hetero = opts.get('do_becke_hetero',False)
+    nat = len(atoms)
+    sprod = 1
+    ati = atoms[iat]
+    rip2 = dist2(ati.pos(),(xp,yp,zp))
+    rip = sqrt(rip2)
+    for jat in range(nat):
+        if jat == iat: continue
+        atj = atoms[jat]
+        rjp2 = dist2(atj.pos(),(xp,yp,zp))
+        rjp = sqrt(rjp2)
+        rij2 = dist2(ati.pos(),atj.pos())
+        rij = sqrt(rij2)
+        mu = (rip-rjp)/rij
+        # Modify mu based on Becke hetero formulas (App A)
+        if do_becke_hetero and ati.atno != atj.atno:
+            chi = Bragg[ati.atno]/Bragg[atj.atno]
+            u = (chi-1.)/(chi+1.)
+            a = u/(u*u-1)
+            a = min(a,0.5)
+            a = max(a,-0.5)
+            mu += a*(1-mu*mu)
+        sprod *= sbecke(mu)
+    return sprod
 
 if __name__ == '__main__':
     # Test the becke projection grids
