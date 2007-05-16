@@ -112,7 +112,7 @@ class MolecularGrid:
     def patch_atoms(self,**opts):
         """\
         This is Becke's patching algorithm. Attempting to implement
-        the normalization that is in eq 22.
+        the normalization that is in eq 22 of that reference.
         """
         nat = len(self.atoms)
         for iat in range(nat):
@@ -244,7 +244,7 @@ def pbecke(x): return 1.5*x-0.5*pow(x,3)
 def sbecke(x,n=3): return 0.5*(1-fbecke(x,n))
 
 def becke_atomic_grid_p(iat,(xp,yp,zp),atoms,**opts):
-    do_becke_hetero = opts.get('do_becke_hetero',False)
+    do_becke_hetero = opts.get('do_becke_hetero',True)
     nat = len(atoms)
     sprod = 1
     ati = atoms[iat]

@@ -799,13 +799,14 @@ def getf(xc,functional,dens,gamma):
 # LDA -> SVWN, GGA -> PBE
 # xfuncs, cfuncs, and analyt added by AEM in June 2006.
 # PW, AM05 and EXXC1 added by AEM in June 2006.
-xfuncs = dict(LDA=S,S0=S,SVWN=S,BLYP=B,LYP=None,VWN=None,
+xfuncs = dict(LDA=S,S0=S,SVWN=S,SVWN5=S,BLYP=B,LYP=None,VWN=None,
                PW=None,LDAPW=S,AM05=AM05)
-cfuncs = dict(LDA=None,S0=None,SVWN=VWN,BLYP=LYP,LYP=LYP,VWN=VWN,
+cfuncs = dict(LDA=VWN,S0=None,SVWN=VWN,SVWN5=VWN,BLYP=LYP,LYP=LYP,VWN=VWN,
                PW=PW,LDAPW=PW,AM05=None)
-analyt = dict(LDA=True,S0=True,SVWN=True,BLYP=True,PBE=False,
+analyt = dict(LDA=True,S0=True,SVWN=True,SVWN5=True,BLYP=True,PBE=False,
               LYP=True,CPBE=False,EXXC1=False,VWN=True,PW=True,LDAPW=True,AM05=True)
-need_gradients = dict(LDA=False,S0=False,SVWN=False,BLYP=True,PBE=True,
+need_gradients = dict(LDA=False,S0=False,SVWN=False,SVWN5=False,
+                      BLYP=True,PBE=True,
                       LYP=True,CPBE=True,EXXC1=True,VWN=False,PW=False,
                       LDAPW=False,AM05=True)
 

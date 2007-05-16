@@ -38,7 +38,7 @@ class UnitTests(unittest.TestCase):
     def testH2BLYP(self):
         h2_blyp = SCF(self.h2,method="DFT",functional='BLYP')
         h2_blyp.iterate()
-        self.assertAlmostEqual(h2_blyp.energy,-1.166221,4)
+        self.assertAlmostEqual(h2_blyp.energy,-1.166286,4)
 
     def testHeHF(self):
         he_hf = SCF(self.he,method='HF')
@@ -63,12 +63,12 @@ class UnitTests(unittest.TestCase):
     def testH2LDA(self):
         h2_lda = SCF(self.h2,method='DFT',functional="SVWN")
         h2_lda.iterate()
-        self.assertAlmostEqual(h2_lda.energy,-1.132710,4)
+        self.assertAlmostEqual(h2_lda.energy,-1.132799,4)
 
     def testH2LDAFT(self):
         h2_lda = SCF(self.h2,method='DFT',functional="SVWN",etemp=1e4)
         h2_lda.iterate()
-        self.assertAlmostEqual(h2_lda.energy,-1.132473,4)
+        self.assertAlmostEqual(h2_lda.energy,-1.132558,4)
 
     def testLiLDA(self):
         li_lda = SCF(self.li,method='DFT',functional="SVWN")

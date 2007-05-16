@@ -70,10 +70,10 @@ class AtomicGrid:
 
         x,y,z = atom.pos()
 
-        self.grid = LegendreGrid(nrad,self.Rmax,fineness)
+        #self.grid = LegendreGrid(nrad,self.Rmax,fineness)
         # Could also call for EML or SG1 grids:
-        # grid = EulerMaclaurinGrid(nrad,self.Z)
-        # grid = EulerMaclaurinGrid(50,self.Z,nang=194,do_sg1=False)
+        self.grid = EulerMaclaurinGrid(nrad,self.Z)
+        #self.grid = EulerMaclaurinGrid(50,self.Z,nang=194,do_sg1=False)
 
         for rrad,wrad,nangpts in self.grid:
             shell = []
