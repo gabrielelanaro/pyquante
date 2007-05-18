@@ -23,7 +23,8 @@ symbol = [
     "In", "Sn", "Sb", "Te", "I", "Xe",
     "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm",  "Eu",
     "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
-    "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg"]
+    "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg",
+    "Tl","Pb","Bi","Po","At","Rn"]
 
 
 sym2no = {}
@@ -49,7 +50,8 @@ name = [
     "samarium","europium","gadolinium","terbium","dysprosium",
     "holmium","erbium","thulium","ytterbium","lutetium",
     "halfnium","tantalum","tungsten","rhenium","osmium","iridium",
-    "platinum","gold","mercury"]
+    "platinum","gold","mercury","thallium","lead","bismuth",
+    "polonium","astatine","radon"]
 
 name2no = {}
 for i in range(len(name)):

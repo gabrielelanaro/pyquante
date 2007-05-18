@@ -222,7 +222,8 @@ def LYP(dens,gamma):
         gamaa = gamma[0][i]
 	gamab = gamma[1][i]
         gambb = gamma[2][i]
-        fcab,fcna,fcnb,fcgaa,fcgab,fcgbb = clyp(na,nb,gamaa,gamab,gambb,return_flag=1)
+        fcab,fcna,fcnb,fcgaa,fcgab,fcgbb = clyp(na,nb,gamaa,gamab,gambb,
+                                                return_flag=1)
         fc[i] = fcab
 	dfcdna[i] = fcna
         dfcdnb[i] = fcnb
@@ -334,7 +335,7 @@ def xb(rho,gam,**opts):
     fx=dfxdrho=dfxdgam=0
     if rho > tol:
         rho13 = pow(rho,1./3.)
-        x = sqrt(gam)/rho13/rho
+        x = sqrt(gam)/rho13/rho 
         g = b88_g(x)
         dg = b88_dg(x)
         dfxdrho = (4./3.)*rho13*(g-x*dg)
@@ -799,15 +800,21 @@ def getf(xc,functional,dens,gamma):
 # LDA -> SVWN, GGA -> PBE
 # xfuncs, cfuncs, and analyt added by AEM in June 2006.
 # PW, AM05 and EXXC1 added by AEM in June 2006.
+
 xfuncs = dict(LDA=S,S0=S,SVWN=S,SVWN5=S,BLYP=B,LYP=None,VWN=None,
-               PW=None,LDAPW=S,AM05=AM05)
+              PW=None,LDAPW=S,AM05=AM05,
+              B0=B)
+
 cfuncs = dict(LDA=VWN,S0=None,SVWN=VWN,SVWN5=VWN,BLYP=LYP,LYP=LYP,VWN=VWN,
-               PW=PW,LDAPW=PW,AM05=None)
+               PW=PW,LDAPW=PW,AM05=None,B0=None)
+
 analyt = dict(LDA=True,S0=True,SVWN=True,SVWN5=True,BLYP=True,PBE=False,
-              LYP=True,CPBE=False,EXXC1=False,VWN=True,PW=True,LDAPW=True,AM05=True)
+              LYP=True,CPBE=False,EXXC1=False,VWN=True,PW=True,LDAPW=True,
+              AM05=True,B0=True)
+
 need_gradients = dict(LDA=False,S0=False,SVWN=False,SVWN5=False,
                       BLYP=True,PBE=True,
                       LYP=True,CPBE=True,EXXC1=True,VWN=False,PW=False,
-                      LDAPW=False,AM05=True)
+                      LDAPW=False,AM05=True,B0=True)
 
 
