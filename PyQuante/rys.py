@@ -75,7 +75,7 @@ def coulomb_repulsion((xa,ya,za),norma,(la,ma,na),alphaa,
 def Roots(n,X):
     "Return roots and weights of nth order Rys quadrature"
     if n<1:
-        raise "rys: Roots: incorrect number of roots %d" % n
+        raise Exception("rys: Roots: incorrect number of roots %d" % n)
     elif n <= 3:
         return Root123(n,X)
     elif n==4:
@@ -84,7 +84,7 @@ def Roots(n,X):
         return Root5(X)
     else:
         return Root6(n,X)
-    raise "rys: Roots called with incorrect parameters"
+    raise Exception("rys: Roots called with incorrect parameters")
 
 def Root123(n,X):
     R12,PIE4 = 2.75255128608411E-01, 7.85398163397448E-01
@@ -108,7 +108,7 @@ def Root123(n,X):
                     [4.67913934572691E-01 -5.64876917232519E-02 *X,
                      3.60761573048137E-01 -1.49077186455208E-01 *X,
                      1.71324492379169E-01 -1.27768455150979E-01 *X])
-        else: raise "Incorrect number of roots %d in Roots" % n
+        else: raise Exception("Incorrect number of roots %d in Roots" % n)
     elif X < 1.:
         if n == 1:
             F1 = ((((((((-8.36313918003957E-08*X+1.21222603512827E-06 )*X-
@@ -1365,7 +1365,7 @@ def Root5(X):
     return  [RT1,RT2,RT3,RT4,RT5],[WW1,WW2,WW3,WW4,WW5]
 
 def Root6(n,X):
-    raise "Root6: not yet implemented"
+    raise Exception("Root6: not yet implemented")
     return None
 
 def Int1d(t,ix,jx,kx,lx,xi,xj,xk,xl,alphai,alphaj,alphak,alphal):

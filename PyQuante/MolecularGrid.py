@@ -230,9 +230,9 @@ class MolecularGrid:
         # Now the bfs array is a concatenation of all of the bfs
         npts = self.npts()
         nbf,nrem = divmod(len(bfs),npts)
-        if nrem != 0: raise "Remainder in divmod allbfs"
+        if nrem != 0: raise Exception("Remainder in divmod allbfs")
         nbf2 = self.nbf()
-        if nbf != nbf2: raise "Wrong # bfns %d %d" % (nbf,nbf2)
+        if nbf != nbf2: raise Exception("Wrong # bfns %d %d" % (nbf,nbf2))
         bfs = reshape(bfs,(npts,nbf))
         return bfs
 

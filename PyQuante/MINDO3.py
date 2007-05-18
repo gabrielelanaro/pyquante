@@ -281,7 +281,8 @@ def get_open_closed(nel,mult=None):
     if mult: #test the multiplicity
         nopen = mult-1
         nclosed,ntest = divmod(nel-nopen,2)
-        if ntest: raise "Impossible nel, multiplicity %d %d " % (nel,mult)
+        if ntest:
+            raise Exception("Impossible nel, multiplicity %d %d " % (nel,mult))
     return nclosed,nopen
 
 def scf(atoms,**opts):
@@ -532,11 +533,12 @@ def get_energy_forces(atoms,**opts):
             orbe,orbs = eigh(F)
         except:
             print atoms
-            raise "Eigenvectors did not converge in MINDO3:get_energy_forces"
+            raise Exception(
+                "Eigenvectors did not converge in MINDO3:get_energy_forces")
             
         D = 2*mkdens(orbs,0,nclosed)
     else:
-        raise "SCF Not Converged: exiting"
+        raise Exception("SCF Not Converged: exiting")
     Etot = Eel+Enuke
     Hf = Etot*ev2kcal+eref
 

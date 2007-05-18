@@ -140,7 +140,7 @@ class Molecule:
             print "Incompatible number of electrons and spin multiplicity"
             print "nel = ",nel
             print "multiplicity = ",multiplicity
-            raise "Incompatible number of electrons and spin multiplicity"
+            raise Exception("Incompatible number of electrons and spin multiplicity")
 
         nopen = multiplicity-1
         nclosed,ierr = divmod(nel-nopen,2)
@@ -151,7 +151,7 @@ class Molecule:
             print 'nopen = ',nopen
             print 'nclosed = ',nclosed
             print 'ierr = ',ierr
-            raise "Error in Molecule.get_closedopen()"
+            raise Exception("Error in Molecule.get_closedopen()")
         return nclosed, nopen
 
     def get_alphabeta(self,**opts):

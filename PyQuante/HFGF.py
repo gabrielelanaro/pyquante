@@ -120,7 +120,7 @@ def print_orbe(orbe,nclosed,nvirt,tag=None):
 
 def HFGF(atoms,charge=0):
     nclosed,nopen = atoms.get_closedopen()
-    if nopen: raise "HFGF only works for closed shell cases"
+    if nopen: raise Exception("HFGF only works for closed shell cases")
     bfs = getbasis(atoms)
     nvirt = len(bfs)-nclosed
     S,h,Ints = getints(bfs,atoms)

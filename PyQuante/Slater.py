@@ -201,7 +201,7 @@ class SlaterFunction:
         elif self.L == 1:
             self.norm = sqrt(3)*s_norm
         else:
-            raise "d,f,... Slater functions not implemented yet"
+            raise Exception("d,f,... Slater functions not implemented yet")
         return
 
     def amp(self,xyz):

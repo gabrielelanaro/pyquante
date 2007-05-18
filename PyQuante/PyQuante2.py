@@ -118,13 +118,13 @@ def SCF(molecule,**opts): return HamiltonianFactory(molecule,**opts)
 
 class AbstractHamiltonian:
     def __init__(self,molecule,**opts):
-        raise "AbstractHamiltonian::__init__"
+        raise Exception("AbstractHamiltonian::__init__")
     def update(self,**opts):
-        raise "AbstractHamiltonian::update"
+        raise Exception("AbstractHamiltonian::update")
     def iterate(self,**opts):
-        raise "AbstractHamiltonian::iterate"
+        raise Exception("AbstractHamiltonian::iterate")
     def get_energy(self,**opts):
-        raise "AbstractHamiltonian::get_energy"
+        raise Exception("AbstractHamiltonian::get_energy")
 
 class HFHamiltonian(AbstractHamiltonian):
     def __init__(self,molecule,**opts):
@@ -414,9 +414,9 @@ def SolverFactory(nel,nclosed,nopen,S,**opts):
 
 class AbstractSolver:
     def __init__(self,S,**opts):
-        raise "AbstractSolver::__init__"
+        raise Exception("AbstractSolver::__init__")
     def solve(self,ham,**opts):
-        raise "AbstractSolver::solve"
+        raise Exception("AbstractSolver::solve")
 
 class BasicSolver(AbstractSolver):
     def __init__(self,nel,nclosed,nopen,S,**opts):

@@ -90,10 +90,10 @@ def get_efermi(nel,orbe,temp,**opts):
 
     if nlow > nel:
         logging.error("elow incorrect %f -> %f " % (elow,nlow))
-        raise "elow incorrect %f -> %f " % (elow,nlow)
+        raise Exception("elow incorrect %f -> %f " % (elow,nlow))
     if nhigh < nel:
         logging.error("ehigh incorrect %f -> %f " % (ehigh,nhigh))
-        raise "ehigh incorrect %f -> %f " % (ehigh,nhigh)
+        raise Exception("ehigh incorrect %f -> %f " % (ehigh,nhigh))
 
     for i in range(100):
         efermi = (elow+ehigh)/2

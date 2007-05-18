@@ -64,7 +64,7 @@ def ocbse(orbs,h,Hs,f,a,b,noccsh):
         orbe2,orbs2 = eigh(F)
         print orbe2
         print orbs2[:,0]
-        raise "stopping"
+        raise Exception("stopping")
         # Insert orbital energies into the right place
         orbe[istart:iend] = orbe2[:noccsh[ish]]
         orbe[vstart:vend] = orbe2[-nvirt:]

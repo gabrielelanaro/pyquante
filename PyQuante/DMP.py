@@ -269,7 +269,7 @@ def DMP(F,S,Ne,Method=0,MaxIter=50,ErrorLimit=1e-12):
         alpha = min(Ne/(emax-efermi),(N-Ne)/(efermi-emin))/float(N)
         D = alpha*(efermi*I-F) + beta*I
     else:
-        raise "Unknown method %d" % Method
+        raise Exception("Unknown method %d" % Method)
 
     Dsumold = sum(sum(D))
     # Step 3: Iterate on DM updates:
