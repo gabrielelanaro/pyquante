@@ -28,7 +28,7 @@ def get_alpha(atnoi,atnoj):
 
 def get_gamma(atomi,atomj):
     "Coulomb repulsion that goes to the proper limit at R=0"
-    R2 = atomi.dist2(atomj)
+    R2 = atomi.dist2(atomj)*bohr2ang**2
     return e2/sqrt(R2+0.25*pow(atomi.rho+atomj.rho,2))
 
 def get_g(bfi,bfj):
@@ -153,12 +153,24 @@ def get_F1_open(atoms,Da,Db):
         ibf += atomi.nbf
     return F1
 
-def get_F2(atoms,D):
+Gij_cache = None
+def get_F2(atoms,D,use_cache=False):
     "Two-center corrections to the core fock matrix"
+    global Gij_cache
     nbf = get_nbf(atoms)
     nat = len(atoms)
-    
+
     F2 = zeros((nbf,nbf),'d')
+
+    # Optionally cache Gamma values
+    if use_cache and Gij_cache is None:
+        Gij_cache = zeros((nat,nat),'d')
+        for iat in range(nat):
+            atomi = atoms[iat]
+            for jat in range(iat):
+                atomj = atoms[jat]
+                Gij_cache[iat,jat] = get_gamma(atomi,atomj)
+                Gij_cache[jat,iat] = Gij_cache[iat,jat]
 
     ibf = 0 # bf number of the first bfn on iat
     for iat in range(nat):
@@ -167,7 +179,10 @@ def get_F2(atoms,D):
         for jat in range(nat):
             atomj = atoms[jat]
             if iat != jat:
-                gammaij = get_gamma(atomi,atomj)
+                if use_cache:
+                    gammaij = Gij_cache[iat,jat]
+                else:
+                    gammaij = get_gamma(atomi,atomj)
                 for i in range(atomi.nbf):
                     for j in range(atomj.nbf):
                         pij = D[ibf+i,jbf+j]
@@ -232,7 +247,7 @@ def get_enuke(atoms):
         atomi = atoms[i]
         for j in range(i):
             atomj = atoms[j]
-            R2 = atomi.dist2(atomj)
+            R2 = atomi.dist2(atomj)*bohr2ang**2
             R = sqrt(R2)
             scale = get_scale(atomi.atno,atomj.atno,R)
             gammaij = get_gamma(atomi,atomj)
@@ -285,6 +300,12 @@ def get_open_closed(nel,mult=None):
             raise Exception("Impossible nel, multiplicity %d %d " % (nel,mult))
     return nclosed,nopen
 
+def get_Hf(atoms,Eel):
+    Enuke = get_enuke(atoms)
+    Eref = get_reference_energy(atoms)
+    Etot = Eel + Enuke
+    return Etot*ev2kcal+Eref
+
 def scf(atoms,**opts):
     "Driver routine for energy calculations"
     chg = opts.get('chg',0)
@@ -322,6 +343,7 @@ def scfclosed(atoms,F0,nclosed,**opts):
         F2 = get_F2(atoms,D)
         F = F0+F1+F2
         Eel = 0.5*trace2(D,F0+F)
+        #if verbose: print i+1,Eel,get_Hf(atoms,Eel)
         if verbose: print i+1,Eel
         if abs(Eel-Eold) < 0.001:
             if verbose:
@@ -365,8 +387,7 @@ def initialize(atoms):
     from Bunch import Bunch # Generic object to hold basis functions
     ibf = 0 # Counter to overall basis function count
     for atom in atoms:
-        x,y,z = atom.pos()
-        xbohr,ybohr,zbohr = x/bohr2ang,y/bohr2ang,z/bohr2ang
+        xyz = atom.pos()
         atom.Z = CoreQ[atom.atno]
         atom.basis = []
         atom.rho = e2/f03[atom.atno]
@@ -386,7 +407,7 @@ def initialize(atoms):
             ibf += 1
             bfunc.type = i # s,x,y,z
             bfunc.atom = atom # pointer to parent atom
-            bfunc.cgbf = CGBF((xbohr,ybohr,zbohr),gauss_powers[i])
+            bfunc.cgbf = CGBF(xyz,gauss_powers[i])
             zi = gexps[(NQN[atom.atno],s_or_p[i])]
             ci = gcoefs[(NQN[atom.atno],s_or_p[i])]
             if i:
@@ -582,7 +603,7 @@ def forces(atoms,D):
             atomj = atoms[jat]
             alpha = get_alpha(atomi.atno,atomj.atno)
             beta = get_beta0(atomi.atno,atomj.atno)
-            R2 = atomi.dist2(atomj)
+            R2 = atomi.dist2(atomj)*bohr2ang**2
             R = sqrt(R2)
             c2 = 0.25*pow(atomi.rho+atomj.rho,2)
 

@@ -312,9 +312,12 @@ class MINDO3Hamiltonian(AbstractHamiltonian):
 
     def update_fock(self):
         from PyQuante.MINDO3 import get_F1, get_F2
+        avg = 0.25
+        Fold = self.F
         self.F1 = get_F1(self.molecule,self.D)
         self.F2 = get_F2(self.molecule,self.D)
         self.F = self.F0+self.F1+self.F2
+        #self.F = avg*self.F + (1-avg)*Fold
         
     def solve_fock(self):
         from PyQuante.NumWrap import eigh

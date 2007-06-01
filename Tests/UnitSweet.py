@@ -21,8 +21,10 @@ class UnitTests(unittest.TestCase):
         self.li = Molecule('Li',atomlist = [(3,(0,0,0))],multiplicity=2)
         self.li_p = Molecule('Li+',atomlist = [(3,(0,0,0))],charge=1)
         self.li_m = Molecule('Li-',atomlist = [(3,(0,0,0))],charge=-1)
-        self.h2o = Molecule('h2o',[(8,(0,0,0)),(1,(1.,0,0)),(1,(0,1.,0))])
-        self.oh = Molecule('oh',[(8,(0,0,0)),(1,(1.,0,0))])
+        self.h2o = Molecule('h2o',[(8,(0,0,0)),(1,(1.,0,0)),(1,(0,1.,0))],
+                            units="Angstrom")
+        self.oh = Molecule('oh',[(8,(0,0,0)),(1,(1.,0,0))],
+                            units="Angstrom")
         self.lih = Molecule('LiH',[(1,(0,0,1.5)),(3,(0,0,-1.5))],units='Bohr')
 
     def testH2HF(self):
