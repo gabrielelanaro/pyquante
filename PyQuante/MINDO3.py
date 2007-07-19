@@ -57,7 +57,7 @@ def get_nbf(atoms):
     for atom in atoms: nbf += atom.nbf
     return nbf
 
-def get_F0(atoms):
+def get_F0_old(atoms):
     "Form the zero-iteration (density matrix independent) Fock matrix"
     nbf = get_nbf(atoms)
     nat = len(atoms)
@@ -88,6 +88,50 @@ def get_F0(atoms):
                 jbf += atomj.nbf
         ibf += atomi.nbf
     return F0
+
+def get_F0(atoms):
+    "Form the zero-iteration (density matrix independent) Fock matrix"
+    nbf = get_nbf(atoms)
+    nat = len(atoms)
+    
+    F0 = zeros((nbf,nbf),'d')
+
+    basis = []
+    for atom in atoms:
+        for bf in atom.basis:
+            basis.append(bf)
+
+    # U term 
+    for i in range(nbf):
+        F0[i,i] = basis[i].u
+
+    # Nuclear attraction
+    ibf = 0 # bf number of the first bfn on iat
+    for iat in range(nat):
+        atomi = atoms[iat]
+        for jat in range(nat):
+            atomj = atoms[jat]
+            if iat == jat: continue
+            gammaij = get_gamma(atomi,atomj)
+            for i in range(atomi.nbf):
+                F0[ibf+i,ibf+i] -= gammaij*atomj.Z
+        ibf += atomi.nbf
+
+    # Off-diagonal term
+    for ibf in range(nbf):
+        bfi = basis[ibf]
+        ati = bfi.atom
+        atnoi = ati.atno
+        for jbf in range(ibf):
+            bfj = basis[jbf]
+            atj = bfj.atom
+            atnoj = atj.atno
+            betaij = get_beta0(atnoi,atnoj)
+            Sij = bfi.cgbf.overlap(bfj.cgbf)
+            IPij = bfi.ip + bfj.ip
+            F0[ibf,jbf] = F0[jbf,ibf] = betaij*IPij*Sij
+    return F0
+
 
 def get_F1(atoms,D):
     "One-center corrections to the core fock matrix"
@@ -184,17 +228,15 @@ def get_F2(atoms,D,use_cache=False):
                 else:
                     gammaij = get_gamma(atomi,atomj)
                 for i in range(atomi.nbf):
+                    qi = D[ibf+i,ibf+i]
+                    qj = 0
                     for j in range(atomj.nbf):
                         pij = D[ibf+i,jbf+j]
                         F2[ibf+i,jbf+j] -= 0.25*pij*gammaij
                         F2[jbf+j,ibf+i] = F2[ibf+i,jbf+j]
-                    # The following 0.5 is a kludge
-                    for j in range(atomj.nbf):
-                        qj = D[jbf+j,jbf+j]
-                        F2[ibf+i,ibf+i] += 0.5*qj*gammaij
-                    for j in range(atomj.nbf):
-                        qi = D[ibf+i,ibf+i]
+                        qj += D[jbf+j,jbf+j]
                         F2[jbf+j,jbf+j] += 0.5*qi*gammaij
+                    F2[ibf+i,ibf+i] += 0.5*qj*gammaij
             jbf += atomj.nbf
         ibf += atomi.nbf
     return F2
@@ -251,8 +293,10 @@ def get_enuke(atoms):
             R = sqrt(R2)
             scale = get_scale(atomi.atno,atomj.atno,R)
             gammaij = get_gamma(atomi,atomj)
-            enuke += atomi.Z*atomj.Z*gammaij \
+            enuke_ij = atomi.Z*atomj.Z*gammaij \
                      + abs(atomi.Z*atomj.Z*(e2/R-gammaij)*scale)
+            enuke += enuke_ij
+            #print "R ",i+1,j+1,enuke_ij,enuke
     return enuke
 
 def get_scale(atnoi,atnoj,R):
@@ -343,8 +387,8 @@ def scfclosed(atoms,F0,nclosed,**opts):
         F2 = get_F2(atoms,D)
         F = F0+F1+F2
         Eel = 0.5*trace2(D,F0+F)
-        #if verbose: print i+1,Eel,get_Hf(atoms,Eel)
-        if verbose: print i+1,Eel
+        if verbose: print i+1,Eel,get_Hf(atoms,Eel)
+        #if verbose: print i+1,Eel
         if abs(Eel-Eold) < 0.001:
             if verbose:
                 print "Exiting because converged",i+1,Eel,Eold

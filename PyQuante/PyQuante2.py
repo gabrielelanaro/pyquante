@@ -290,7 +290,6 @@ class MINDO3Hamiltonian(AbstractHamiltonian):
         self.molecule = initialize(self.molecule)
         self.nel = get_nel(self.molecule,self.charge)
         self.nclosed,self.nopen = get_open_closed(self.nel,self.multiplicity)
-        logging.info("Nclosed/open = %d, %d" % (self.nclosed,self.nopen))
         self.Enuke = get_enuke(self.molecule)
         self.energy = 0
         self.method = "MINDO3"
@@ -299,16 +298,18 @@ class MINDO3Hamiltonian(AbstractHamiltonian):
         self.F0 = get_F0(self.molecule)
         self.F = self.F0
         self.D = get_guess_D(self.molecule)
+        logging.info("Nel = %d Nclosed = %d Nopen = %d Enuke = %f Nbf = %d"
+                     % (self.nel,self.nclosed,self.nopen,self.Enuke,self.nbf))
         return
 
     def get_energy(self): return self.energy
     def iterate(self,**opts): return self.iterator.iterate(self,**opts)
 
     def update(self,**opts):
-        self.solve_fock()
-        self.update_density()
         self.update_fock()
         self.calculate_energy()
+        self.solve_fock()
+        self.update_density()
 
     def update_fock(self):
         from PyQuante.MINDO3 import get_F1, get_F2
