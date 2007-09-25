@@ -144,3 +144,17 @@ def mkdens_spinavg(c,nclosed,nopen):
        shell orbitals and *nopen* open shell orbitals"""
     return mkdens(c,0,nclosed) + 0.5*mkdens(c,nclosed,nclosed+nopen)
     
+#added by Hatem H Helal 18.07.2007
+#RPM: Consider using diag() for this
+def diagonal_mat(vector):
+    #takes a vector with N components and returns an NXN matrix whose diagonal elements
+    #are the components of the vector
+    len = vector.shape[0]
+        
+    matrix = zeros((len,len),'d')
+    
+    i=0
+    for i in range(len):
+        matrix[i][i]=vector[i]
+
+    return matrix    

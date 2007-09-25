@@ -73,15 +73,16 @@ class Molecule:
 
     def add_atom(self,atom): self.atoms.append(atom)
     
-    def add_atuple(self,atno,xyz):
+    def add_atuple(self,atno,xyz,atid):
         if self.units != 'bohr': xyz = toBohr(xyz[0],xyz[1],xyz[2])
         if type(atno) == type(''): atno = sym2no[atno]
-        self.atoms.append(Atom(atno,xyz[0],xyz[1],xyz[2]))
+        self.atoms.append(Atom(atno,xyz[0],xyz[1],xyz[2],atid))
 
     def add_atuples(self,atoms):
         "Add a list of (atno,(x,y,z)) tuples to the atom list"
         from Atom import Atom
-        for atno,xyz in atoms: self.add_atuple(atno,xyz)
+        id=0
+        for atno,xyz in atoms: self.add_atuple(atno,xyz,id); id+=1
         return
 
     def atuples(self):
@@ -140,7 +141,7 @@ class Molecule:
             print "Incompatible number of electrons and spin multiplicity"
             print "nel = ",nel
             print "multiplicity = ",multiplicity
-            raise Exception("Incompatible number of electrons and spin multiplicity")
+            raise Exception("Incompatible # electrons and multiplicity")
 
         nopen = multiplicity-1
         nclosed,ierr = divmod(nel-nopen,2)
@@ -191,7 +192,7 @@ def ParseXYZLines(name,xyz_lines,**opts):
         sym = cleansym(words[0])
         xyz = map(float,words[1:4])
         atoms.append((sym,xyz))
-    return Molecule(name,atoms,units="Angstrom",**opts)
+    return Molecule(name,atoms,**opts)
 
 def ParseXYZFile(fname,**opts):
     from PyQuante.Util import parseline

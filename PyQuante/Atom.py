@@ -23,13 +23,17 @@ from Constants import bohr2ang
 #  whatever you store you get back.
 
 class Atom:
-    def __init__(self,atno,x,y,z):
+    def __init__(self,atno,x,y,z,atid=0,fx=0.0,fy=0.0,fz=0.0):
         self.atno = atno
         self.r = array([x,y,z],'d')
+        #added by Hatem Helal hhh23@cam.ac.uk
+        #atom id defaults to zero so as not to break preexisting code...
+        self.atid = atid
+        self.forces = array([fx,fy,fz],'d')
         return
 
-    def __repr__(self): return "Atom %2d (%6.3f,%6.3f,%6.3f)" % \
-        (self.atno,self.r[0],self.r[1],self.r[2])
+    def __repr__(self): return "Atom ID: %d Atomic Num: %2d (%6.3f,%6.3f,%6.3f)" % \
+        (self.atid,self.atno,self.r[0],self.r[1],self.r[2])
     def __getitem__(self, i):
         return self.r[i]
     def mass(self): return mass[self.atno]
@@ -52,6 +56,8 @@ class Atom:
 
     def update_coords(self,xyz): self.r = array(xyz)
     def update_from_atuple(self,(atno,xyz)): self.update_coords(xyz)
+    
+    def set_force(self,fxfyfz): self.forces = array(fxfyfz)
 
 def test():
     at1 = Atom(1,0,0,0)

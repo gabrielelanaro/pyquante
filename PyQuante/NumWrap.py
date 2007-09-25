@@ -22,6 +22,9 @@ pat = re.compile('\D')
 # As of 2/12/2007 we have updated PyQuante to the numpy convention,
 # where eigenvectors are kept in columns.
 if use_numpy:
+    from numpy import array2string #added by Hatem Helal hhh23@cam.ac.uk
+    from numpy import abs #added by Hatem Helal hhh23@cam.ac.uk
+    
     from numpy import array,zeros,concatenate,dot,ravel,arange
     from numpy import arcsinh,diagonal,identity,choose,transpose
     from numpy import reshape,take,trace
@@ -34,7 +37,7 @@ if use_numpy:
     from numpy.linalg import solve
     from numpy.linalg import inv
     from numpy.linalg import cholesky
-
+    
     # still need to kill these two, which are used by Optimize:
     import numpy.oldnumeric.mlab as MLab
     from numpy.oldnumeric import NewAxis

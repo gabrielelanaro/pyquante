@@ -25,7 +25,7 @@ from PyQuante.crys import contr_coulomb
 
 class CGBF:
     "Class for a contracted Gaussian basis function"
-    def __init__(self,origin,powers=(0,0,0)):
+    def __init__(self,origin,powers=(0,0,0),atid=0):
         self._origin = tuple([float(i) for i in origin])
         self._powers = powers
         self._normalization = 1.
@@ -33,11 +33,15 @@ class CGBF:
         self._pnorms = []
         self._pexps = []
         self._pcoefs = []
+        #added by Hatem H Helal hhh23@cam.ac.uk
+        #stores atom id number for easy method to identify which atom
+        #a particular bf is centered on
+        self.atid = atid
         return
 
     def __repr__(self):
-        s = "<cgbf origin=\"(%f,%f,%f)\" powers=\"(%d,%d,%d)\">\n" % \
-            (self._origin[0],self._origin[1],self._origin[2],
+        s = "<cgbf atomid=%d origin=\"(%f,%f,%f)\" powers=\"(%d,%d,%d)\">\n" % \
+            (self.atid,self._origin[0],self._origin[1],self._origin[2],
              self._powers[0],self._powers[1],self._powers[2])
         for prim in self._prims:
             s = s + prim.prim_str(self.norm())
