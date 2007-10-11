@@ -22,7 +22,10 @@ import logging
 from math import sqrt,pow
 from PyQuante.cints import dist
 
-from NumWrap import array2string, abs, dot, transpose
+from NumWrap import array2string, fabs, dot, transpose
+
+from biorthogonal import biorthogonalize,pad_out
+
 tolerance = 0.001
 
 def get_fock(D,Ints,h):
@@ -178,11 +181,13 @@ def uhf(atoms,**opts):
     S,h,Ints = getints(bfs,atoms)
 
     orbs = opts.get('orbs',None)
-    if not orbs:
+    if orbs!=None:
+        orbsa = orbsb = orbs
+    else:
         orbe,orbs = geigh(h,S)
         orbea = orbeb = orbe
-    orbsa = orbsb = orbs
-    
+        orbsa = orbsb = orbs
+
     enuke = atoms.get_enuke()
     eold = 0.
 
@@ -193,6 +198,7 @@ def uhf(atoms,**opts):
     logging.info("Averaging = %s" % DoAveraging)
     logging.debug("Optimization of HF orbitals")
     for i in range(MaxIter):
+        print "SCF Iteration:",i,"Starting Energy:",eold
         if ETemp:
             # We have to multiply nalpha and nbeta by 2
             #  to get the Fermi energies to come out correct:
@@ -237,22 +243,8 @@ def uhf(atoms,**opts):
     logging.info("Final UHF energy for system %s is %f" % (atoms.name,energy))
     return energy,(orbea,orbeb),(orbsa,orbsb)
 
+
 #added by Hatem H Helal hhh23@cam.ac.uk
-def pad_out(matrix):
-    #this will make debugging matrix operations easier by getting rid of 
-    #matrix elements which are ridiculously tiny
-    rows = matrix.shape[0]
-    cols = matrix.shape[1]
-    
-    for i in range(rows):
-        for j in range(cols):
-                if abs(matrix[i][j]) < tolerance:
-                    matrix[i][j]=0.0
-    
-    print array2string(matrix,200,precision=4);    print "\n\n"
-
-    return 0
-
 def mk_auger_dens(c, occ):
     "Forms a density matrix from a coef matrix c and occupations in occ"
     #count how many states we were given
@@ -304,55 +296,42 @@ def uhf_fixed_occ(atoms,occa, occb,**opts):
     nalpha,nbeta = atoms.get_alphabeta() #pass in opts for multiplicity
     S,h,Ints = getints(bfs,atoms)
 
-    orbs = opts.get('orbs',None)
-    if not orbs:
+    orbsa = opts.get('orbsa',None)
+    orbsb = opts.get('orbsb',None)
+    if (orbsa!=None and orbsb!=None):
+        orbsa = orbsa
+        orbsb = orbsb
+    else:
         orbe,orbs = geigh(h,S)
         orbea = orbeb = orbe
-    orbsa = orbsb = orbs
+        orbsa = orbsb = orbs
+    
+    #print "A Trial Orbital Energies:\n", orbea
+
+    print "A Trial Orbitals:\n"
+    pad_out(orbsa)
+
+    #print "B Trial Orbital Energies:\n",orbeb
+
+    print "B Trial Orbitals:\n"
+    pad_out(orbsb)
     
     enuke = atoms.get_enuke()
     eold = 0.
 
-    logging.info("UHF calculation on %s" % atoms.name)
-    logging.info("Nbf = %d" % len(bfs))
-    logging.info("Nalpha = %d" % nalpha)
-    logging.info("Nbeta = %d" % nbeta)
-    logging.info("Averaging = %s" % DoAveraging)
-    logging.debug("Optimization of HF orbitals")
-    
-    if DoAveraging:
-        logging.debug("Using DIIS averaging")
-        avg=DIIS(S)
-    
-    print "SCF Iteration    Total Energy    OneE Coulomb Exchange"
-    
     for i in range(MaxIter):
-        if ETemp:
-            # We have to multiply nalpha and nbeta by 2
-            #  to get the Fermi energies to come out correct:
-            efermia = get_efermi(2.0*nalpha,orbea,ETemp)
-            occsa = get_fermi_occs(efermia,orbea,ETemp)
-            #print "occsa = ",occsa
-            Da = mkdens_occs(orbsa,occsa)
-            efermib = get_efermi(2.0*nbeta,orbeb,ETemp)
-            occsb = get_fermi_occs(efermib,orbeb,ETemp)
-            #print "occsb = ",occsb
-            Db = mkdens_occs(orbsb,occsb)
-            entropy = 0.5*(get_entropy(occsa,ETemp)+get_entropy(occsb,ETemp))
-        else:
-            Da = mk_auger_dens(orbsa,occa)
-            Db = mk_auger_dens(orbsb,occb)
-            #Da_std = mkdens(orbsa,0,nalpha)
-            #Db_std = mkdens(orbsb,0,nbeta)
-            #pad_out(Da - Da_std ) #use to test mk_aug_dens with ground state occupations
-            #pad_out(Db - Db_std )
+        print "SCF Iteration:",i,"Starting Energy:",eold
+        #save the starting orbitals
+        oldorbs_a=orbsa
+        oldorbs_b=orbsb
+
+        Da = mk_auger_dens(orbsa,occa)
+        Db = mk_auger_dens(orbsb,occb)
+        #Da_std = mkdens(orbsa,0,nalpha)
+        #Db_std = mkdens(orbsb,0,nbeta)
+        #pad_out(Da - Da_std ) #use to test mk_aug_dens with ground state occupations
+        #pad_out(Db - Db_std )
         
-        if DoAveraging:
-            if i: 
-                Da = averaging*Da + (1-averaging)*Da0
-                Db = averaging*Db + (1-averaging)*Db0
-            Da0 = Da
-            Db0 = Db
         
         Ja = getJ(Ints,Da)
         Jb = getJ(Ints,Db)
@@ -360,13 +339,19 @@ def uhf_fixed_occ(atoms,occa, occb,**opts):
         Kb = getK(Ints,Db)
         Fa = h+Ja+Jb-Ka
         Fb = h+Ja+Jb-Kb
-        """
-        if DoAveraging:
-            Fa = avg.getF(Fa,Da)
-            Fb = avg.getF(Fb,Db)
-        """    
+
         orbea,orbsa = geigh(Fa,S)
         orbeb,orbsb = geigh(Fb,S)
+        
+        #save the new orbitals
+        neworbs_a=orbsa
+        neworbs_b=orbsb
+        
+        #now we biorthogonalize the new orbitals to the old ones
+        #to setup occupation arrays for the next scf cycle
+        orbsa = biorthogonalize(neworbs_a,oldorbs_a,S,nalpha,occa)
+        orbsb = biorthogonalize(neworbs_b,oldorbs_b,S,nbeta,occb)
+        
         energya = get_energy(h,Fa,Da)
         energyb = get_energy(h,Fb,Db)
         energy = (energya+energyb)/2+enuke
@@ -375,12 +360,13 @@ def uhf_fixed_occ(atoms,occa, occb,**opts):
         Ej = 0.5*trace2(Dab,Ja+Jb)
         Ek = -0.5*(trace2(Da,Ka)+trace2(Db,Kb))
         
-        print "%d %f %f %f %f" % (i,energy,Eone,Ej,Ek)
+        #print "%d %f %f %f %f" % (i,energy,Eone,Ej,Ek)
         
-        if ETemp: energy += entropy
         logging.debug("%d %f %f %f %f" % (i,energy,Eone,Ej,Ek))
         if abs(energy-eold) < ConvCriteria: break
         eold = energy
+        if i==(MaxIter-1):
+            print "Warning: Reached maximum number of SCF cycles may want to rerun calculation with more SCF cycles"
     logging.info("Final UHF energy for system %s is %f" % (atoms.name,energy))
     return energy,(orbea,orbeb),(orbsa,orbsb)
 

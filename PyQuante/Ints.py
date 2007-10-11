@@ -44,7 +44,7 @@ def getbasis(atoms,basis_data=None,**opts):
         for sym,prims in bs:
             if omit_f and sym == "F": continue
             for power in sym2powerlist[sym]:
-                bf = CGBF(atom.pos(),power)
+                bf = CGBF(atom.pos(),power,atom.atid)
                 for expnt,coef in prims:
                     bf.add_primitive(expnt,coef)
                 bf.normalize()

@@ -23,13 +23,14 @@ from Constants import bohr2ang
 #  whatever you store you get back.
 
 class Atom:
-    def __init__(self,atno,x,y,z,atid=0,fx=0.0,fy=0.0,fz=0.0):
+    def __init__(self,atno,x,y,z,atid=0,fx=0.0,fy=0.0,fz=0.0,vx=0.0,vy=0.0,vz=0.0):
         self.atno = atno
         self.r = array([x,y,z],'d')
         #added by Hatem Helal hhh23@cam.ac.uk
         #atom id defaults to zero so as not to break preexisting code...
         self.atid = atid
-        self.forces = array([fx,fy,fz],'d')
+        self.f = array([fx,fy,fz],'d')
+        self.vel = array([vx,vy,vz],'d')
         return
 
     def __repr__(self): return "Atom ID: %d Atomic Num: %2d (%6.3f,%6.3f,%6.3f)" % \
@@ -38,6 +39,10 @@ class Atom:
         return self.r[i]
     def mass(self): return mass[self.atno]
     def pos(self): return tuple(self.r)
+    
+    def force(self): return self.f
+    def velocity(self): return self.vel
+    
     # Could also do the following dists with numpy:
     def dist2(self,atom): return dist2(self.pos(),atom.pos())
     def dist(self,atom): return dist(self.pos(),atom.pos())
@@ -57,7 +62,9 @@ class Atom:
     def update_coords(self,xyz): self.r = array(xyz)
     def update_from_atuple(self,(atno,xyz)): self.update_coords(xyz)
     
-    def set_force(self,fxfyfz): self.forces = array(fxfyfz)
+    def set_force(self,fxfyfz): self.f = array(fxfyfz)
+    def set_velocity(self,vxvyvz): self.vel = array(vxvyvz)
+    
 
 def test():
     at1 = Atom(1,0,0,0)

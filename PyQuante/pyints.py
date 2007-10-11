@@ -140,6 +140,11 @@ def _gcf(a,x):
         print 'a too large, ITMAX too small in gcf'
     gammcf=exp(-x+a*log(x)-gln)*h
     return gammcf,gln
+    
+    
+def erf(z): 
+    if z==0.0: return 0.0
+    else: return gammp(0.5,z**2)[0]
 
 def ijkl2intindex(i,j,k,l):
     "Indexing into the get2ints long array"
@@ -239,12 +244,59 @@ def A_array(l1,l2,PA,PB,CP,g):
     Imax = l1+l2+1
     A = [0]*Imax
     for i in range(Imax):
-        for r in range(floor(i/2)+1):
-            for u in range(floor((i-2*r)/2.)+1):
+        for r in range(int(floor(i/2)+1)):
+            for u in range(int(floor((i-2*r)/2)+1)):
                 I = i-2*r-u
                 A[I] = A[I] + A_term(i,r,u,l1,l2,PA,PB,CP,g)
     return A
 
+def grad_A_array(l1,l2,PA,PB,CP,g):
+    "several pages of algebra were necessary to find this result..."
+    Imax = l1+l2+1
+    A = [0]*Imax
+    for i in range(Imax):
+        for r in range(int(floor(i/2)+1)):
+            for u in range(int(floor((i-2*r)/2.)+1)):
+                I = i-2*r-u
+                A[I] = A[I] + (i-2.*r+1.)/(i-2.*r-2.*u+1.)*CP*A_term(i,r,u,l1,l2,PA,PB,CP,g)
+    return A
+               
+
+def grad_nuc_att((x1,y1,z1),(l1,m1,n1),alpha1,
+                 (x2,y2,z2),(l2,m2,n2),alpha2,
+                 (x3,y3,z3)):
+                 
+    gamma = alpha1+alpha2
+
+    xp,yp,zp = gaussian_product_center(alpha1,(x1,y1,z1),alpha2,(x2,y2,z2))
+    rab2 = dist2((x1,y1,z1),(x2,y2,z2))
+    rcp2 = dist2((x3,y3,z3),(xp,yp,zp))
+
+    Ax = A_array(l1,l2,xp-x1,xp-x2,xp-x3,gamma)
+    Ay = A_array(m1,m2,yp-y1,yp-y2,yp-y3,gamma)
+    Az = A_array(n1,n2,zp-z1,zp-z2,zp-z3,gamma)
+
+    grad_Ax = grad_A_array(l1,l2,xp-x1,xp-x2,xp-x3,gamma)
+    grad_Ay = grad_A_array(m1,m2,yp-y1,yp-y2,yp-y3,gamma)
+    grad_Az = grad_A_array(n1,n2,zp-z1,zp-z2,zp-z3,gamma)
+    
+    sum_x = 0.
+    sum_y = 0.
+    sum_z = 0.
+    for I in range(l1+l2+1):
+        for J in range(m1+m2+1):
+            for K in range(n1+n2+1):
+                sum_x += grad_Ax[I]*Ay[J]*Az[K]*Fgamma(I+J+K+1,rcp2*gamma)
+                sum_y += Ax[I]*grad_Ay[J]*Az[K]*Fgamma(I+J+K+1,rcp2*gamma)
+                sum_z += Ax[I]*Ay[J]*grad_Az[K]*Fgamma(I+J+K+1,rcp2*gamma)
+
+    gradV_x = -4*pi*exp(-alpha1*alpha2*rab2/gamma)*sum_x
+    gradV_y = -4*pi*exp(-alpha1*alpha2*rab2/gamma)*sum_y
+    gradV_z = -4*pi*exp(-alpha1*alpha2*rab2/gamma)*sum_z
+        
+    return gradV_x,gradV_y,gradV_z
+    
+    
 def contr_coulomb(aexps,acoefs,anorms,xyza,powa,
                   bexps,bcoefs,bnorms,xyzb,powb,
                   cexps,ccoefs,cnorms,xyzc,powc,

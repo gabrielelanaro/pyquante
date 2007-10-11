@@ -23,8 +23,7 @@ pat = re.compile('\D')
 # where eigenvectors are kept in columns.
 if use_numpy:
     from numpy import array2string #added by Hatem Helal hhh23@cam.ac.uk
-    from numpy import abs #added by Hatem Helal hhh23@cam.ac.uk
-    
+    from math import fabs #added by Hatem Helal hhh23@cam.ac.uk
     from numpy import array,zeros,concatenate,dot,ravel,arange
     from numpy import arcsinh,diagonal,identity,choose,transpose
     from numpy import reshape,take,trace
@@ -43,6 +42,8 @@ if use_numpy:
     from numpy.oldnumeric import NewAxis
     import numpy as Numeric
 else:
+    from Numeric import array2string #added by Hatem Helal hhh23@cam.ac.uk
+    from math import fabs #added by Hatem Helal hhh23@cam.ac.uk
     from Numeric import array,zeros,concatenate,dot,ravel,arange
     from Numeric import matrixmultiply
     from Numeric import arcsinh,diagonal,identity,choose,transpose

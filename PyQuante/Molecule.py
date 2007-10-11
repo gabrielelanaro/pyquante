@@ -43,8 +43,8 @@ class Molecule:
         assert units in allowed_units
         self.units = units
         if atomlist: self.add_atuples(atomlist)
-        self.charge = opts.get('charge',0)
-        self.multiplicity = opts.get('multiplicity',1)
+        self.charge = int(opts.get('charge',0))
+        self.multiplicity = int(opts.get('multiplicity',1))
         return
 
     def __repr__(self):
@@ -108,6 +108,9 @@ class Molecule:
 
     def set_charge(self,charge): self.charge = int(charge)
     def get_charge(self): return self.charge
+    
+    def set_multiplicity(self,mult): self.multiplicity = int(mult)
+    def get_multiplicity(self): return self.multiplicity
 
     def get_nel(self,charge=None):
         if charge:
@@ -141,7 +144,7 @@ class Molecule:
             print "Incompatible number of electrons and spin multiplicity"
             print "nel = ",nel
             print "multiplicity = ",multiplicity
-            raise Exception("Incompatible # electrons and multiplicity")
+            raise "Incompatible number of electrons and spin multiplicity"
 
         nopen = multiplicity-1
         nclosed,ierr = divmod(nel-nopen,2)
@@ -152,7 +155,7 @@ class Molecule:
             print 'nopen = ',nopen
             print 'nclosed = ',nclosed
             print 'ierr = ',ierr
-            raise Exception("Error in Molecule.get_closedopen()")
+            raise "Error in Molecule.get_closedopen()"
         return nclosed, nopen
 
     def get_alphabeta(self,**opts):
@@ -193,26 +196,6 @@ def ParseXYZLines(name,xyz_lines,**opts):
         xyz = map(float,words[1:4])
         atoms.append((sym,xyz))
     return Molecule(name,atoms,**opts)
-
-def ParseXYZFile(fname,**opts):
-    from PyQuante.Util import parseline
-    name = fname.replace(".xyz","")
-    file = open(fname)
-    while 1:
-        line = file.readline()
-        if not line: break
-        nat = parseline(line,'d')
-        line = file.readline()
-        if not line: break
-        title = line.strip()
-        atoms = []
-        for i in range(nat):
-            line = file.readline()
-            if not line: break
-            sym,x,y,z = parseline(line,'sfff')
-            sym = cleansym(sym)
-            atoms.append((sym,(x,y,z)))
-    return Molecule(name,atoms,units="Angstrom",**opts)
 
 if __name__ == '__main__':
     h2o = Molecule('h2o',

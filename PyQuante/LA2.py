@@ -72,24 +72,6 @@ def geigh(H,A,**opts):
     vec = matrixmultiply(A,vec)
     return val,vec
 
-def orthog(H,S,**opts):
-    """\
-    Transform the matrix from the AO basis to an orthogonalized basis.
-
-    Options:
-    method     'Sym'   Use Symmetric Orthogonalization (default)
-               'Can'   Use Canonical Orthogonalization
-               'Chol'  Use a Cholesky decompositoin
-    """
-    method = opts.get('method','Sym')
-    if method == 'Can':
-        X = CanOrth(S)
-    elif orthog == 'Chol':
-        X = CholOrth(S)
-    else:
-        X = SymOrth(S)
-    return simx(H,X)
-
 def SymOrth(S):
     """Symmetric orthogonalization of the real symmetric matrix S.
     This is given by Ut(1/sqrt(lambda))U, where lambda,U are the
@@ -143,9 +125,16 @@ def mkdens_spinavg(c,nclosed,nopen):
     """Form a spin averaged density matrix with *nclosed* closed
        shell orbitals and *nopen* open shell orbitals"""
     return mkdens(c,0,nclosed) + 0.5*mkdens(c,nclosed,nclosed+nopen)
-    
+
 #added by Hatem H Helal 18.07.2007
-#RPM: Consider using diag() for this
+def pad_out(matrix):
+    #this will make debugging matrix operations easier by getting rid of 
+    #matrix elements which are ridiculously tiny
+    
+    print array2string(matrix,max_line_width=200,precision=7,suppress_small=True);    print "\n\n"
+
+    return 0
+
 def diagonal_mat(vector):
     #takes a vector with N components and returns an NXN matrix whose diagonal elements
     #are the components of the vector
@@ -158,3 +147,5 @@ def diagonal_mat(vector):
         matrix[i][i]=vector[i]
 
     return matrix    
+    
+

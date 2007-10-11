@@ -39,6 +39,10 @@ from PyQuante.cints import kinetic,overlap,nuclear_attraction,fact2,dist2
 from PyQuante.cints import binomial, three_center_1D
 from PyQuante.chgp import coulomb_repulsion
 
+#added 2/8/07 by Hatem Helal hhh23@cam.ac.uk
+#probably need to write the C version in cints...
+from PyQuante.pyints import grad_nuc_att
+
 class PGBF:
     "Class for Primitive Gaussian Basis Functions."
 
@@ -65,6 +69,9 @@ class PGBF:
 
     def overlap(self,other):
         "Compute overlap element with another PGBF"
+        #print self._normalization,other._normalization,\
+        #       self._exponent,self._powers,self._origin,\
+        #       other._exponent,other._powers,other._origin
         return self._normalization*other._normalization*\
                overlap(self._exponent,self._powers,self._origin,
                        other._exponent,other._powers,other._origin)
@@ -88,6 +95,12 @@ class PGBF:
                                   other._origin,other._normalization,
                                   other._powers,other._exponent,
                                   C)
+
+    def nuclear_gradient(self,other,C):
+        return self._normalization*other._normalization*\
+               array(grad_nuc_att(self._origin,self._powers,self._exponent,
+                            other._origin,other._powers,other._exponent,
+                            C))
 
     def amp(self,x,y,z):
         "Compute the amplitude of the PGBF at point x,y,z"

@@ -14,8 +14,9 @@
  distribution. 
 """
 
-from NumWrap import matrixmultiply,transpose
+from NumWrap import matrixmultiply,transpose,dot
 from LA2 import diagonal_mat
+
 class Wavefunction:
     """\
     Data class to hold all relevant wavefunction data in PyQuante
@@ -73,15 +74,15 @@ Unrestricted
         self.orbe_a = opts.get('orbe_a',None)
         self.orbe_b = opts.get('orbe_b',None)
         
-        nalpha      = opts.get('nalpha',None)
-        nbeta       = opts.get('nbeta',None)
+        self.nalpha = opts.get('nalpha',None)
+        self.nbeta  = opts.get('nbeta',None)
         
         self.occs_a = opts.get('occs_a',None)
         self.occs_b = opts.get('occs_b',None)
         
         self.restricted   = opts.get('restricted',None)
         self.unrestricted = opts.get('unrestricted',None)
-        
+        self.fixedocc    = opts.get('fixedocc',None)
         return
         
     def update_wf(self,**opts):
@@ -160,11 +161,40 @@ Unrestricted
             
     def mk_auger_dens(self):
         "Forms a density matrix from a coef matrix c and occupations in occ"
-        #count how many states we were given
-        nstates = self.occc.shape[0]
-        D = 0.0
-        for i in range(nstates):
-            D += self.occs[i]*dot( self.orbs[:,i:i+1], transpose(self.orbs[:,i:i+1]))
-        #pad_out(D)
-        return D
+        if self.restricted:
+            nstates = self.occs.shape[0]
+            D = 0.0
+            for i in range(nstates):
+                D += self.occs[i]*dot( self.orbs[:,i:i+1], transpose(self.orbs[:,i:i+1]))
+            #pad_out(D)
+            return D
+        if self.fixedocc:
+            nastates = self.occs_a.shape[0]
+            nbstates = self.occs_b.shape[0]
+            Da,Db = 0.0,0.0
+            for i in range(nastates):
+                Da += self.occs_a[i]*dot( self.orbs_a[:,i:i+1], transpose(self.orbs_a[:,i:i+1]))
+            for i in range(nbstates):
+                Db += self.occs_b[i]*dot( self.orbs_b[:,i:i+1], transpose(self.orbs_b[:,i:i+1]))
+            
+            return Da,Db
         
+    def mk_auger_Qmatrix(self):
+        #computes Q matrix using occ arrays, which is basically density matrix weighted by the orbital eigenvalues
+        if self.restricted:
+            nstates = self.occs.shape[0]
+            Qmat = 0.0
+            for i in range(nstates):
+                Qmat += self.orbe[i]*self.occs[i]*dot( self.orbs[:,i:i+1], transpose(self.orbs[:,i:i+1]))
+            return Qmat
+            
+        if self.fixedocc:
+            nastates = self.occs_a.shape[0]
+            nbstates = self.occs_b.shape[0]
+            Qa,Qb = 0.0,0.0
+            for i in range(nastates):
+                Qa += self.orbe_a[i]*self.occs_a[i]*dot( self.orbs_a[:,i:i+1], transpose(self.orbs_a[:,i:i+1]))
+            for i in range(nbstates):
+                Qb += self.orbe_a[i]*self.occs_b[i]*dot( self.orbs_b[:,i:i+1], transpose(self.orbs_b[:,i:i+1]))
+            
+            return Qa,Qb
