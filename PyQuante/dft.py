@@ -25,7 +25,7 @@ import logging
 
 from Convergence import SimpleAverager
 from LA2 import SymOrth
-from Numeric import resize
+
 #from numpy.oldnumeric.linear_algebra import Heigenvectors, inverse
 #from numpy.linalg import svd, eig, eigh
 #from NumWrap import array2string, abs

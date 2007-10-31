@@ -24,9 +24,6 @@ from PyQuante.cints import dist
 
 from NumWrap import array2string, fabs, dot, transpose
 
-from biorthogonal import biorthogonalize,pad_out
-
-tolerance = 0.001
 
 def get_fock(D,Ints,h):
     "Return the HF Fock matrix"
@@ -274,6 +271,9 @@ def uhf_fixed_occ(atoms,occa, occb,**opts):
                           If not None, S,h,Ints
     orbs          None    If not None, the guess orbitals
     """
+
+    from biorthogonal import biorthogonalize,pad_out
+
     ConvCriteria = opts.get('ConvCriteria',1e-5)
     MaxIter = opts.get('MaxIter',40)
     DoAveraging = opts.get('DoAveraging',True)
