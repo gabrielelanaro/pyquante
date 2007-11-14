@@ -3855,10 +3855,23 @@ Numeric and numpy are supported in the new version, and the test
 suites all run regardless of (numpy vecs)/(numeric vecs) or
 (numpy)/(numeric) choices.
 
+---------2007-11-14-------------------------------- 
+
+Hatem Helal has implemented HF forces, and that code appears to be
+working. I decided to celebrate by making a point release (1.6.0), to
+satisfy users who don't like to rely on the SVN code.
+
+Hatem's code is in PyQuante/forces.py.
+
+Other new code in this release include a better test suite
+(Tests/UnitSweet, using the Python unittest module), better IO
+handling (using the Python logging module), and a first pass at
+object-oriented construction of Hamiltonians and the like (in
+PyQuante/PyQuante2.py). 
+
 
 TODO LIST
-* Move basis sets into PyQuante/Basis
-* Move integrals into PyQuante/Ints
+* Integrate Hatem's leapfrog.py with the stuff in Dynamics.py
 * Separate out One-e integrals from Two-e integrals in py/cints
 * Divide-and-conquer linear scaling 
 * Remove verbosity from MINDO routines
