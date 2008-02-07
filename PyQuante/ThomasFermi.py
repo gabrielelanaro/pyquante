@@ -12,9 +12,8 @@
 """
 
 from math import sqrt,pi,exp
-from Gnuplot import Gnuplot,Data
 from NumWrap import array,zeros
-from Pistol.Util import frange
+from pylab import *
 
 # Chi is the dimensionless version of the potential
 
@@ -124,24 +123,19 @@ def test():
     chi2 = []
     chi4 = []
     chi5 = []
-    for x,chi in chi_flugge:
-        xs.append(x)
-        chi1.append(chi)
-        chi2.append(chi_sommer(x))
-        chi4.append(chi_tietz(x))
-    #xs3,chi3 = chi_rk4(10)
-    g = Gnuplot()
-    #g.title('Comparison of Thomas-Fermi Chi values')
-    d1 = Data(xs,chi1,title='Analytic',with='points')
-    #d2 = Data(xs,chi2,title='Sommerfield',with='linespoints')
-    #d3 = Data(xs3,chi3,title="Integrated",with='lines')
-    d3 = Data(xs,chi4,title='Tietz',with='lines')
-    g.ylabel('Chi(x)')
-    g.xlabel('x')
-    g.plot(d1,d3)
-    g("set term post")
-    g("set output 'tietz.eps'")
-    g.replot()
-    raw_input('Press any key to continue')
+    xs = [x for x,chi in chi_flugge]
+    chi1 = [chi for x,chi in chi_flugge]
+    chi2 = [chi_sommer(x) for x in xs]
+    chi4 = [chi_tietz(x) for x in xs]
+    plot(xs,chi1,'g-',label="Analytic")
+    plot(xs,chi2,'ro',label="Sommer")
+    plot(xs,chi4,'bo',label="Tietz")
+    #rhos = [rho(x,1) for x in xs[1:]]
+    #plot(xs[1:],rhos,'k-',label=r'$\rho$')
+    legend()
+    xlabel(r'x/au')
+    ylabel(r'$\chi(x)$')
+    title("Thomas Fermi atomic wave functions")
+    show()
     
 if __name__ == '__main__': test()

@@ -26,11 +26,4 @@ def suite():
     return fullsuite
 
 if __name__=="__main__":
-    try:
-        import psyco
-        psyco.full()
-        print "Using Psyco!"
-    except ImportError:
-        pass
-
     unittest.TextTestRunner(verbosity=2).run(suite())

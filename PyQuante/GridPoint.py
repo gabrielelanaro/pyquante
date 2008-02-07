@@ -21,6 +21,7 @@ class GridPoint:
         self._y = float(y)
         self._z = float(z)
         self._w = float(w)
+        self.xyz = array((self._x,self._y,self._z),'d')
         self._r = sqrt(self._x*self._x+self._y*self._y+self._z*self._z)
         self._gamma = None
         self._dens = 0

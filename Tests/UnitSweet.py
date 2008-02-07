@@ -264,4 +264,6 @@ if __name__ == '__main__':
     #suite = unittest.TestLoader().loadTestsFromTestCase(UnitTests)
     #unittest.TextTestRunner(verbosity=2).run(suite)
     #logging.basicConfig(format="%(message)s",level=logging.DEBUG)
+    # This works:
+    #import psyco; psyco.full()
     unittest.main()
