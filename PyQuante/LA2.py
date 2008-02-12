@@ -58,7 +58,7 @@ def geigh(H,A,**opts):
                 
     """
     have_xfrm = opts.get('have_xfrm',False)
-    orthog = opts.get('orthog','Chol')
+    orthog = opts.get('orthog','Chol') 
     if not have_xfrm:
         if orthog == 'Can':
             X = CanOrth(A)
