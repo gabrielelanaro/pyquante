@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python 
 """\
  LA2.py: Simple additions to numpy.linalg linear algebra library
 
