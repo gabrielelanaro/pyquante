@@ -30,6 +30,9 @@ chi_flugge = [ # x, Chi(x)
     (7.0,0.0461), (7.5,0.0410), (8.0,0.0366), (8.5,0.0328), (9.0,0.0296),
     (9.5,0.0268), (10.0,0.0243)]
 
+def energy(Z): return -0.7687*pow(Z,7./3.)
+def energy_eV(Z): return -20.93*pow(Z,7./3.)
+
 def chi_sommer(x):
     # Sommerfield's fit to Chi
     a = pow(12.,2./3.)
@@ -38,18 +41,15 @@ def chi_sommer(x):
     return pow(1+pow(x/a,d),-c)
 
 # Tietz's approximation of Chi
-def chi_tietz(x): return pow(1+0.53625*x,-2)
-    
-def energy(Z): return -0.7687*pow(Z,7./3.)
-def energy_eV(Z): return -20.93*pow(Z,7./3.)
+def chi_tietz(x): return pow(1+0.53625*x,-2.)
 
 def rho(r,Z):
-    alpha = 1.1295*pow(Z,1./3.)
-    x = alpha*r
-    #chi = chi_tietz(x)
-    chi = chi_sommer(x)
-    V = -Z*chi/r
-    return pow(-2*V,1.5)/3./pi/pi
+    # Uses Tietz's approximation. See Fluegge Problem 176
+    a = 0.88534*pow(Z,-1/3.)
+    x = r/a
+    chi = chi_tietz(x)
+    V = -Z*chi/r     # 176.2
+    return pow(-2.*V,1.5)/(3.*pi*pi)
 
 def chi_integrate(xend):
     # This doesn't quite work yet, but you can get the general idea:
@@ -117,7 +117,7 @@ def chi_rk4(tend):
         if X < 0: break
     return ts,Xs
 
-def test():
+def test_chi():
     xs = []
     chi1 = []
     chi2 = []
@@ -137,5 +137,24 @@ def test():
     ylabel(r'$\chi(x)$')
     title("Thomas Fermi atomic wave functions")
     show()
+
+def test():
+    "Make sure the normalizations work out for TF"
+    def norm(rho,R):
+        dx = R[1]-R[0]
+        return 4*pi*sum(rhoi*ri*ri for rhoi,ri in zip(rho,R))*dx
+    R = list(arange(0.01,50,0.1))
+    rho_h = [rho(r,1.0) for r in R]
+    rho_he = [rho(r,2.0) for r in R]
+    rho_li = [rho(r,3.0) for r in R]
+    print sum(rho_h),sum(rho_he),sum(rho_li)
+    print norm(rho_h,R),norm(rho_he,R),norm(rho_li,R)
+
+def test_yint():
+    dx = 0.001
+    y = arange(0.001,100,dx)
+    print sum(sqrt(y)/(1+y)**3)*dx
+    print pi/8
+    
     
 if __name__ == '__main__': test()

@@ -61,6 +61,7 @@ class AtomicGrid:
         # and in an array of shells of points. The goal is to move
         # to only having the array of shells 
         self.do_grad_dens = opts.get('do_grad_dens',False)
+        radial = opts.get('radial','EulerMaclaurin')
         nrad = opts.get('nrad',32)
         fineness = opts.get('fineness',1)
         self.points = []
@@ -70,10 +71,12 @@ class AtomicGrid:
 
         x,y,z = atom.pos()
 
-        #self.grid = LegendreGrid(nrad,self.Rmax,fineness)
+        if radial == 'Legendre':
+            self.grid = LegendreGrid(nrad,self.Rmax,fineness)
+        else:
+            self.grid = EulerMaclaurinGrid(nrad,self.Z,do_sg1=False)
+            #self.grid = EulerMaclaurinGrid(50,self.Z,nang=194,do_sg1=False)
         # Could also call for EML or SG1 grids:
-        self.grid = EulerMaclaurinGrid(nrad,self.Z)
-        #self.grid = EulerMaclaurinGrid(50,self.Z,nang=194,do_sg1=False)
 
         for rrad,wrad,nangpts in self.grid:
             shell = []
@@ -281,7 +284,9 @@ def EulerMaclaurinRadialGrid(nrad,Z):
     R = PopleRadii[Z]
     grid = []
     for i in range(1,nrad+1):
-        w = 2.*pow(R,3)*(nrad+1.)*pow(i,5)*pow(nrad+1-i,-7)
+        # Changed to include a factor of 4pi
+        #w = 2.*pow(R,3)*(nrad+1.)*pow(i,5)*pow(nrad+1-i,-7)
+        w = 8.*pi*pow(R,3)*(nrad+1.)*pow(i,5)*pow(nrad+1-i,-7)
         r = R*i*i*pow(nrad+1-i,-2)
         grid.append((r,w))
     return grid
