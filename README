@@ -133,6 +133,11 @@ Contributors
   trying to implement density functionals. 
 
 ## Changelog
+- 1.6.2: 2009-02-24
+        * Removed the shebangs because they made the FC installation
+	barf
+	* Fixed a problem with MINDO in the TessSuite.py
+
 - 1.5.0: 2005-12-19
 	* A User's Guide
 	* EXX density functionals

@@ -89,6 +89,7 @@ Tests/be_oep.py
 Tests/ch4_mp2.py
 Tests/cpbe_test.py
 Tests/dens_grad_test.py
+Tests/electronic_density.py
 Tests/func_deriv_check.py
 Tests/gamess_uk_atoms.py
 Tests/h2.py

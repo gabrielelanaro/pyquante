@@ -44,7 +44,7 @@ if sys.platform != 'win32':
 doclines = __doc__.split("\n")
 
 setup(name="PyQuante",
-      version="1.6.1",
+      version="1.6.2",
       description = doclines[0],
       author = "Rick Muller",
       author_email = "rmuller@sandia.gov",

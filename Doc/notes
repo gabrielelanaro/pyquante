@@ -3869,6 +3869,10 @@ handling (using the Python logging module), and a first pass at
 object-oriented construction of Hamiltonians and the like (in
 PyQuante/PyQuante2.py). 
 
+--------2009-02-24------------------------------------
+Releasing v 1.6.2 where I remove the shebangs since they make the FC
+installation barf, plus a few more minor bugs along the way.
+
 
 TODO LIST
 * Integrate Hatem's leapfrog.py with the stuff in Dynamics.py
