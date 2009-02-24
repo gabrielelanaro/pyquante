@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  MP.py: Moller Plesset Perturbation Theory
 

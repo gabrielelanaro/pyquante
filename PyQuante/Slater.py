@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Slater.py: Coefficients for fitting Gaussian functions to Slater
    Functions.These functions are STO-6G fits to Slater exponents

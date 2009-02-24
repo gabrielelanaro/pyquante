@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Constants.py: Constants for PyQuante
 

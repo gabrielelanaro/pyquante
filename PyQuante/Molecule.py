@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Molecule.py: Simple class for molecules.
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Minimizers.py: Geometry Minimizers
 

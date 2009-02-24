@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Elements.py: Miscellaneous data about elements
 

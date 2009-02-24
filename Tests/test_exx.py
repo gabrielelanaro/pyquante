@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 "Test the EXX routines"
 
 from PyQuante.OEP import exx

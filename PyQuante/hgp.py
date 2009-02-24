@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Implementation of Head-Gordon & Pople's scheme for electron repulsion
   integrals (ref), which, in turn, derives from Saika and Obarra's scheme.

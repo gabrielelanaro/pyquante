@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  hartree_fock.py Basic routines for HF programs in the PyQuante framework
 

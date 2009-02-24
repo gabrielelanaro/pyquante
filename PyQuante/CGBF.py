@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  CGBF.py Perform basic operations over contracted gaussian basis
   functions. Uses the functions in PGBF.py.
@@ -189,13 +188,13 @@ class CGBF:
 def coulomb(a,b,c,d):
     "Coulomb interaction between 4 contracted Gaussians"
 
-    #if sum(a.powers()) < sum(b.powers()): a,b = b,a
-    #if sum(c.powers()) < sum(d.powers()): c,d = d,c
-    
-    Jij = contr_coulomb(a.exps(),a.coefs(),a.pnorms(),a.origin(),a.powers(),
-                        b.exps(),b.coefs(),b.pnorms(),b.origin(),b.powers(),
-                        c.exps(),c.coefs(),c.pnorms(),c.origin(),c.powers(),
-                        d.exps(),d.coefs(),d.pnorms(),d.origin(),d.powers())
+    try:
+        Jij = contr_coulomb(a.exps(),a.coefs(),a.pnorms(),a.origin(),a.powers(),
+                            b.exps(),b.coefs(),b.pnorms(),b.origin(),b.powers(),
+                            c.exps(),c.coefs(),c.pnorms(),c.origin(),c.powers(),
+                            d.exps(),d.coefs(),d.pnorms(),d.origin(),d.powers())
+    except:
+        raise "Two-electron integral failed"
     return a.norm()*b.norm()*c.norm()*d.norm()*Jij
 
 def three_center(a,b,c):

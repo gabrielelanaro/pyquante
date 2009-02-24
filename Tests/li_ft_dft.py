@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import unittest, sciunittest
 
 from PyQuante.NumWrap import arange

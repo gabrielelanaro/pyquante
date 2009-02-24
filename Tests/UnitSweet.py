@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
 UnitSweet.py - Unit testing for Python.
 

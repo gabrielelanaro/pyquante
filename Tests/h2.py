@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 "H2 using Gaussians"
 
 # Jaguar results for 6-31G** basis and 1 bohr distance:

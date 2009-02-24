@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  DMP.py - Implementation of density matrix purification methods, including 
   Niklasson, Tymczak and Challacombe's density matrix minimizer

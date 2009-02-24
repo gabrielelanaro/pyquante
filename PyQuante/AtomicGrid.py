@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  AtomicGrid.py Simple atomic grids, based on:
   A.D. Becke, 'A multicenter numerical integration scheme for

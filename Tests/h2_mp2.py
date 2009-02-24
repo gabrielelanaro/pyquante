@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 "H2 correlation energy via MP2"
 
 import unittest, sciunittest

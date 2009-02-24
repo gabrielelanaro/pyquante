@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Thomas-Fermi theory for atoms
 
@@ -155,6 +154,5 @@ def test_yint():
     y = arange(0.001,100,dx)
     print sum(sqrt(y)/(1+y)**3)*dx
     print pi/8
-    
     
 if __name__ == '__main__': test()

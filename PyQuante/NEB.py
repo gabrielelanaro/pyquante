@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  NEB.py - Nudged Elastic Band solvers in Python
 

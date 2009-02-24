@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 "Neon using Gaussians"
 
 import unittest, sciunittest

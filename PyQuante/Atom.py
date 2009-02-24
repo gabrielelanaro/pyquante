@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Atom.py: Simple class for atoms.
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Test the cint module
 
 from PyQuante.PGBF import PGBF

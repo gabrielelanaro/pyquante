@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Tom Manz's Simplified Size-Consistent Configuration Interaction
  This may be equivalent to second-order Epstein-Nesbet pair

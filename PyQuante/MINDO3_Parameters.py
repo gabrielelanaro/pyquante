@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  MINDO3.py: Dewar's MINDO/3 Semiempirical Method
 

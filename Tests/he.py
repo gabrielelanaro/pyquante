@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 "Helium using Gaussians"
 
 # Jaguar results for 6-31G** basis

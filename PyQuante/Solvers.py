@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
 Solvers.py - explores ways to use different eigensolvers in Python
 """

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  GridPoint.py: A class to hold grid point data
 

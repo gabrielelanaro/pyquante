@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
 PyQuante2 contains a more structured interface to all of the functions
 in PyQuante.

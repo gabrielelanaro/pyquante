@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  fermi_dirac.py: Utilities for finite temperature Fermi-Dirac occupations.
 

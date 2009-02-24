@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
 Implement Hartree-Fock Greens Function for band energy corrections.
 From Szabo/Ostland Chapter 7.

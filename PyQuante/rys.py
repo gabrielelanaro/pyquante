@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
  Two electron integral evaluation using Rys polynomials.
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Dynamics.py: Module for molecular dynamics
 

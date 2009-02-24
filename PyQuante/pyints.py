@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  pyints.py  Python implementations of work functions for Gaussian
   integrals in the PyQuante package.

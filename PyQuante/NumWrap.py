@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
  NumWrap.py - Interface to Numeric and numpy
 

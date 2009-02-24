@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  MolecularGrid.py Construct molecular grids from patched atomic
  grids. The technique behind this is based upon:

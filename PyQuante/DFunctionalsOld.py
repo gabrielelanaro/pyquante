@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  DFunctionals.py Exchange and Correlation Density Functionals
 

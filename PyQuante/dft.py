@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  dft.py Initial version of dft routines in PyQuante
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """\
  Code for restricted open-shell hartree fock programs in PyQuante.
 

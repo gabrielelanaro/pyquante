@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Bunch.py: Generic collection that can be accessed as a class. This can
   be easily overrided and used as container for a variety of objects.

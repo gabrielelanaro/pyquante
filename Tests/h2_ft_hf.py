@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from PyQuante.NumWrap import arange
 from PyQuante.hartree_fock import rhf
 from PyQuante.Molecule import Molecule

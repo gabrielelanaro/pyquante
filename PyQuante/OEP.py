@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-# Yang/Wu's OEP implementation, in PyQuante.
+"Yang/Wu's OEP implementation, in PyQuante."
 
 from math import sqrt
 from PyQuante.NumWrap import zeros,matrixmultiply,transpose,dot,identity,\

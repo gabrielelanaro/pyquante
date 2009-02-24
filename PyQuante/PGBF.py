@@ -1,4 +1,3 @@
-#!/usr/bin/env python 
 """\
   PGBF.py Perform basic operations over primitive
     gaussian basis functions. The equations herein are based upon

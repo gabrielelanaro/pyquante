@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Wavefunction.py: trial module defining an orbital class
  The idea is to make handling computations over orbitals slightly easier

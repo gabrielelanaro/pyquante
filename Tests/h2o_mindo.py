@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 "H2O using Gaussians"
 
 import unittest, sciunittest
@@ -11,7 +10,8 @@ name = "H2O MINDO/3"
 
 def main():
     atomlist = Molecule('h2o',
-                        atomlist = [(8,(0,0,0)),(1,(1.,0,0)),(1,(0,1.,0))])
+                        atomlist = [(8,(0,0,0)),(1,(1.,0,0)),(1,(0,1.,0))],
+                        units = 'Angstrom')
     en = scf(atomlist)
     return en
 

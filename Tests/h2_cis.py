@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 "H2 first excited state energy"
 
 import unittest, sciunittest

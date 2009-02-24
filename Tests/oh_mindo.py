@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 "OH using Mindo"
 
 import unittest, sciunittest
@@ -10,7 +9,7 @@ energy = 18.127533
 name = "OH MINDO/3"
 
 def main():
-    atomlist = Molecule('oh',atomlist = [(8,(0,0,0)),(1,(1.,0,0))])
+    atomlist = Molecule('oh',atomlist = [(8,(0,0,0)),(1,(1.,0,0))],units='Angstrom')
     en = scf(atomlist)
     return en
 
@@ -30,4 +29,6 @@ def suite():
     return unittest.TestLoader().loadTestsFromTestCase(OHTest)
 
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(suite())
+    #unittest.TextTestRunner(verbosity=2).run(suite())
+    en = main()
+    print en,energy

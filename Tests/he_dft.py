@@ -1,4 +1,3 @@
-#!/usr/bin/python
 "He using Gaussians to test the DFT module"
 
 import unittest, sciunittest

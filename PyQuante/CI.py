@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  CI.py: Configuration Interaction Routines.
 

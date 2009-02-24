@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 def numpy_test():
     from numpy import array,matrixmultiply,identity
     from numpy.linalg import Heigenvalues
