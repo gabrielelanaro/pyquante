@@ -30,9 +30,7 @@ Operating System :: MacOS
 from distutils.core import setup, Extension
 import distutils.sysconfig
 sysconfig = distutils.sysconfig.get_config_vars()
-import os, sys
-
-# Thanks to Konrad Hinsen for showing me the light about these files!
+import os, sys, glob, stat
 
 libs = []
 if sys.platform != 'win32':
@@ -40,6 +38,9 @@ if sys.platform != 'win32':
                             ' config/libm_test >& /dev/null')
     if return_code != 0:
         libs.append('m')
+
+for fname in glob.glob('Tests/*.py'):
+    os.chmod(fname,stat.S_IRWXU|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH)
 
 doclines = __doc__.split("\n")
 
@@ -56,4 +57,5 @@ setup(name="PyQuante",
       packages = ['PyQuante','PyQuante.Basis','PyQuante.IO'],
       ext_modules=[Extension("PyQuante.cints",["Src/cints.c"],libraries=libs),
                    Extension("PyQuante.chgp",["Src/chgp.c"],libraries=libs),
-                   Extension("PyQuante.crys",["Src/crys.c"],libraries=libs)])
+                   Extension("PyQuante.crys",["Src/crys.c"],libraries=libs)],
+      )
