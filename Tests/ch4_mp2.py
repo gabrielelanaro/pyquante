@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """\
  Methane correlation energy via MP2. This file is not included in the
  test suite because it takes a long time to perform the integral transform.

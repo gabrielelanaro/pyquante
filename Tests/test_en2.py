@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """\
  Test of the EN2 module.
 """

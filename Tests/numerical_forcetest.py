@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from PyQuante.Molecule import Molecule
 from PyQuante.Ints import *
 

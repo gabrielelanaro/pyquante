@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Code for reading/writing Gaussian Cube files
  

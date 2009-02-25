@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """\
  Test the 2e integral code.
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from PyQuante.hartree_fock import rhf
 from PyQuante.Molecule import Molecule
 from PyQuante.force import *

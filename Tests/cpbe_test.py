@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from PyQuante.DFunctionals import cpbe,cpbe_huub,cpbe_rpm
 from math import sqrt,exp,log,pi
 

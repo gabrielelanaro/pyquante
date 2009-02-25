@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import unittest
 
 class TestCase(unittest.TestCase):

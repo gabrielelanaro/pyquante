@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """\
 Quick check for whether the functionals work. Not meant to be exhaustive.
 """

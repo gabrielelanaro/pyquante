@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 "H2O using Gaussians"
 
 import unittest, sciunittest

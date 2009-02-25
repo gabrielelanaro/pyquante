@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Reproduce the data on the excellent Density Functional Repository web
 site http://www.cse.clrc.ac.uk/qcg/dft/.

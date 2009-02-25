@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Routines to read/write information from/to Jaguar files
  

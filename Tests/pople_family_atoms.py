@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """\
 Reproduce the data from Table 1 in Johnson, Gill and Pople's Paper:
 Performance of a Family of Density Functional Methods.

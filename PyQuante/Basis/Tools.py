@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
 This program inputs a GAMESS basis, e.g. from the EMSL basis set order
 form, and formats it into PyQuante format

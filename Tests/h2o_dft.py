@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 "H2O using Gaussians to test the DFT module"
 
 import unittest, sciunittest

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """\
  Molf - Module containing functions for reading/writing Molden MOLF files
 

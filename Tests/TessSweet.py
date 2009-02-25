@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """\
  TessSweet: Runs the entire PyQuante Test Suite. Has the
  results from runs on 2002-09-08.

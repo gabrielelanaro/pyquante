@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 "OH using Mindo"
 
 import unittest, sciunittest

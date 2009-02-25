@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 "H2O using Gaussians"
 
 # Jaguar results for 6-31G** basis and 1 bohr distance:

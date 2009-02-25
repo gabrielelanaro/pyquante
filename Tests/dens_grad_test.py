@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 "Test the routines that compute the density gradient"
 from PyQuante.Molecule import Molecule
 from PyQuante.dft import dft

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import unittest, sciunittest
 
 from PyQuante.dft import dft

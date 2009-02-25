@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Test for NO using spin-averaged DFT
 # Jaguar ROHF: Rno = 1.125057 A = 2.12604 au; E=-129.24135247609
 #        UHF:  Rno = 1.126917 A = 2.12955 au; E=-129.24788298992
