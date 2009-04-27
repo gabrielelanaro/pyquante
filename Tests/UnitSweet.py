@@ -121,6 +121,13 @@ class UnitTests(unittest.TestCase):
         h2_hf.iterate()
         self.assertAlmostEqual(h2_hf.energy,-1.130501,4)
 
+    def testNOTCPSolver(self):
+        from PyQuante.DMP import NOTCP
+        h2_hf = SCF(self.h2,method='HF',SolverConstructor=DmatSolver,
+                    solver=NOTCP)
+        h2_hf.iterate()
+        self.assertAlmostEqual(h2_hf.energy,-1.130501,4)
+
     def testTRPSolver(self):
         from PyQuante.DMP import TRP
         h2_hf = SCF(self.h2,method='HF',SolverConstructor=DmatSolver,
@@ -261,9 +268,9 @@ class UnitTests(unittest.TestCase):
         self.assertAlmostEqual(E_exx,-7.981044,4)
 
 if __name__ == '__main__':
-    #suite = unittest.TestLoader().loadTestsFromTestCase(UnitTests)
-    #unittest.TextTestRunner(verbosity=2).run(suite)
+    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTests)
+    unittest.TextTestRunner(verbosity=2).run(suite)
     #logging.basicConfig(format="%(message)s",level=logging.DEBUG)
     # This works:
     #import psyco; psyco.full()
-    unittest.main()
+    #unittest.main()

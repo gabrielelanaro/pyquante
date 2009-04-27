@@ -49,8 +49,11 @@ def CISMatrix(Ints,orbs,Ehf,orbe,occs):
     "Naive implementation: Int xfrm + slow formation"
     # The best reference for this stuff is Chap 4 of Szabo/Ostlund
 
+    # This is hideous! Maybe I should pass in nocc, nocc_ref, nvirt_ref
+    #  or something.
     nocc, nvirt = get_occ_unocc(occs)
     singles = SingleExcitations(range(nocc),range(nocc,nocc+nvirt))
+    
     nex = len(singles)
 
     MOInts = TransformInts(Ints,orbs)

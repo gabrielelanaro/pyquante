@@ -20,12 +20,12 @@
 #  MCW works, provided we have a guess for efermi
 
 import logging
+from math import sqrt
 from PyQuante.Ints import getbasis,getints,get2JmK
 from PyQuante.Molecule import Molecule
 from PyQuante.LA2 import mkdens,SymOrth,simx
 from PyQuante.hartree_fock import get_energy
-from PyQuante.NumWrap import diagonal,matrixmultiply,identity,trace
-
+from PyQuante.NumWrap import matrixmultiply,identity,trace,zeros,eigh,solve
 
 class AbstractDMP:
     "AbstractDMP - Functions common to all density matrix purifiers"
@@ -85,6 +85,71 @@ class AbstractDMP:
     def update(self): print "AbstractDMP.update()"
     def converged(self): print "AbstractDMP.converged()"
 
+class NOTCP:
+    "Nonorthogonal version of Niklasson Trace Correcting Purification"
+    method = "NOTCP"
+    def __init__(self,F,Ne,S,**opts):
+        self.tol = opts.get('tol',1e-7)
+        self.maxit = opts.get('maxit',50)
+        self.S = S
+        self.N = F.shape[0]
+        self.I = identity(self.N,'d')
+        self.Ne = Ne
+        self.F = F
+        self.emin, self.emax = lanczos_minmax(self.F,self.S)
+        self.initialize()
+        self.print_init_info()
+        return
+
+    def iterate(self):
+        for self.iter in range(self.maxit):
+            if self.converged(): break
+            self.update()
+            self.print_iter_info()
+        self.print_iter_end_info()
+        return
+
+    def reinitialize(self,F):
+        "Used for restarting in a later SCF iteration"
+        self.F = F
+        self.emin,self.emax = lanczos_minmax(self.F,self.S)
+        self.initialize()
+        self.print_init_info()
+        return
+            
+    def print_iter_end_info(self):
+        if self.iter == self.maxit-1:
+            logging.warning("Too many iterations taken in %s: %d" %
+                            (self.method,self.iter))
+        else:
+            logging.debug("%s converged in %d iterations" % 
+                            (self.method,self.iter))
+        return
+
+    def print_iter_info(self):
+        #print self.iter,self.Ne,self.Ne_curr
+        return
+    
+    def print_init_info(self): return
+
+    def initialize(self):
+        from PyQuante.NumWrap import inv
+        self.D = inv(self.F-(self.emin-1)*self.S)
+        return
+    
+    def update(self):
+        D2 = matrixmultiply(self.DS,self.D)
+        if self.Ne_curr < self.Ne:
+            self.D = 2*self.D-D2
+        else:
+            self.D = D2
+        return
+
+    def converged(self):
+        self.DS = matrixmultiply(self.D,self.S)
+        self.Ne_curr = trace(self.DS)
+        return abs(self.Ne_curr - self.Ne) < self.tol
+
 class TCP(AbstractDMP):
     "Niklasson Trace Correcting Purification"
     method = "TCP"
@@ -93,16 +158,22 @@ class TCP(AbstractDMP):
         return
     
     def update(self):
-        D2 = matrixmultiply(self.D,self.D)
         Ne_curr = trace(self.D)
+        D2 = matrixmultiply(self.D,self.D)
+        self.Ne_curr = Ne_curr
         if Ne_curr < self.Ne:
-            self.D = 2.0*self.D-D2
+            self.D = 2*self.D-D2
         else:
             self.D = D2
         return
 
-    def converged(self): return abs(trace(self.D) - self.Ne) < self.tol
+    def converged(self):
+        return abs(trace(self.D) - self.Ne) < self.tol
 
+    def print_iter_info(self):
+        #print self.iter,self.Ne,self.Ne_curr
+        return
+    
 class TRP(TCP):
     "Niklasson/Tymczak/Challacombe Trace Resetting purification"
     method = "TRP"
@@ -122,7 +193,6 @@ class TRP(TCP):
         else:
             self.D = Df-gamma*Dg
         return
-
 
 class CP(AbstractDMP):
     "Palser/Manolopolous Canonical Purification"
@@ -209,109 +279,47 @@ def gershgorin_minmax(A):
         maxs.append(A[i,i]+offsum)
     return min(mins),max(maxs)
 
+def tridiagmat(alpha,beta):
+    N = len(alpha)
+    A = zeros((N,N),'d')
+    for i in range(N):
+        A[i,i] = alpha[i]
+        if i < N-1:
+            A[i,i+1] = A[i+1,i] = beta[i]
+    return A
 
-### The following two routines are deprecated, and may be removed without warning:
-
-def Dinit_mcw(F,Ne,tol=1e-7,maxit=100):
-    #Solve for efermi and D0 using bisection:
-    logging.warning("2/20/07: Dinit_mcw is now deprecated. Use DMP.McWeeny instead")
-    beta = 0.5
-    emin,emax = gershgorin_minmax(F)
-    I = identity(F.shape[0],'d')
-    elow = emin
-    ehigh = emax+20
-    de = emax-elow
-    alpha = beta/de
-    nelow = trace(alpha*(elow*I-F) + beta*I)
-    nehigh = trace(alpha*(ehigh*I-F) + beta*I)
-
-    for i in range(100):
-        efermi = 0.5*(elow+ehigh)
-        nefermi = trace(alpha*(efermi*I-F)+ beta*I)
-        print elow,ehigh,nelow,Ne,nehigh
-        if abs(Ne-nefermi) < tol: break
-        if nefermi < Ne:
-            elow = efermi
-            nelow = nefermi
-        elif nefermi > Ne:
-            ehigh = efermi
-            nehigh = nefermi
-    alpha = min(beta/(emax-efermi),(1-beta)/(efermi-emin))
-    return alpha*(efermi*I-F)+beta*I
-
-
-
-def DMP(F,S,Ne,Method=0,MaxIter=50,ErrorLimit=1e-12):
-    # Density Matrix Purification Methods
-    # 0 -> Trace correcting purification (default)
-    # 1 -> Trace resetting
-    # 2 -> McWeeny purification
-    # 3 -> Canonical purification
-    logging.warning("2/20/07: DMP is now deprecated. Use DMP.TCP instead")
-    methods = ['TCP','TRS','MCW','PM']
-
-    # Step 1: Orthogonalize the Fock matrix:
-    X = SymOrth(S)
-    F = simx(F,X)
-
-    # Step 2: Initialize the density matrix:
-    emin,emax = gershgorin_minmax(F)
+def lanczos_minmax(F,S=None,**kwargs):
+    "Estimate the min/max evals of F using a few iters of Lanczos"
+    doS = S is not None
+    niter = kwargs.get('niter',8)
     N = F.shape[0]
-    I = identity(N,'d')
-    if Method == 0 or Method == 1:
-        D = (emax*I-F)/(emax-emin)
-    elif Method == 2:
-        D = Dinit_mcw(F,Ne)
-    elif Method == 3:
-        efermi = trace(F)/N
-        beta = Ne/float(N)
-        alpha = min(Ne/(emax-efermi),(N-Ne)/(efermi-emin))/float(N)
-        D = alpha*(efermi*I-F) + beta*I
+    niter = min(N,niter)
+    x = zeros(N,'d')
+    x[0] = 1
+    q = x
+    as = []
+    bs = []
+    if doS:
+        r = matrixmultiply(S,q)
     else:
-        raise Exception("Unknown method %d" % Method)
+        r = q
+    beta = sqrt(matrixmultiply(q,r))
+    wold = zeros(N,'d')
+    for i in range(niter):
+        w = r/beta
+        v = q/beta
+        r = matrixmultiply(F,v)
+        r = r - wold*beta
+        alpha = matrixmultiply(v,r)
+        as.append(alpha)
+        r = r-w*alpha
+        if doS:
+            q = solve(S,r)
+        else:
+            q = r
+        beta = sqrt(matrixmultiply(q,r))
+        bs.append(beta)
+        wold = w
+    E,V = eigh(tridiagmat(as,bs))
+    return min(E),max(E)
 
-    Dsumold = sum(sum(D))
-    # Step 3: Iterate on DM updates:
-    for iter in range(MaxIter):
-        Ne_curr = trace(D)
-        D2 = matrixmultiply(D,D)
-        if Method == 0:
-            if Ne_curr < Ne:
-                D = 2.0*D-D2
-            else:
-                D = D2
-            if abs(Ne_curr-Ne) < ErrorLimit: break
-        elif Method == 1:
-            Df = matrixmultiply(D2,4*D-3*D2)
-            trf = trace(Df)
-            Dp = I-D
-            Dp2 = matrixmultiply(Dp,Dp)
-            Dg = matrixmultiply(D2,Dp2)
-            trg = trace(Dg)
-            gamma = (Ne-trf)/trg
-            if gamma > 2:
-                D = 2*D-D2
-            elif gamma < 0:
-                D = D2
-            else:
-                D = Df-gamma*Dg
-            if abs(Ne_curr-Ne) < ErrorLimit: break
-        elif Method == 2:
-            D = 3*D2-2*matrixmultiply(D,D2)
-            if abs(Ne_curr-Ne) < ErrorLimit: break
-        elif Method == 3:
-            D3 = matrixmultiply(D,D2)
-            cn = trace(D2-D3)/trace(D-D2)
-            if cn < 0.5:
-                D = ((1.0-2.0*cn)*D+(1.0+cn)*D2-D3)/(1.0-cn)
-            else:
-                D = ((1+cn)*D2-D3)/cn
-            Dsum = sum(sum(D))
-            if Dsum-Dsumold  < ErrorLimit: break
-            Dsumold = Dsum
-    else: print "DMP: Warning MaxIters reached"
-    #print "%s converged in %d iters" % (methods[Method],iter)
-    D = simx(D,X,'T')
-    return D
-        
-    

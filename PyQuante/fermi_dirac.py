@@ -17,6 +17,21 @@ from LA2 import mkdens
 import logging
 
 def mkdens_fermi(nel,orbe,orbs,e_temp):
+    """
+    mkdens_fermi(nel,orbe,orbs,e_temp)
+
+    Create a density matrix from the orbitals, Orbs, and the Fermi-Dirac
+    occupations, Occs, derived from the orbital energies, Orbe, given the
+    electron temperature, e_temp.
+
+    D = Orbs*Occs(Orbe)Orbs^T
+
+    Arguments:
+    nel     Number of electrons in the system
+    orbe    The orbital energies
+    orbs    The orbitals
+    e_temp  The electron temperature
+    """
     efermi = get_efermi(nel,orbe,e_temp)
     occs = get_fermi_occs(efermi,orbe,e_temp)
     D = mkdens_occs(orbs,occs)

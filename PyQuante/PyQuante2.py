@@ -43,6 +43,7 @@ import unittest,logging
 class SCFIterator:
     def __init__(self,**opts):
         self.energy_history = []
+        self.converged = False
         return
 
     def iterate(self,ham,**opts):
@@ -64,9 +65,18 @@ class SCFIterator:
         if not self.energy_history:
             self.energy_history.append(self.energy)
             return False
-        is_converged_value = abs(self.energy-self.energy_history[-1]) < etol
+        self.converged = abs(self.energy-self.energy_history[-1]) < etol
         self.energy_history.append(self.energy)
-        return is_converged_value
+        return self.converged
+
+    def __repr__(self):
+        lstr = ["Iterator information:"]
+        lstr.extend([str(en) for en in self.energy_history])
+        if self.converged:
+            lstr.append("The iterator is converged")
+        else:
+            lstr.append("The iterator is not converged")
+        return "\n".join(lstr)
 
 class Integrals:
     def __init__(self,molecule,basis_set,**opts):
@@ -96,6 +106,8 @@ class BasisSet:
         self.bfs = getbasis(molecule,basis_data)
         logging.info("%d basis functions" % len(self.bfs))
         return
+    def __repr__(self): return 'Gaussian basis set with %d bfns' %  len(self.bfs)
+
     def get(self): return self.bfs
 
 
@@ -126,6 +138,7 @@ class AbstractHamiltonian:
         raise Exception("AbstractHamiltonian::get_energy")
 
 class HFHamiltonian(AbstractHamiltonian):
+    method='HF'
     def __init__(self,molecule,**opts):
         self.molecule = molecule
         logging.info("HF calculation on system %s" % self.molecule.name)
@@ -144,6 +157,13 @@ class HFHamiltonian(AbstractHamiltonian):
         logging.info("Nclosed/open = %d, %d" % (nclosed,nopen))
         self.solver = SolverFactory(nel,nclosed,nopen,self.S,**opts)
         return
+
+    def __repr__(self):
+        lstr = ['Hamiltonian constructed for method %s' % self.method,
+                repr(self.molecule),
+                repr(self.basis_set),
+                repr(self.iterator)]
+        return '\n'.join(lstr)
 
     def get_energy(self): return self.energy
     def iterate(self,**opts): return self.iterator.iterate(self,**opts)
@@ -165,6 +185,7 @@ class HFHamiltonian(AbstractHamiltonian):
         return
 
 class DFTHamiltonian(AbstractHamiltonian):
+    method='DFT'
     def __init__(self,molecule,**opts):
         from PyQuante.DFunctionals import need_gradients
         self.molecule = molecule
@@ -189,6 +210,13 @@ class DFTHamiltonian(AbstractHamiltonian):
         self.solver = SolverFactory(nel,nclosed,nopen,self.S,**opts)
         return
         
+    def __repr__(self):
+        lstr = ['Hamiltonian constructed for method %s' % self.method,
+                repr(self.molecule),
+                repr(self.basis_set),
+                repr(self.iterator)]
+        return '\n'.join(lstr)
+
     def get_energy(self): return self.energy
     def iterate(self,**opts): return self.iterator.iterate(self,**opts)
 
@@ -223,6 +251,7 @@ class DFTHamiltonian(AbstractHamiltonian):
         return
 
 class UHFHamiltonian(AbstractHamiltonian):
+    method='UHF'
     def __init__(self,molecule,**opts):
         self.molecule = molecule
         logging.info("UHF calculation on system %s" % self.molecule.name)
@@ -245,6 +274,13 @@ class UHFHamiltonian(AbstractHamiltonian):
         self.solvera = SolverFactory(2*nalpha,nalpha,0,self.S,**opts)
         self.solverb = SolverFactory(2*nbeta,nbeta,0,self.S,**opts)
         return
+
+    def __repr__(self):
+        lstr = ['Hamiltonian constructed for method %s' % self.method,
+                repr(self.molecule),
+                repr(self.basis_set),
+                repr(self.iterator)]
+        return '\n'.join(lstr)
 
     def get_energy(self): return self.energy
     def iterate(self,**opts): return self.iterator.iterate(self,**opts)
@@ -274,6 +310,7 @@ class UHFHamiltonian(AbstractHamiltonian):
         return
 
 class MINDO3Hamiltonian(AbstractHamiltonian):
+    method='MINDO3'
     def __init__(self,molecule,**opts):
         from PyQuante.MINDO3 import initialize, get_nbf, get_reference_energy,\
              get_F0, get_nel,get_open_closed,get_enuke,get_guess_D
@@ -300,6 +337,13 @@ class MINDO3Hamiltonian(AbstractHamiltonian):
         logging.info("Nel = %d Nclosed = %d Nopen = %d Enuke = %f Nbf = %d"
                      % (self.nel,self.nclosed,self.nopen,self.Enuke,self.nbf))
         return
+
+    def __repr__(self):
+        lstr = ['Hamiltonian constructed for method %s' % self.method,
+                repr(self.molecule),
+                'Implicit MINDO3 basis set with %d bfns' % self.nbf,
+                repr(self.iterator)]
+        return '\n'.join(lstr)
 
     def get_energy(self): return self.energy
     def iterate(self,**opts): return self.iterator.iterate(self,**opts)
@@ -363,6 +407,13 @@ class UMINDO3Hamiltonian(AbstractHamiltonian):
         self.Da = self.Db = 0.5*get_guess_D(self.molecule)
         self.start = True
         return
+
+    def __repr__(self):
+        lstr = ['Hamiltonian constructed for method %s' % self.method,
+                repr(self.molecule),
+                'Implicit MINDO3 basis set with %d bfns' % self.nbf,
+                repr(self.iterator)]
+        return '\n'.join(lstr)
 
     def get_energy(self): return self.energy
     def iterate(self,**opts): return self.iterator.iterate(self,**opts)
@@ -505,7 +556,8 @@ class DmatSolver(AbstractSolver):
         solver = self.solver(H,self.nclosed,self.S)
         solver.iterate()
         self.entropy = 0
-        return solver.D,self.entropy
+        self.D = solver.D
+        return self.D,self.entropy
 
 class UnitTests(unittest.TestCase):
     def setUp(self):
@@ -516,8 +568,10 @@ class UnitTests(unittest.TestCase):
         self.li = Molecule('Li',atomlist = [(3,(0,0,0))],multiplicity=2)
         self.li_p = Molecule('Li+',atomlist = [(3,(0,0,0))],charge=1)
         self.li_m = Molecule('Li-',atomlist = [(3,(0,0,0))],charge=-1)
-        self.h2o = Molecule('h2o',[(8,(0,0,0)),(1,(1.,0,0)),(1,(0,1.,0))])
-        self.oh = Molecule('oh',[(8,(0,0,0)),(1,(1.,0,0))])
+        self.h2o = Molecule('h2o',[(8,(0,0,0)),(1,(1.,0,0)),(1,(0,1.,0))],
+                            units="Angstrom")
+        self.oh = Molecule('oh',[(8,(0,0,0)),(1,(1.,0,0))],
+                           units="Angstrom")
 
     def testH2HF(self):
         h2_hf = SCF(self.h2,method='HF')
@@ -552,12 +606,12 @@ class UnitTests(unittest.TestCase):
     def testH2LDA(self):
         h2_lda = SCF(self.h2,method='DFT',functional="SVWN")
         h2_lda.iterate()
-        self.assertAlmostEqual(h2_lda.energy,-1.132710,4)
+        self.assertAlmostEqual(h2_lda.energy,-1.132799,4)
 
     def testH2LDAFT(self):
         h2_lda = SCF(self.h2,method='DFT',functional="SVWN",etemp=1e4)
         h2_lda.iterate()
-        self.assertAlmostEqual(h2_lda.energy,-1.132473,4)
+        self.assertAlmostEqual(h2_lda.energy,-1.132558,4)
 
     def testLiLDA(self):
         li_lda = SCF(self.li,method='DFT',functional="SVWN")
