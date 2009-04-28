@@ -160,7 +160,10 @@ class TCP(AbstractDMP):
     def update(self):
         Ne_curr = trace(self.D)
         D2 = matrixmultiply(self.D,self.D)
+        Ne2 = trace(D2)
         self.Ne_curr = Ne_curr
+        # Anders claims this works better; I didn't see a difference
+        #if abs(2*Ne_curr-Ne2-self.Ne) < abs(Ne2-self.Ne):
         if Ne_curr < self.Ne:
             self.D = 2*self.D-D2
         else:
@@ -323,3 +326,15 @@ def lanczos_minmax(F,S=None,**kwargs):
     E,V = eigh(tridiagmat(as,bs))
     return min(E),max(E)
 
+def test():
+    from PyQuante.PyQuante2 import SCF,DmatSolver
+    print "Target energy: ",-1.130501
+    h2 = Molecule('H2',atomlist=[(1,(0.35,0,0)),(1,(-0.35,0,0))],
+                  units='Angs')
+    h2_hf = SCF(h2,method='HF',SolverConstructor=DmatSolver)
+    h2_hf.iterate()
+    print "Energy:        ",h2_hf.energy
+    
+if __name__ == '__main__': test()
+
+    
