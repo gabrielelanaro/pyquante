@@ -412,6 +412,20 @@ static void gcf(double *gammcf, double a, double x, double *gln){
 
 static int ijkl2intindex(int i, int j, int k, int l){
   int tmp,ij,kl;
+  if (i<j) return ijkl2intindex(j,i,k,l);
+  if (k<l) return ijkl2intindex(i,j,l,k);
+  ij = i*(i+1)/2+j;
+  kl = k*(k+1)/2+l;
+  if (ij<kl){
+    tmp = ij;
+    ij = kl;
+    kl = tmp;
+  }
+  return ij*(ij+1)/2+kl;
+}
+
+static int ijkl2intindex_old(int i, int j, int k, int l){
+  int tmp,ij,kl;
   if (i<j){
     tmp = i;
     i = j;

@@ -20,7 +20,8 @@ from NumWrap import zeros
 from math import sqrt
 
 from PyQuante.cints import overlap
-from PyQuante.crys import contr_coulomb
+#from PyQuante.crys import contr_coulomb
+from PyQuante.chgp import contr_coulomb
 
 class CGBF:
     "Class for a contracted Gaussian basis function"

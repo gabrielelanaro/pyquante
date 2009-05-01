@@ -40,6 +40,8 @@ The test suite at the bottom of the file has examples of usage.
 
 import unittest,logging
 
+from PyQuante.CachedIntindex import CachedIntindex
+
 class SCFIterator:
     def __init__(self,**opts):
         self.energy_history = []
@@ -82,11 +84,13 @@ class Integrals:
     def __init__(self,molecule,basis_set,**opts):
         from PyQuante.Ints import getints
         integrals = opts.get("integrals",None)
+        nbf = len(basis_set.get())
         if integrals:
             self.S, self.h, self.ERI = integrals
         else:
             self.S, self.h, self.ERI = getints(basis_set.get(),molecule)
         return
+    
 
     def get(self): return self.S, self.h, self.ERI
     def get_S(self): return self.S

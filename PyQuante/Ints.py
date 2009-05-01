@@ -12,7 +12,7 @@
 
 from CGBF import CGBF,coulomb
 from NumWrap import zeros,dot,reshape
-from PyQuante.cints import ijkl2intindex
+from PyQuante.cints import ijkl2intindex as intindex
 from PyQuante.Basis.Tools import get_basis_data
 
 sym2powerlist = {
@@ -123,7 +123,7 @@ def get2ints(bfs):
                 for l in range(k+1):
                     kl = k*(k+1)/2+l
                     if ij >= kl:
-                        ijkl = ijkl2intindex(i,j,k,l)
+                        ijkl = intindex(i,j,k,l)
                         Ints[ijkl] = coulomb(bfs[i],bfs[j],bfs[k],bfs[l])
     return Ints
 
@@ -138,7 +138,7 @@ def getJ(Ints,D):
             kl = 0
             for k in range(nbf):
                 for l in range(nbf):
-                    index = ijkl2intindex(i,j,k,l)
+                    index = intindex(i,j,k,l)
                     temp[kl] = Ints[index]
                     kl += 1
             J[i,j] = dot(temp,D1d)
@@ -156,8 +156,8 @@ def getK(Ints,D):
             kl = 0
             for k in range(nbf):
                 for l in range(nbf):
-                    index_k1 = ijkl2intindex(i,k,j,l)
-                    index_k2 = ijkl2intindex(i,l,k,j)
+                    index_k1 = intindex(i,k,j,l)
+                    index_k2 = intindex(i,l,k,j)
                     temp[kl] = 0.5*(Ints[index_k1]+Ints[index_k2])
                     kl += 1
             K[i,j] = dot(temp,D1d)
@@ -175,9 +175,9 @@ def get2JmK(Ints,D):
             kl = 0
             for k in range(nbf):
                 for l in range(nbf):
-                    index_j = ijkl2intindex(i,j,k,l)
-                    index_k1 = ijkl2intindex(i,k,j,l)
-                    index_k2 = ijkl2intindex(i,l,k,j)
+                    index_j = intindex(i,j,k,l)
+                    index_k1 = intindex(i,k,j,l)
+                    index_k2 = intindex(i,l,k,j)
                     temp[kl] = 2.*Ints[index_j]-0.5*Ints[index_k1]\
                                -0.5*Ints[index_k2]
                     kl += 1

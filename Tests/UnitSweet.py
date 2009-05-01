@@ -267,10 +267,26 @@ class UnitTests(unittest.TestCase):
                                             integrals=ints)
         self.assertAlmostEqual(E_exx,-7.981044,4)
 
-if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTests)
-    unittest.TextTestRunner(verbosity=2).run(suite)
-    #logging.basicConfig(format="%(message)s",level=logging.DEBUG)
-    # This works:
+def runsuite(verbose=True):
+    # To use psyco, uncomment this line:
     #import psyco; psyco.full()
+    if verbose: verbosity=2
+    else: verbosity=1
+    # If you want more output, uncomment this line:
+    #logging.basicConfig(format="%(message)s",level=logging.DEBUG)
+    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTests)
+    unittest.TextTestRunner(verbosity=verbosity).run(suite)
+    # Running without verbosity is equivalent to replacing the above
+    # two lines with the following:
     #unittest.main()
+    return
+
+def debugsuite():
+    import profile,pstats
+    profile.run('runsuite()','prof')
+    prof = pstats.Stats('prof')
+    prof.strip_dirs().sort_stats('time').print_stats(15)
+
+if __name__ == '__main__':
+    #runsuite()
+    debugsuite()
