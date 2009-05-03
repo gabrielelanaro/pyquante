@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """\
-MiniSweet.py - Smaller version of UnitSweet that focuses on the
-               routines I think are rate-determining.
+UnitSweet.py - Unit testing for Python.
 
 <beavis>heh, heh, he said *unit*</beavis>
 """
@@ -19,27 +18,34 @@ class UnitTests(unittest.TestCase):
         self.h2 = Molecule('H2',atomlist=[(1,(0.35,0,0)),(1,(-0.35,0,0))],
                            units='Angs')
         self.he = Molecule('He',atomlist = [(2,(0,0,0))])
-
-    def testH2HF(self):
-        h2_hf = SCF(self.h2,method='HF')
-        h2_hf.iterate()
-        self.assertAlmostEqual(h2_hf.energy,-1.130501,4)
+        self.li = Molecule('Li',atomlist = [(3,(0,0,0))],multiplicity=2)
+        self.li_p = Molecule('Li+',atomlist = [(3,(0,0,0))],charge=1)
+        self.li_m = Molecule('Li-',atomlist = [(3,(0,0,0))],charge=-1)
+        self.h2o = Molecule('h2o',[(8,(0,0,0)),(1,(1.,0,0)),(1,(0,1.,0))],
+                            units="Angstrom")
+        self.oh = Molecule('oh',[(8,(0,0,0)),(1,(1.,0,0))],
+                            units="Angstrom")
+        self.lih = Molecule('LiH',[(1,(0,0,1.5)),(3,(0,0,-1.5))],units='Bohr')
 
     def testH2BLYP(self):
         h2_blyp = SCF(self.h2,method="DFT",functional='BLYP')
         h2_blyp.iterate()
         self.assertAlmostEqual(h2_blyp.energy,-1.166286,4)
 
-    def testHeHF(self):
-        he_hf = SCF(self.he,method='HF')
-        he_hf.iterate()
-        self.assertAlmostEqual(he_hf.energy,-2.855260,3)
-
     def testH2LDA(self):
         h2_lda = SCF(self.h2,method='DFT',functional="SVWN")
         h2_lda.iterate()
         self.assertAlmostEqual(h2_lda.energy,-1.132799,4)
 
+    def testLiLDA(self):
+        li_lda = SCF(self.li,method='DFT',functional="SVWN")
+        li_lda.iterate()
+        self.assertAlmostEqual(li_lda.energy,-7.332050,4)
+
+    def testLiUHF(self):
+        li_uhf = SCF(self.li,method='UHF')
+        li_uhf.iterate()
+        self.assertAlmostEqual(li_uhf.energy,-7.431364,4)
 
 def runsuite(verbose=True):
     # To use psyco, uncomment this line:

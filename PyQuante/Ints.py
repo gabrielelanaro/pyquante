@@ -14,6 +14,7 @@ from CGBF import CGBF,coulomb
 from NumWrap import zeros,dot,reshape
 from PyQuante.cints import ijkl2intindex as intindex
 from PyQuante.Basis.Tools import get_basis_data
+from PyQuante.CachedIntindex import CachedIndexList
 
 sym2powerlist = {
     'S' : [(0,0,0)],
@@ -22,6 +23,10 @@ sym2powerlist = {
     'F' : [(3,0,0),(2,1,0),(2,0,1),(1,2,0),(1,1,1),(1,0,2),
            (0,3,0),(0,2,1),(0,1,2), (0,0,3)]
     }
+
+sorted = True
+jints = {}
+kints = {}
 
 def getbasis(atoms,basis_data=None,**opts):
     """\
@@ -116,31 +121,57 @@ def get2ints(bfs):
     nbf = len(bfs)
     totlen = nbf*(nbf+1)*(nbf*nbf+nbf+2)/8
     Ints = array('d',[0]*totlen)
-    for i in range(nbf):
-        for j in range(i+1):
+    for i in xrange(nbf):
+        for j in xrange(i+1):
             ij = i*(i+1)/2+j
-            for k in range(nbf):
-                for l in range(k+1):
+            for k in xrange(nbf):
+                for l in xrange(k+1):
                     kl = k*(k+1)/2+l
                     if ij >= kl:
-                        ijkl = intindex(i,j,k,l)
-                        Ints[ijkl] = coulomb(bfs[i],bfs[j],bfs[k],bfs[l])
+                        Ints[intindex(i,j,k,l)] = coulomb(bfs[i],bfs[j],
+                                                          bfs[k],bfs[l])
+    if sorted:
+        sortints(nbf,Ints)
     return Ints
+
+def sortints(nbf,Ints):
+    for i in range(nbf):
+        for j in range(i+1):
+            jints[i,j] = fetch_jints(Ints,i,j,nbf)
+            kints[i,j] = fetch_kints(Ints,i,j,nbf)
+    return
+
+def fetch_jints(Ints,i,j,nbf):
+    temp = zeros(nbf*nbf,'d')
+    kl = 0
+    for k in xrange(nbf):
+        for l in xrange(nbf):
+            index = intindex(i,j,k,l)
+            temp[kl] = Ints[index]
+            kl += 1
+    return temp
+
+def fetch_kints(Ints,i,j,nbf):
+    temp = zeros(nbf*nbf,'d')
+    kl = 0
+    for k in xrange(nbf):
+        for l in xrange(nbf):
+            temp[kl] = 0.5*(Ints[intindex(i,k,j,l)]+
+                            Ints[intindex(i,l,j,k)])
+            kl += 1
+    return temp
 
 def getJ(Ints,D):
     "Form the Coulomb operator corresponding to a density matrix D"
     nbf = D.shape[0]
     D1d = reshape(D,(nbf*nbf,)) #1D version of Dens
     J = zeros((nbf,nbf),'d')
-    for i in range(nbf):
-        for j in range(i+1):
-            temp = zeros(nbf*nbf,'d')
-            kl = 0
-            for k in range(nbf):
-                for l in range(nbf):
-                    index = intindex(i,j,k,l)
-                    temp[kl] = Ints[index]
-                    kl += 1
+    for i in xrange(nbf):
+        for j in xrange(i+1):
+            if sorted:
+                temp = jints[i,j]
+            else:
+                temp = fetch_jints(Ints,i,j,nbf)
             J[i,j] = dot(temp,D1d)
             J[j,i] = J[i,j]
     return J
@@ -150,16 +181,12 @@ def getK(Ints,D):
     nbf = D.shape[0]
     D1d = reshape(D,(nbf*nbf,)) #1D version of Dens
     K = zeros((nbf,nbf),'d')
-    for i in range(nbf):
-        for j in range(i+1):
-            temp = zeros(nbf*nbf,'d')
-            kl = 0
-            for k in range(nbf):
-                for l in range(nbf):
-                    index_k1 = intindex(i,k,j,l)
-                    index_k2 = intindex(i,l,k,j)
-                    temp[kl] = 0.5*(Ints[index_k1]+Ints[index_k2])
-                    kl += 1
+    for i in xrange(nbf):
+        for j in xrange(i+1):
+            if sorted:
+                temp = kints[i,j]
+            else:
+                temp = fetch_kints(Ints,i,j,nbf)
             K[i,j] = dot(temp,D1d)
             K[j,i] = K[i,j]
     return K
@@ -169,18 +196,12 @@ def get2JmK(Ints,D):
     nbf = D.shape[0]
     D1d = reshape(D,(nbf*nbf,)) #1D version of Dens
     G = zeros((nbf,nbf),'d')
-    for i in range(nbf):
-        for j in range(i+1):
-            temp = zeros(nbf*nbf,'d')
-            kl = 0
-            for k in range(nbf):
-                for l in range(nbf):
-                    index_j = intindex(i,j,k,l)
-                    index_k1 = intindex(i,k,j,l)
-                    index_k2 = intindex(i,l,k,j)
-                    temp[kl] = 2.*Ints[index_j]-0.5*Ints[index_k1]\
-                               -0.5*Ints[index_k2]
-                    kl += 1
+    for i in xrange(nbf):
+        for j in xrange(i+1):
+            if sorted:
+                temp = 2*jints[i,j]-kints[i,j]
+            else:
+                temp = 2*fetch_jints(Ints,i,j,nbf)-fetch_kints(Ints,i,j,nbf)
             G[i,j] = dot(temp,D1d)
             G[j,i] = G[i,j]
     return G

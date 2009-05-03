@@ -1,16 +1,8 @@
 #!/usr/bin/env python
-"""\
-UnitSweet.py - Unit testing for Python.
-
-<beavis>heh, heh, he said *unit*</beavis>
-"""
-
 import unittest,logging
-from PyQuante.CI import CIS
+
 from PyQuante.Molecule import Molecule
-from PyQuante.MP import MP2
-from PyQuante.OEP import oep_hf,oep_hf_an
-from PyQuante.PyQuante2 import SCF,SubspaceSolver,DmatSolver
+from PyQuante.PyQuante2 import SCF
 
 class UnitTests(unittest.TestCase):
     def setUp(self):
@@ -38,8 +30,8 @@ def runsuite(verbose=True):
     return
 
 def debugsuite():
-    import profile,pstats
-    profile.run('runsuite()','prof')
+    import cProfile,pstats
+    cProfile.run('runsuite()','prof')
     prof = pstats.Stats('prof')
     prof.strip_dirs().sort_stats('time').print_stats(15)
 

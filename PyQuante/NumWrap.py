@@ -27,6 +27,7 @@ if use_numpy:
     from numpy import arcsinh,diagonal,identity,choose,transpose
     from numpy import reshape,take,trace
     from numpy import where,argsort
+    from numpy import sum
     matrixmultiply = dot
     matmul = dot
 
@@ -57,6 +58,7 @@ else:
     import Numeric
     import MLab
     matmul = matrixmultiply
+    from Numeric import sum
 
     def eigh(A):
         val,vec = Heigenvectors(A)

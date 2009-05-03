@@ -82,8 +82,8 @@ def main(**opts):
     return
 
 def profmain():
-    import profile,pstats
-    profile.run('main()','prof')
+    import cProfile,pstats
+    cProfile.run('main()','prof')
     prof = pstats.Stats('prof')
     prof.strip_dirs().sort_stats('time').print_stats(15)
 

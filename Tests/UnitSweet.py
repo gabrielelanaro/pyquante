@@ -27,60 +27,20 @@ class UnitTests(unittest.TestCase):
                             units="Angstrom")
         self.lih = Molecule('LiH',[(1,(0,0,1.5)),(3,(0,0,-1.5))],units='Bohr')
 
-    def testH2HF(self):
-        h2_hf = SCF(self.h2,method='HF')
-        h2_hf.iterate()
-        self.assertAlmostEqual(h2_hf.energy,-1.130501,4)
-
-    def testH2HFFT(self):
-        h2_hf = SCF(self.h2,method='HF',etemp=1e4)
-        h2_hf.iterate()
-        self.assertAlmostEqual(h2_hf.energy,-1.130502,4)
-
     def testH2BLYP(self):
         h2_blyp = SCF(self.h2,method="DFT",functional='BLYP')
         h2_blyp.iterate()
         self.assertAlmostEqual(h2_blyp.energy,-1.166286,4)
-
-    def testHeHF(self):
-        he_hf = SCF(self.he,method='HF')
-        he_hf.iterate()
-        self.assertAlmostEqual(he_hf.energy,-2.855260,3)
-
-    def testLiHF(self):
-        li_hf = SCF(self.li,method='HF')
-        li_hf.iterate()
-        return
-
-    def testLipHF(self):
-        li_p_hf = SCF(self.li_p,method='HF')
-        li_p_hf.iterate()
-        self.assertAlmostEqual(li_p_hf.energy,-7.235536,4)
-
-    def testLimHF(self):
-        li_m_hf = SCF(self.li_m,method='HF')
-        li_m_hf.iterate()
-        self.assertAlmostEqual(li_m_hf.energy,-7.407030,4)
 
     def testH2LDA(self):
         h2_lda = SCF(self.h2,method='DFT',functional="SVWN")
         h2_lda.iterate()
         self.assertAlmostEqual(h2_lda.energy,-1.132799,4)
 
-    def testH2LDAFT(self):
-        h2_lda = SCF(self.h2,method='DFT',functional="SVWN",etemp=1e4)
-        h2_lda.iterate()
-        self.assertAlmostEqual(h2_lda.energy,-1.132558,4)
-
     def testLiLDA(self):
         li_lda = SCF(self.li,method='DFT',functional="SVWN")
         li_lda.iterate()
         self.assertAlmostEqual(li_lda.energy,-7.332050,4)
-
-    def testLiLDAFT(self):
-        li_lda = SCF(self.li,method='DFT',functional="SVWN",etemp=1e4)
-        li_lda.iterate()
-        self.assertAlmostEqual(li_lda.energy,-7.349422,4)
 
     def testLiUHF(self):
         li_uhf = SCF(self.li,method='UHF')
@@ -282,11 +242,15 @@ def runsuite(verbose=True):
     return
 
 def debugsuite():
-    import profile,pstats
-    profile.run('runsuite()','prof')
+    import cProfile,pstats
+    cProfile.run('runsuite()','prof')
     prof = pstats.Stats('prof')
     prof.strip_dirs().sort_stats('time').print_stats(15)
 
 if __name__ == '__main__':
-    #runsuite()
-    debugsuite()
+    import sys
+    if "-d" in sys.argv:
+        debugsuite()
+    else:
+        runsuite()
+    

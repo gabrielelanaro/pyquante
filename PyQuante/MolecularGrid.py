@@ -18,7 +18,7 @@
 """
 from math import sqrt
 from AtomicGrid import AtomicGrid, Bragg
-from NumWrap import array,concatenate,reshape,zeros
+from NumWrap import array,reshape,zeros
 from PyQuante.cints import dist2
 
 class MolecularGrid:
@@ -29,9 +29,10 @@ class MolecularGrid:
         self.nrad = nrad 
         self.fineness = fineness
         self.make_atom_grids(**opts)
-        #self.patch_atoms_naive(**opts)
         self.patch_atoms(**opts)
         self._length = None
+        self._points = self.points()
+        self._weights = self.weights()
         return
 
     def __len__(self):
@@ -71,43 +72,6 @@ class MolecularGrid:
                     if rjp2 < rip2: point._w = 0
         return
     
-    def patch_atoms_old(self,**opts):
-        """\
-        This is Becke's patching algorithm. I have not implemented
-        the normalization that is in eq 22.
-        """
-        do_becke_hetero = opts.get('do_becke_hetero',False)
-        nat = len(self.atoms)
-        for iat in range(nat):
-            ati = self.atoms[iat]
-            npts = len(self.atomgrids[iat])
-            for i in range(npts):
-                point = self.atomgrids[iat].points[i]
-                xp,yp,zp,wp = point.xyzw()
-                rip2 = dist2(ati.pos(),(xp,yp,zp))
-                rip = sqrt(rip2)
-                sprod = 1
-                for jat in range(nat):
-                    if jat == iat: continue
-                    atj = self.atoms[jat]
-                    rjp2 = dist2(atj.pos(),(xp,yp,zp))
-                    rjp = sqrt(rjp2)
-                    rij2 = dist2(ati.pos(),atj.pos())
-                    rij = sqrt(rij2)
-                    mu = (rip-rjp)/rij
-                    # Modify mu based on Becke hetero formulas (App A)
-                    if do_becke_hetero and ati.atno != atj.atno:
-                        chi = Bragg[ati.atno]/Bragg[atj.atno]
-                        u = (chi-1.)/(chi+1.)
-                        a = u/(u*u-1)
-                        a = min(a,0.5)
-                        a = max(a,-0.5)
-                        mu += a*(1-mu*mu)
-                    sprod *= sbecke(mu)
-                    #if rjp2 < rip2: point._w = 0
-                point._w *= sprod
-        return
-
     def patch_atoms(self,**opts):
         """\
         This is Becke's patching algorithm. Attempting to implement
@@ -117,19 +81,18 @@ class MolecularGrid:
         for iat in range(nat):
             ati = self.atoms[iat]
             npts = len(self.atomgrids[iat])
-            for i in range(npts):
+            for i in xrange(npts):
                 point = self.atomgrids[iat].points[i]
                 xp,yp,zp,wp = point.xyzw()
                 rip2 = dist2(ati.pos(),(xp,yp,zp))
                 rip = sqrt(rip2)
-                #Pat = [None]*nat
                 Pnum = 1
                 Pdenom = 0
-                Ps = []
-                for jat in range(nat):
-                    Ps.append(becke_atomic_grid_p(jat,(xp,yp,zp),self.atoms,**opts))
-                Ptot = Ps[iat]/sum(Ps)
-                #if abs(Pdenom) > 1e-9:  Ptot = Pnum/Pdenom
+                for jat in xrange(nat):
+                    bap = becke_atomic_grid_p(jat,(xp,yp,zp),self.atoms,**opts)
+                    Pdenom += bap
+                    if iat == jat: P_iat = bap
+                Ptot = P_iat/Pdenom
                 point._w *= Ptot
         return
     
@@ -152,64 +115,50 @@ class MolecularGrid:
 
     def weights(self):
         "Return a vector of weights of each point in the grid"
-        weights = array((),'d')
+        weights = []
         for agr in self.atomgrids:
-            aw = agr.weights()
-            weights = concatenate((weights,aw))
-        return weights
+            weights.extend(agr.weights())
+        return array(weights)
     
     def dens(self):
         "Return the density for each point in the grid"
-        ds = array((),'d')
+        ds = []
         for agr in self.atomgrids:
-            ad = agr.dens()
-            ds = concatenate((ds,ad))
-        return ds
+            ds.extend(agr.dens())
+        return array(ds)
 
     def gamma(self):
         "Return the density gradient gamma for each point in the grid"
         if not self.do_grad_dens: return None
-        gs = array((),'d')
+        gs = []
         for agr in self.atomgrids:
-            ag = agr.gamma()
-            gs = concatenate((gs,ag))
-        return gs
+            gs.extend(agr.gamma())
+        return array(gs)
 
     def grad(self):
-        pts = self.points()
+        pts = self._points
         npts = len(pts)
         gr = zeros((npts,3),'d')
         for i in range(npts):
             gr[i,:] = pts[i].grad()
         return gr        
 
-    def gradbfab(self,ibf,jbf):
-        "Computes grad(ibf*jbf) over the grid"
-        assert self.do_grad_dens
-        pts = self.points()
+    def grads(self):
+        "Compute gradients over all bfs and all points"
+        pts = self._points
         npts = len(pts)
-        grab = zeros((npts,3),'d')
-        for i in range(npts):
-            pt = pts[i]
-            grab[i,:] = pt.bfs[ibf]*pt.bfgrads[jbf,:] +\
-                        pt.bfs[jbf]*pt.bfgrads[ibf,:]
-        return grab
-
-    def bfgrad(self,ibf):
-        pts = self.points()
-        npts = len(pts)
-        gra = zeros((npts,3),'d')
-        for i in range(npts):
-            gra[i,:] = pts[i].bfgrads[ibf,:]
-        return gra        
+        nbf = len(pts[0].bfgrads[:,0])
+        mtx = zeros((npts,nbf,3),'d')
+        for i in xrange(npts):
+            mtx[i,:,:] = pts[i].bfgrads[:,:]
+        return mtx        
     
     def bfs(self,i):
         "Return a basis function over the entire grid"
-        bfs = array((),'d')
+        bfs = []
         for agr in self.atomgrids:
-            abfs = agr.bfs(i)
-            bfs = concatenate((bfs,abfs))
-        return bfs
+            bfs.extend(agr.bfs(i))
+        return array(bfs)
 
     def nbf(self):
         return self.atomgrids[0].nbf()
@@ -222,11 +171,10 @@ class MolecularGrid:
     def allbfs(self):
         "Construct a matrix with bfs in columns over the entire grid, "
         " so that R[0] is the first basis function, R[1] is the second..."
-        bfs = array((),'d')
+        bfs = []
         for agr in self.atomgrids:
-            abfs = agr.allbfs()
-            bfs = concatenate((bfs,abfs))
-        # Now the bfs array is a concatenation of all of the bfs
+            bfs.extend(agr.allbfs())
+        bfs = array(bfs)
         npts = self.npts()
         nbf,nrem = divmod(len(bfs),npts)
         if nrem != 0: raise Exception("Remainder in divmod allbfs")

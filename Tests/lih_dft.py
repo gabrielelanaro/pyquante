@@ -40,9 +40,9 @@ def main(**opts):
     return en
 
 def profmain():
-    import profile,pstats
+    import cProfile,pstats
     en = 0
-    profile.run('main()','prof')
+    cProfile.run('main()','prof')
     pstats.Stats('prof').strip_dirs().sort_stats('time').print_stats(15)
     return
 

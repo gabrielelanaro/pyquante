@@ -1,18 +1,20 @@
 # Experiment to see if caching the two electron integral indices
-# would speed things up. Didn't speed things appreciably.
+# would speed things up. 
 
 class CachedIntindex:
     # Yuck! N4 storage
-    def __init__(self,nbf):
+    def __init__(self):
         self.cache = {}
+
+    def initialize(self,nbf):
         # This is even slower...
         #from numpy import zeros
         #self.cache = zeros((nbf,nbf,nbf,nbf),'i')
-        for i in range(nbf):
-            for j in range(i+1):
+        for i in xrange(nbf):
+            for j in xrange(i+1):
                 ij = i*(i+1)/2+j
-                for k in range(nbf):
-                    for l in range(k+1):
+                for k in xrange(nbf):
+                    for l in xrange(k+1):
                         kl = k*(k+1)/2+l
                         if ij < kl: continue
                         val = ij*(ij+1)/2+kl
@@ -28,3 +30,22 @@ class CachedIntindex:
 
     def __call__(self,i,j,k,l): return self.cache[i,j,k,l]
                         
+class CachedIndexList:
+    def initialize(self,nbf):
+        self.nbf = nbf
+        self.intindex = CachedIntindex()
+        self.intindex.initialize(nbf)
+        self.jints = {}
+        self.kints1 = {}
+        self.kints2 = {}
+        for i in xrange(self.nbf):
+            for j in xrange(i+1):
+                self.jints[i,j] = []
+                self.kints1[i,j] = []
+                self.kints2[i,j] = []
+                for k in xrange(nbf):
+                    for l in xrange(nbf):
+                        self.jints[i,j].append(self.intindex(i,j,k,l))
+                        self.kints1[i,j].append(self.intindex(i,k,j,l))
+                        self.kints2[i,j].append(self.intindex(i,l,j,k))
+        return

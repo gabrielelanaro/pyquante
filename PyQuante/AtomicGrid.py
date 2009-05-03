@@ -20,7 +20,7 @@ from GridPoint import GridPoint
 from Lebedev import Lebedev
 from Legendre import Legendre
 from math import sin,cos,pi
-from NumWrap import zeros,array,concatenate
+from NumWrap import zeros,array
 from Constants import ang2bohr
 
 # Where do these values come from? What are the units?
@@ -134,10 +134,10 @@ class AtomicGrid:
     def allbfs(self):
         "Construct a matrix with bfs in columns over the entire grid, "
         " so that R[0] is the first basis function, R[1] is the second..."
-        bfs = array((),'d')
+        bfs = []
         for point in self.points:
-            bfs = concatenate((bfs,point.bfs))
-        return bfs
+            bfs.extend(point.bfs)
+        return array(bfs)
 
     def nbf(self):
         return self.points[0].nbf()

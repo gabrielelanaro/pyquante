@@ -15,7 +15,7 @@ from Ints import getbasis,getJ,getints
 from MolecularGrid import MolecularGrid
 from LA2 import geigh,mkdens,mkdens_spinavg,trace2
 from fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs, get_entropy
-from NumWrap import zeros,dot,array,ravel,transpose
+from NumWrap import zeros,dot,array,ravel,transpose,sum
 from DFunctionals import XC,need_gradients
 from time import time
 from Convergence import DIIS
@@ -107,21 +107,15 @@ def getXC(gr,nel,bfgrid,**opts):
     # or a 2d trace product
     # Here A contains the dfxcdgaa stuff
     #      B contains the grad(chia*chib)
-    # Yuk. This is ugly...
     if do_grad_dens:
-        # A is dimensioned (npts,3)
+        # A,B are dimensioned (npts,3)
         A = transpose(0.5*transpose(gr.grad())*(weight*(2*dfxcdgaa+dfxcdgab)))
         B = zeros(A.shape,'d')
-        for a in range(nbf):
-            agrid = bfgrid[:,a]
-            agradgrid = gr.bfgrad(a)
-            for b in range(a+1):
-                bgrid = bfgrid[:,b]
-                bgradgrid = gr.bfgrad(b)
-                for i in range(3):
-                    B[:,i] = agrid[:]*bgradgrid[:,i] + bgrid[:]*agradgrid[:,i]
-                # This is the original method, which was painfully slow:
-                #B = gr.gradbfab(a,b)
+        grads = gr.grads()
+        for a in xrange(nbf):
+            for b in xrange(a+1):
+                for i in xrange(3):
+                    B[:,i] = bfgrid[:,a]*grads[:,b,i] + bfgrid[:,b]*grads[:,a,i]
                 Fxc[a,b] += sum(ravel(A*B))
                 Fxc[b,a] = Fxc[a,b]
     return Exc,Fxc
