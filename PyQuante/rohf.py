@@ -9,6 +9,8 @@
 
  This program is part of the PyQuante quantum chemistry program suite.
 
+ Status: Closed shell cases work with the open shell code. 
+
  Copyright (c) 2004, Richard P. Muller. All Rights Reserved. 
 
  PyQuante version 1.2 and later is covered by the modified BSD
@@ -16,8 +18,8 @@
  distribution. 
 """
 from PyQuante.Ints import getbasis,getints,getJ,getK,get2JmK
-from PyQuante.LA2 import mkdens,geigh,trace2
-from NumWrap import zeros,take,transpose,matrixmultiply,eigh
+from PyQuante.LA2 import mkdens,geigh,trace2,simx
+from PyQuante.NumWrap import zeros,take,transpose,matrixmultiply,eigh
 
 def get_os_dens(orbs,f,noccsh):
     istart = iend = 0
@@ -31,50 +33,62 @@ def get_os_dens(orbs,f,noccsh):
     return Ds
 
 def get_os_hams(Ints,Ds):
-    Hs = [get2JmK(Ints,Ds[0])]
-    for D in Ds[1:]:
+    # GVB2P5 did this a little more efficiently; they stored
+    # 2J-K for the core, then J,K for each open shell. Didn't
+    # seem worth it here, so I'm jst storing J,K separately
+    Hs = []
+    for D in Ds:
         Hs.append(getJ(Ints,D))
         Hs.append(getK(Ints,D))
     return Hs
 
+def get_orbs_in_shell(ish,noccsh,norb):
+    # Construct the list of orbitals that must be
+    # considered in the active space for the ith shell
+    nocc = sum(noccsh)
+    vstart,vend = nocc,norb
+    istart = sum(noccsh[:ish])
+    iend = sum(noccsh[:ish+1])
+    return range(istart,iend)+range(vstart,vend)
+
+def get_open_shell_fock(ish,nsh,f,a,b,h,Hs):
+    # Form the Fock matrix for shell ish:
+    F = f[ish]*h
+    for jsh in range(nsh):
+        # I think this is wrong; should this be J,K?
+        F += a[ish,jsh]*Hs[2*jsh]+b[ish,jsh]*Hs[2*jsh+1]
+    return F
+
+def update_orbe(orbs_in_shell,orbe,mo_orbe):
+    for i,iorb in enumerate(orbs_in_shell):
+        orbe[iorb] = mo_orbe[i]
+    return
+
+def update_orbs(orbs_in_shell,orbs,mo_orbs):
+    # Map the orbs back to the occupied space
+    new_orbs = zeros(orbs.shape,'d')
+    for i,iorb in enumerate(orbs_in_shell):
+        coefs = mo_orbs[:,i]
+        for j,cj in enumerate(coefs):
+            new_orbs[:,iorb] += cj*orbs[:,orbs_in_shell[j]]
+    return new_orbs
+        
 def ocbse(orbs,h,Hs,f,a,b,noccsh):
     # Need to write this so that we don't need the orbs 3 times!
     nsh = len(noccsh)
-    nocc = sum(noccsh)
     nbf = norb = h.shape[0]
-    vstart,vend = (nocc,norb) # range limits for virtual orbs
-    nvirt = vend-vstart
-    orbs3 = zeros((nbf,nbf),'d')
-    orbe = zeros(nbf,'d')
+    orbe = zeros(norb,'d')
     for ish in range(nsh):
-        # Form the range of orbitals for this shell
-        istart = sum(noccsh[:ish])
-        iend = sum(noccsh[:ish+1])
-        # Form the Fock matrix for shell ish:
-        F = f[ish]*h
-        for jsh in range(nsh): F += a[ish,jsh]*Hs[jsh] + b[ish,jsh]*Hs[jsh]
+        orbs_in_shell = get_orbs_in_shell(ish,noccsh,norb)
+        F = get_open_shell_fock(ish,nsh,f,a,b,h,Hs)
         # form the orbital space of all of the orbs in ish plus the virts
-        orbrange = range(istart,iend)+range(vstart,vend)
-        T = take(orbs,orbrange,1)
+        T = take(orbs,orbs_in_shell,1)
         # Transform to MO space
-        FT = matrixmultiply(F,T)
-        F = matrixmultiply(transpose(T),FT)
-        orbe2,orbs2 = eigh(F)
-        print orbe2
-        print orbs2[:,0]
-        raise Exception("ROHF Module Not Finished Yet")
+        Fmo = simx(F,T)
+        mo_orbe,mo_orbs = eigh(Fmo)
         # Insert orbital energies into the right place
-        orbe[istart:iend] = orbe2[:noccsh[ish]]
-        orbe[vstart:vend] = orbe2[-nvirt:]
-        # Map the orbs back to the occupied space
-        for i in range(len(orbrange)):
-            iorb = orbrange[i]
-            coefs = orbs2[i]
-            nbfi = len(coefs)
-            for j in range(nbfi):
-                orbs3[orbrange[i],:] += coefs[j]*orbs[orbrange[j],:]
-        # Have to copy orbs3 -> orbs, here?
-        orbs = orbs3
+        update_orbe(orbs_in_shell,orbe,mo_orbe)
+        orbs = update_orbs(orbs_in_shell,orbs,mo_orbs)
     return orbe,orbs
 
 def rotion(orbs,h,Hs,nclosed,nopen):

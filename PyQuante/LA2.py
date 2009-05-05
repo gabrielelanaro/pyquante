@@ -15,7 +15,7 @@
 
 import logging
 from math import sqrt
-from NumWrap import matrixmultiply,transpose,diagonal,identity,zeros,eigh,cholesky,inv
+from NumWrap import matrixmultiply,identity,zeros,eigh,cholesky,inv
 
 # Note: to be really smart in a quantum chemistry program, we would
 #  want to only symmetrically orthogonalize the S matrix once, since
@@ -29,7 +29,7 @@ def norm(vec):
     return sqrt(dot(vec,vec))
 def sym(A):
     "B = sym(A) : Symmetrize a matrix"
-    return 0.5*(A+transpose(A))
+    return 0.5*(A+A.T)
 def simx(A,B,trans='N'):
     """\
     C = simx(A,B,trans)
@@ -37,12 +37,12 @@ def simx(A,B,trans='N'):
     C = B*A*B' (trans='T').
     """
     if trans.lower().startswith('t'):
-        return matrixmultiply(B,matrixmultiply(A,transpose(B)))
-    return matrixmultiply(transpose(B),matrixmultiply(A,B))
+        return matrixmultiply(B,matrixmultiply(A,B.T))
+    return matrixmultiply(B.T,matrixmultiply(A,B))
 
 def outprod(A):
     "D = outprod(A) : Return the outer product A*A'"
-    return matrixmultiply(A,transpose(A))
+    return matrixmultiply(A,A.T)
 
 def geigh(H,A,**opts):
     """\
@@ -53,7 +53,8 @@ def geigh(H,A,**opts):
                True    A is the canonical transformation matrix
     orthog     'Sym'   Use Symmetric Orthogonalization (default)
                'Can'   Use Canonical Orthogonalization
-               'Chol'  Use a Cholesky decompositoin
+               'Chol'  Use a Cholesky decomposition
+               'Cut'   Use a symmetric orthogonalization with a cutoff
                 
     """
     have_xfrm = opts.get('have_xfrm',False)
@@ -63,6 +64,8 @@ def geigh(H,A,**opts):
             X = CanOrth(A)
         elif orthog == 'Chol':
             X = CholOrth(A)
+        elif orthog == 'Cut':
+            X = SymOrthCutoff(A)
         else:
             X = SymOrth(A)
         opts['have_xfrm'] = True
@@ -83,6 +86,26 @@ def SymOrth(S):
     X = simx(shalf,vec,'T')
     return X
 
+def SymOrthCutoff(S,scut=1e-5):
+    """Symmetric orthogonalization of the real symmetric matrix S.
+    This is given by Ut(1/sqrt(lambda))U, where lambda,U are the
+    eigenvalues/vectors.
+
+    Only eigenvectors with eigenvalues greater that a cutoff are kept.
+    This approximation is useful in cases where the basis set has
+    linear dependencies.
+    """
+    val,vec = eigh(S)
+    n = vec.shape[0]
+    shalf = identity(n,'d')
+    for i in range(n):
+        if val[i] > scut:
+            shalf[i,i] /= sqrt(val[i])
+        else:
+            shalf[i,i] = 0.
+    X = simx(shalf,vec,'T')
+    return X
+
 def CanOrth(S): 
     """Canonical orthogonalization of matrix S. This is given by
     U(1/sqrt(lambda)), where lambda,U are the eigenvalues/vectors."""
@@ -95,29 +118,16 @@ def CanOrth(S):
 def CholOrth(S):
     """Cholesky orthogonalization of matrix X. This is given by
     LL^T=S; X = transpose(inv(L))"""
-    return transpose(inv(cholesky(S)))
+    return inv(cholesky(S)).T
 
 def trace2(H,D):
     "Return the trace(H*D), used in computing QM energies"
     return sum(sum(H*D)) # O(N^2) version 
 
-# SimilarityTransform/T are deprecated in favor of simx
-def SimilarityTransformT(H,X):
-    "Return the similarity transformation XtHX of H"
-    logging.warning("SimilarityTransformT is deprecated: use simx")
-    return simx(H,X)
-    #return matrixmultiply(transpose(X),matrixmultiply(H,X))
-
-def SimilarityTransform(H,X): 
-    "Return the transpose similarity transformation XHXt of H"
-    logging.warning("SimilarityTransform is deprecated: use simx")
-    return simx(H,X,'T')
-    #return matrixmultiply(X,matrixmultiply(H,transpose(X)))
-
 def mkdens(c,nstart,nstop):
     "Form a density matrix C*Ct given eigenvectors C[nstart:nstop,:]"
     d = c[:,nstart:nstop]
-    Dmat = matrixmultiply(d,transpose(d))
+    Dmat = matrixmultiply(d,d.T)
     return Dmat
 
 def mkdens_spinavg(c,nclosed,nopen):

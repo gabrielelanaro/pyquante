@@ -102,12 +102,16 @@ class BasisSet:
         from PyQuante.Ints import getbasis
         from PyQuante.Basis.Tools import get_basis_data
 
-        basis_data = opts.get('basis_data',None)
-        if not basis_data:
-            basis = opts.get('basis',None)
-            if basis:
-                basis_data = get_basis_data(basis)
-        self.bfs = getbasis(molecule,basis_data)
+        basis_data = opts.get('basis_data')
+        bfs = opts.get('bfs')
+        if bfs:
+            self.bfs = bfs
+        else:
+            if not basis_data:
+                basis = opts.get('basis')
+                if basis:
+                    basis_data = get_basis_data(basis)
+            self.bfs = getbasis(molecule,basis_data)
         logging.info("%d basis functions" % len(self.bfs))
         return
     def __repr__(self): return 'Gaussian basis set with %d bfns' %  len(self.bfs)
