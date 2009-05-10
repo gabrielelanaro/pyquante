@@ -81,6 +81,13 @@ class PGBF:
                kinetic(self._exponent,self._powers,self._origin,
                        other._exponent,other._powers,other._origin)
 
+    def multipole(self,other,i,j,k):
+        from pyints import multipole_ints
+        return self._normalization*other._normalization*\
+               multipole_ints((i,j,k),
+                              self._exponent,self._powers,self._origin,
+                              other._exponent,other._powers,other._origin)
+
 
     #Need to rewrite this to:
     #  1. pull the _normalization constants out front to be consistent

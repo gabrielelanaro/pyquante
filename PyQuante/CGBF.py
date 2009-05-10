@@ -103,6 +103,14 @@ class CGBF:
                 Tij = Tij + ipbf.coef()*jpbf.coef()*ipbf.kinetic(jpbf)
         return self.norm()*other.norm()*Tij
 
+    def multipole(self,other,i,j,k):
+        "Overlap matrix element with another CGBF"
+        Mij = 0.
+        for ipbf in self._prims:
+            for jpbf in other._prims:
+                Mij += ipbf.coef()*jpbf.coef()*ipbf.multipole(jpbf,i,j,k)
+        return self.norm()*other.norm()*Mij
+
     def nuclear(self,other,C):
         "Nuclear matrix element with another CGBF and a center C"
         Vij = 0.

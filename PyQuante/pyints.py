@@ -194,6 +194,20 @@ def overlap(alpha1,(l1,m1,n1),A,alpha2,(l2,m2,n2),B):
     wz = overlap_1D(n1,n2,P[2]-A[2],P[2]-B[2],gamma)
     return pre*wx*wy*wz
 
+def multipole_ints((kx,ky,kz),alpha1,(l1,m1,n1),A1,alpha2,(l2,m2,n2),A2):
+    total = 0
+    for ix in range(kx+1):
+        for iy in range(ky+1):
+            for iz in range(kz+1):
+                #print binomial(kx,ix),binomial(ky,iy),binomial(kz,iz),\
+                #      A1[0]**(kx-ix),A1[1]**(ky-iy),A1[2]**(kz-iz),\
+                #      overlap(alpha1,(l1,m1,n1),A1,alpha2,(l2,m2,n2),A2)
+                total += binomial(kx,ix)*binomial(ky,iy)*binomial(kz,iz)*\
+                         A1[0]**(kx-ix)*A1[1]**(ky-iy)*A1[2]**(kz-iz)*\
+                         overlap(alpha1,(l1+ix,m1+iy,n1+iz),A1,
+                                 alpha2,(l2,m2,n2),A2)
+    return total    
+
 def overlap_1D(l1,l2,PAx,PBx,gamma):
     "Taken from THO eq. 2.12"
     sum = 0
@@ -386,3 +400,6 @@ def three_center_1D(xi,ai,alphai,xj,aj,alphaj,xk,ak,alphak):
                     int += i_qrs
     return dx*int
 
+if __name__ == '__main__':
+    print multipole_ints((0,0,1),1.0,(0,0,0),(0.,0.,0.),1.0,(0,0,0),(0.,0.,1.))
+    
