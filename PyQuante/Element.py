@@ -57,6 +57,10 @@ for i in range(len(name)):
     name2no[name[i]] = i
     name2no[name[i].upper()] = i
 
+# British(?) spellings
+name2no['PHOSPHOROUS'] = name2no['phosphorus']
+name2no['PHOSPHOROUS'.lower()] = name2no['phosphorus']
+
 mass = [
     0.00,
     1.0008, 4.0026,

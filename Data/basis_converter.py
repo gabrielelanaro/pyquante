@@ -36,15 +36,9 @@ header = """\
  distribution. 
 """
 
-def main():
-    import sys
-    #fnames = ["basis_321.dat","basis_6311pp_2d_2p.dat",
-    #          "basis_6311ss.dat","basis_ccpvdz.dat",
-    #          "basis_ccpvtz.dat","basis_dzvp.dat",
-    #          "basis_sto3g.dat","basis_sto6g.dat"]
-    fnames = sys.argv[1:]
+def main(*args):
     do_write = True
-    for fname in fnames:
+    for fname in args:
         print "Processing ",fname
         oname = fname.replace(".dat",".py")
         basis = parse_gamess_basis(fname)
@@ -60,5 +54,5 @@ def main():
             pprint(basis)
     return
 
-if __name__ == "__main__": main()
+if __name__ == "__main__": main('basis_631.dat')
     

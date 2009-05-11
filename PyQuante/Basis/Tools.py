@@ -13,6 +13,7 @@ import re,pprint
 from PyQuante.Element import name2no
 
 basis_map = {
+    '6-31g':'p631',
     '6-31g**':'p631ss',
     '6-31g(d,p)':'p631ss',
     '6-31g**++':'p631ppss',
