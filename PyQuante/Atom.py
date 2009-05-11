@@ -63,6 +63,12 @@ class Atom:
     
     def set_force(self,fxfyfz): self.f = array(fxfyfz)
     def set_velocity(self,vxvyvz): self.vel = array(vxvyvz)
+
+    def urotate(self,U):
+        "Rotate molecule by the unitary matrix U"
+        from PyQuante.NumWrap import matrixmultiply
+        self.r = matrixmultiply(self.r,U)
+        return
     
 
 def test():

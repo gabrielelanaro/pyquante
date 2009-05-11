@@ -211,7 +211,7 @@ def multipole_ints((kx,ky,kz),alpha1,(l1,m1,n1),A1,alpha2,(l2,m2,n2),A2):
 def overlap_1D(l1,l2,PAx,PBx,gamma):
     "Taken from THO eq. 2.12"
     sum = 0
-    for i in range(1+floor(0.5*(l1+l2))):
+    for i in range(1+int(floor(0.5*(l1+l2)))):
         sum = sum + binomial_prefactor(2*i,l1,l2,PAx,PBx)* \
               fact2(2*i-1)/pow(2*gamma,i)
     return sum

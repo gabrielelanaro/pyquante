@@ -161,6 +161,47 @@ class Molecule:
         nclosed,nopen = self.get_closedopen(**opts)
         return nclosed+nopen,nclosed
 
+    def com(self):
+        "Compute the center of mass of the molecule"
+        from PyQuante.NumWrap import zeros
+        rcom = zeros((3,),'d')
+        mtot = 0
+        for atom in self:
+            m = atom.mass()
+            rcom += m*atom.r
+            mtot += m
+        rcom /= mtot
+        return rcom
+
+    def inertial(self):
+        "Transform to inertial coordinates"
+        from PyQuante.NumWrap import zeros,eigh
+        rcom = self.com()
+        print "Translating to COM: ",rcom
+        self.translate(-rcom)
+        I = zeros((3,3),'d')
+        for atom in self:
+            m = atom.mass()
+            x,y,z = atom.pos()
+            x2,y2,z2 = x*x,y*y,z*z
+            I[0,0] += m*(y2+z2)
+            I[1,1] += m*(x2+z2)
+            I[2,2] += m*(x2+y2)
+            I[0,1] -= m*x*y
+            I[1,0] = I[0,1]
+            I[0,2] -= m*x*z
+            I[2,0] = I[0,2]
+            I[1,2] -= m*y*z
+            I[2,1] = I[1,2]
+        E,U = eigh(I)
+        print "Moments of inertial ",E
+        return
+
+    def urotate(self,U):
+        "Rotate molecule by the unitary matrix U"
+        for atom in self: atom.urotate(U)
+        return
+
     # These two overloads let the molecule act as a list of atoms
     def __getitem__(self,i):return self.atoms[i]
     def __len__(self): return len(self.atoms)
