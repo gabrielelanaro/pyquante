@@ -195,6 +195,9 @@ class Molecule:
             I[2,1] = I[1,2]
         E,U = eigh(I)
         print "Moments of inertial ",E
+        self.urotate(U)
+        print "New coordinates: "
+        print self
         return
 
     def urotate(self,U):
