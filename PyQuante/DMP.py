@@ -300,8 +300,8 @@ def lanczos_minmax(F,S=None,**kwargs):
     x = zeros(N,'d')
     x[0] = 1
     q = x
-    as = []
-    bs = []
+    avals = []
+    bvals = []
     if doS:
         r = matrixmultiply(S,q)
     else:
@@ -314,16 +314,16 @@ def lanczos_minmax(F,S=None,**kwargs):
         r = matrixmultiply(F,v)
         r = r - wold*beta
         alpha = matrixmultiply(v,r)
-        as.append(alpha)
+        avals.append(alpha)
         r = r-w*alpha
         if doS:
             q = solve(S,r)
         else:
             q = r
         beta = sqrt(matrixmultiply(q,r))
-        bs.append(beta)
+        bvals.append(beta)
         wold = w
-    E,V = eigh(tridiagmat(as,bs))
+    E,V = eigh(tridiagmat(avals,bvals))
     return min(E),max(E)
 
 def test():
