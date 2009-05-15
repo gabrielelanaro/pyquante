@@ -156,8 +156,7 @@ def fetch_kints(Ints,i,j,nbf):
     kl = 0
     for k in xrange(nbf):
         for l in xrange(nbf):
-            temp[kl] = 0.5*(Ints[intindex(i,k,j,l)]+
-                            Ints[intindex(i,l,j,k)])
+            temp[kl] = Ints[intindex(i,k,j,l)]
             kl += 1
     return temp
 
