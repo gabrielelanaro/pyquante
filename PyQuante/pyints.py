@@ -199,9 +199,6 @@ def multipole_ints((kx,ky,kz),alpha1,(l1,m1,n1),A1,alpha2,(l2,m2,n2),A2):
     for ix in range(kx+1):
         for iy in range(ky+1):
             for iz in range(kz+1):
-                #print binomial(kx,ix),binomial(ky,iy),binomial(kz,iz),\
-                #      A1[0]**(kx-ix),A1[1]**(ky-iy),A1[2]**(kz-iz),\
-                #      overlap(alpha1,(l1,m1,n1),A1,alpha2,(l2,m2,n2),A2)
                 total += binomial(kx,ix)*binomial(ky,iy)*binomial(kz,iz)*\
                          A1[0]**(kx-ix)*A1[1]**(ky-iy)*A1[2]**(kz-iz)*\
                          overlap(alpha1,(l1+ix,m1+iy,n1+iz),A1,

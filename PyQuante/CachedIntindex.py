@@ -1,5 +1,6 @@
 # Experiment to see if caching the two electron integral indices
-# would speed things up. 
+# would speed things up. It didn't speed things up appreciably,
+# if at all, but I'm keeping the code around for reference.
 
 class CachedIntindex:
     # Yuck! N4 storage

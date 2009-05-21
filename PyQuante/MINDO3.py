@@ -526,7 +526,7 @@ def energy_forces_factories(atoms,**kwargs):
         E0 = Efunc(cnew)
         F = zeros(3*nat,'d')
         ei = zeros(3*nat,'d')
-        dx = 1e-8
+        dx = 1e-7
         for i in range(nat):
             for j in range(3):
                 ei[3*i+j] = 1.0
@@ -560,83 +560,38 @@ def opt(atoms,**kwargs):
     return Efinal,copt
 
 def get_energy_forces(atoms,**opts):
-    from Convergence import SimpleAverager
+    opts['return_energy'] = True
+    return numeric_forces(atoms,**opts)
 
-    chg = opts.get('chg',0)
-    averaging = opts.get('averaging',0.5)
-    doforces = opts.get('doforces',True)
-    verbose = opts.get('verbose',False)
-    numforces = opts.get('numforces',True)
-    
-    atoms = initialize(atoms)
-    nel = get_nel(atoms)-int(chg)
-    nclosed,nopen = get_open_closed(nel,None)
-    assert nopen==0, "Forces only for closed-shell now"
-    Enuke = get_enuke(atoms)
-    nbf = get_nbf(atoms)
-    eref = get_reference_energy(atoms)
-    F0 = get_F0(atoms)
-    D = get_guess_D(atoms)
-    Eold = 0
-    energies = []
-    converger = SimpleAverager(averaging)
-    for i in range(50):
-        D = converger.getD(D)
-        F1 = get_F1(atoms,D)
-        F2 = get_F2(atoms,D)
-        F = F0+F1+F2
-        Eel = 0.5*trace2(D,F0+F)
-        if verbose: print i+1,Eel
-        if abs(Eel-Eold) < 0.001:
-            if verbose:
-                print "Exiting because converged",i+1,Eel,Eold
-            break
-        energies.append(Eel)
-        Eold = Eel
-        try:
-            orbe,orbs = eigh(F)
-        except:
-            print atoms
-            raise Exception(
-                "Eigenvectors did not converge in MINDO3:get_energy_forces")
-            
-        D = 2*mkdens(orbs,0,nclosed)
-    else:
-        raise Exception("SCF Not Converged: exiting")
-    Etot = Eel+Enuke
-    Hf = Etot*ev2kcal+eref
-
-    if doforces:
-        if numforces:
-            Forces = numeric_forces(atoms,D)
-        else:
-            Forces = forces(atoms,D)
-    else:
-        Forces = None
-
-    return Hf,Forces
-
-def numeric_forces(atoms,D,**opts):
+def numeric_forces(atoms,D=None,**opts):
     "Compute numerical forces on atoms"
     # D is ignored here.
-    dx = opts.get('dx',1e-8)
+    dx = opts.get('dx',1e-6)
+    sym = opts.get('sym',True)
+    return_energy = opts.get('return_energy',False)
     nat = len(atoms)
     Forces = zeros((nat,3),'d')
-    E0,fbs = get_energy_forces(atoms,doforces=False)
+    E0 = scf(atoms)
     for iat in range(nat):
         for idir in range(3):
             dr = zeros(3,'d')
             dr[idir] = dx
             atoms[iat].translate(dr)
-            E,fbs = get_energy_forces(atoms,doforces=False)
+            Ep = scf(atoms)
             atoms[iat].translate(-dr)
-            Forces[iat,idir] = (E-E0)/dx
+            if sym:
+                atoms[iat].translate(-dr)
+                Em = scf(atoms)
+                atoms[iat].translate(dr)
+                Forces[iat,idir] = 0.5*(Ep-Em)/dx
+            else:
+                Forces[iat,idir] = (Ep-E0)/dx
+    if return_energy: return E0,Forces
     return Forces
             
-    
-
 def forces(atoms,D):
     "Compute analytic forces on list of atoms"
+    print "Warning: Analytical forces not tested yet!"
     nat = len(atoms)
     Forces = zeros((nat,3),'d')
     # Loop over all pairs of atoms and compute the force between them

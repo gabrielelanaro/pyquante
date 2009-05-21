@@ -240,6 +240,27 @@ def ParseXYZLines(name,xyz_lines,**opts):
         atoms.append((sym,xyz))
     return Molecule(name,atoms,**opts)
 
+# Construct some molecules (at HF/6-31G** minimum energy geometries)
+#  for use elsewhere
+h2o = Molecule('h2o',
+               [(8,  ( 0.00000000,     0.00000000,     0.04851804)),
+                (1,  ( 0.75300223,     0.00000000,    -0.51923377)),
+                (1,  (-0.75300223,     0.00000000,    -0.51923377))],
+               units='Angstrom')
+
+h2 = Molecule('h2',
+              [(1,  (0.00000000,     0.00000000,     0.69218053)),
+               (1,  (0.00000000,     0.00000000,    -0.69218053))],
+              units='Angstrom')
+
+oh = Molecule('oh',
+              [(8,  (0.00000000,     0.00000000,    -0.08687037)),
+               (1,  (0.00000000,     0.00000000,     0.86464814))],
+               units='Angstrom',
+               multiplicity=2)
+he = Molecule('He',atomlist = [(2,(0,0,0))])
+li = Molecule('Li',atomlist = [(3,(0,0,0))],multiplicity=2)
+
 if __name__ == '__main__':
     h2o = Molecule('h2o',
                    [('O',(0.,0.,0.)),('H',(1.,0.,0.)),('H',(0.,1.,0.))],

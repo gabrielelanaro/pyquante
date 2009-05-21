@@ -40,8 +40,6 @@ The test suite at the bottom of the file has examples of usage.
 
 import unittest,logging
 
-from PyQuante.CachedIntindex import CachedIntindex
-
 class SCFIterator:
     def __init__(self,**opts):
         self.energy_history = []
@@ -148,6 +146,7 @@ class AbstractHamiltonian:
 class HFHamiltonian(AbstractHamiltonian):
     method='HF'
     def __init__(self,molecule,**opts):
+        from PyQuante.Convergence import DIIS
         self.molecule = molecule
         logging.info("HF calculation on system %s" % self.molecule.name)
         self.basis_set = BasisSet(molecule,**opts)
@@ -160,6 +159,9 @@ class HFHamiltonian(AbstractHamiltonian):
         self.F = self.h
         self.dmat = None
         self.entropy = None
+        self.DoAveraging = opts.get('DoAveraging',True)
+        if self.DoAveraging:
+            self.Averager = DIIS(self.S)
         nel = molecule.get_nel()
         nclosed,nopen = molecule.get_closedopen()
         logging.info("Nclosed/open = %d, %d" % (nclosed,nopen))
@@ -180,6 +182,8 @@ class HFHamiltonian(AbstractHamiltonian):
         from PyQuante.LA2 import trace2
         from PyQuante.Ints import getJ,getK
 
+        if self.DoAveraging and self.dmat is not None:
+            self.F = self.Averager.getF(self.F,self.dmat)
         self.dmat,self.entropy = self.solver.solve(self.F,**opts)
         D = self.dmat
         

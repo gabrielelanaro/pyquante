@@ -15,7 +15,7 @@ from Ints import getbasis,getJ,getints
 from MolecularGrid import MolecularGrid
 from LA2 import geigh,mkdens,mkdens_spinavg,trace2
 from fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs, get_entropy
-from NumWrap import zeros,dot,array,ravel,transpose,sum
+from NumWrap import zeros,dot,ravel,transpose,sum
 from DFunctionals import XC,need_gradients
 from time import time
 from Convergence import DIIS
@@ -24,11 +24,6 @@ import logging
 
 from Convergence import SimpleAverager
 from LA2 import SymOrth
-
-#from numpy.oldnumeric.linear_algebra import Heigenvectors, inverse
-#from numpy.linalg import svd, eig, eigh
-#from NumWrap import array2string, abs
-tolerance = 0.001
 
 # This is the version before Ann Mattsson made her changes. I'm keeping
 #  it around for old time's sake. Putting this comment in 2007-02;

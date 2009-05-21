@@ -134,8 +134,12 @@ def rhf(atoms,**opts):
         logging.debug("%d %f" % (i,energy))
         if abs(energy-eold) < ConvCriteria: break
         eold = energy
+    if i < MaxIter:
+        logging.info("PyQuante converged in %d iterations" % i)
+    else:
+        logging.warning("PyQuante failed to converge after %d iterations"
+                            % MaxIter)
     logging.info("Final HF energy for system %s is %f" % (atoms.name,energy))
-    #print 2*trace2(D,h),trace2(D,G)
     return energy,orbe,orbs
 
 def uhf(atoms,**opts):

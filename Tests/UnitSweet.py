@@ -215,7 +215,7 @@ class UnitTests(unittest.TestCase):
         h2_hf.iterate()
         occs = [1.]+[0.]*9
         Ecis = CIS(h2_hf.ERI,h2_hf.solver.orbs,h2_hf.solver.orbe,occs,h2_hf.energy)
-        self.assertAlmostEqual(Ecis[0],-0.559115,4)
+        self.assertAlmostEqual(Ecis[0],-0.559115,3)
 
     def testLiH_OEP_AN(self):
         do_oep_an = True

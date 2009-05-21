@@ -19,7 +19,9 @@
 """
 from PyQuante.Ints import getbasis,getints,getJ,getK,get2JmK
 from PyQuante.LA2 import mkdens,geigh,trace2,simx
-from PyQuante.NumWrap import zeros,take,transpose,matrixmultiply,eigh
+from PyQuante.NumWrap import zeros,take,transpose,matrixmultiply,eigh,dot
+from PyQuante.NumWrap import identity
+from math import sqrt
 
 def get_os_dens(orbs,f,noccsh):
     istart = iend = 0
@@ -51,12 +53,18 @@ def get_orbs_in_shell(ish,noccsh,norb):
     iend = sum(noccsh[:ish+1])
     return range(istart,iend)+range(vstart,vend)
 
-def get_open_shell_fock(ish,nsh,f,a,b,h,Hs):
+def get_open_shell_fock(ish,nsh,f,a,b,h,Hs,**kwargs):
+    nof = kwargs.get('nof',False)
     # Form the Fock matrix for shell ish:
-    F = f[ish]*h
+    if nof:
+        F = h
+    else:
+        F = f[ish]*h
     for jsh in range(nsh):
-        # I think this is wrong; should this be J,K?
-        F += a[ish,jsh]*Hs[2*jsh]+b[ish,jsh]*Hs[2*jsh+1]
+        if nof:
+            F += a[ish,jsh]*Hs[2*jsh]/f[ish]+b[ish,jsh]*Hs[2*jsh+1]/f[ish]
+        else:
+            F += a[ish,jsh]*Hs[2*jsh]+b[ish,jsh]*Hs[2*jsh+1]
     return F
 
 def update_orbe(orbs_in_shell,orbe,mo_orbe):
@@ -65,13 +73,14 @@ def update_orbe(orbs_in_shell,orbe,mo_orbe):
     return
 
 def update_orbs(orbs_in_shell,orbs,mo_orbs):
+    nbf,nmo = orbs.shape
     # Map the orbs back to the occupied space
-    new_orbs = zeros(orbs.shape,'d')
     for i,iorb in enumerate(orbs_in_shell):
-        coefs = mo_orbs[:,i]
-        for j,cj in enumerate(coefs):
-            new_orbs[:,iorb] += cj*orbs[:,orbs_in_shell[j]]
-    return new_orbs
+        vec = zeros(nbf,'d')
+        for j,cj in enumerate(mo_orbs[i,:]):
+            vec += cj*orbs[:,orbs_in_shell[j]]
+        orbs[:,iorb] = vec
+    return 
         
 def ocbse(orbs,h,Hs,f,a,b,noccsh):
     # Need to write this so that we don't need the orbs 3 times!
@@ -88,7 +97,7 @@ def ocbse(orbs,h,Hs,f,a,b,noccsh):
         mo_orbe,mo_orbs = eigh(Fmo)
         # Insert orbital energies into the right place
         update_orbe(orbs_in_shell,orbe,mo_orbe)
-        orbs = update_orbs(orbs_in_shell,orbs,mo_orbs)
+        update_orbs(orbs_in_shell,orbs,mo_orbs)
     return orbe,orbs
 
 def rotion(orbs,h,Hs,nclosed,nopen):
@@ -128,33 +137,30 @@ def get_noccsh(nclosed,nopen):
     if nopen:   noccsh.append(nopen)
     return noccsh
 
-def get_f(nclosed,nopen):
-    # Get f from noccsh
+def get_fab(nclosed,nopen):
     f = []
-    if nclosed: f.append(1.0)
-    if nopen:   f.append(0.5)
-    return f
-
-def get_a(nsh,f):
+    iopen_start = 0
+    if nclosed:
+        f.append(1.0)
+        iopen_start = 1
+    if nopen:
+        f.append(0.5)
+    nsh = len(f)
     a = zeros((nsh,nsh),'d')
-    for i in range(nsh):
-        a[i,i] = f[i]
-        for j in range(i):
-            a[i,j] = 2.*f[i]*f[j]
-            a[j,i] = a[i,j]
-    return a
-
-def get_b(nsh,f):
     b = zeros((nsh,nsh),'d')
+
     for i in range(nsh):
-        b[i,i] = 0
-        for j in range(i):
-            if f[i] == 0.5 and f[j] == 0.5:
-                b[i,j] = 0.5
-            else:
-                b[i,j] = -f[i]*f[j]
-            b[j,i] = b[i,j]
-    return b
+        for j in range(nsh):
+            a[i,j] = 2.*f[i]*f[j]
+            b[i,j] = -f[i]*f[j]
+
+    if nopen == 1:
+        a[iopen_start,iopen_start] = 0
+        b[iopen_start,iopen_start] = 0
+    elif nopen > 1:
+        b[iopen_start,iopen_start] = -0.5
+
+    return f,a,b
 
 def rohf(atoms,noccsh=None,f=None,a=None,b=None,**opts):
     """\
@@ -189,9 +195,8 @@ def rohf(atoms,noccsh=None,f=None,a=None,b=None,**opts):
     if not noccsh: noccsh = get_noccsh(nclosed,nopen)
     nsh = len(noccsh)
     nbf = norb = len(bfs)
-    if not f: f = get_f(nclosed,nopen)
-    if not a: a = get_a(nsh,f)
-    if not b: b = get_b(nsh,f)
+    if not f:
+        f,a,b = get_fab(nclosed,nopen)
 
     if verbose:
         print "ROHF calculation"
@@ -214,7 +219,12 @@ def rohf(atoms,noccsh=None,f=None,a=None,b=None,**opts):
         Ds = get_os_dens(orbs,f,noccsh)
         Hs = get_os_hams(Ints,Ds)
         #orbs = rotion(orbs,h,Hs,nclosed,nopen)
+        Smo = simx(S,orbs)
+        print "Smo: \n",Smo[:4,:4]
         orbe,orbs = ocbse(orbs,h,Hs,f,a,b,noccsh)
+        orthogonalize(orbs,S)
+        Smo = simx(S,orbs)
+        print "Smo: \n",Smo[:4,:4]
         # Compute the energy
         eone = 0
         for ish in range(nsh): eone += trace2(Ds[ish],h)
@@ -224,9 +234,20 @@ def rohf(atoms,noccsh=None,f=None,a=None,b=None,**opts):
         eold = energy
     return energy,orbe,orbs
 
+def orthogonalize(orbs,S):
+    nbf,norb = orbs.shape
+    for i in range(norb):
+        for j in range(i):
+            Sij = dot(orbs[:,j],dot(S,orbs[:,i]))
+            orbs[:,i] -= Sij*orbs[:,j]
+        Sii = dot(orbs[:,i],dot(S,orbs[:,i]))
+        orbs[:,i] /= sqrt(Sii)
+    return 
+
 if __name__ == '__main__': 
     from PyQuante.Molecule import Molecule
     from PyQuante.hartree_fock import hf
+    h = Molecule('H',[(1,(0,0,0))],multiplicity=2)
     he = Molecule('He',[(2,(0,0,0))])
     li = Molecule('Li',[(3,(0,0,0))],multiplicity=2)
     be = Molecule('Be',[(4,(0,0,0))],multiplicity=3)

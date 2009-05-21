@@ -14,7 +14,6 @@ from CGBF import CGBF,coulomb
 from NumWrap import zeros,dot,reshape
 from PyQuante.cints import ijkl2intindex as intindex
 from PyQuante.Basis.Tools import get_basis_data
-from PyQuante.CachedIntindex import CachedIndexList
 
 sym2powerlist = {
     'S' : [(0,0,0)],
