@@ -35,7 +35,7 @@ def getbasis(atoms,basis_data=None,**opts):
     constructed as a list of CGBF basis functions objects.
     """
     # Option to omit f basis functions from imported basis sets
-    omit_f = opts.get('omit_f',True)
+    omit_f = opts.get('omit_f',False)
     if not basis_data:
         from PyQuante.Basis.p631ss import basis_data
     elif type(basis_data) == type(''):
