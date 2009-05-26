@@ -1,5 +1,4 @@
 from PyQuante.Molecule import Molecule
-
 # Construct some molecules (at HF/6-31G** minimum energy geometries)
 #  for use elsewhere
 h = Molecule('H',[(1,  (0.00000000,     0.00000000,     0.00000000))],
