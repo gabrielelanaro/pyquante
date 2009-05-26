@@ -13,7 +13,7 @@ from PyQuante.OEP import oep_hf,oep_hf_an
 from PyQuante.PyQuante2 import SCF,SubspaceSolver,DmatSolver
 
 # Import test molecules
-from PyQuante.Molecule import h2,he,li,li_p,li_m,h2o,oh,lih
+from PyQuante.TestMolecules import h2,he,li,li_p,li_m,h2o,oh,lih
 
 class UnitTests(unittest.TestCase):
     def testH2BLYP(self):
