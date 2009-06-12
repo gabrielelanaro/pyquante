@@ -202,8 +202,12 @@ class UnitTests(unittest.TestCase):
     def testCIS(self):
         solv = SCF(h2,method="HF")
         solv.iterate()
-        occs = [1.]+[0.]*9
-        Ecis = CIS(solv.ERI,solv.solver.orbs,solv.solver.orbe,occs,solv.energy)
+        nclosed,nopen = h2.get_closedopen()
+        nbf = len(solv.basis_set.get())
+        nocc = nclosed+nopen
+        nvirt = nbf-nocc
+        Ecis = CIS(solv.ERI,solv.solver.orbs,solv.solver.orbe,nocc,
+                   nvirt,solv.energy)
         self.assertAlmostEqual(Ecis[0],-0.573134,3)
 
     def testLiH_OEP_AN(self):

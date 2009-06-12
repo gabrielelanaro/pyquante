@@ -33,8 +33,8 @@ def DoubleExcitations(occs,virts):
                     doubles.append((occa,occb,virta,virtb))
     return doubles
 
-def CIS(Ints,orbs,orbe,occs,ehf):
-    CIMatrix = CISMatrix(Ints,orbs,ehf,orbe,occs)
+def CIS(Ints,orbs,orbe,nocc,nvirt,ehf):
+    CIMatrix = CISMatrix(Ints,orbs,ehf,orbe,nocc,nvirt)
     Ecis,Vectors = eigh(CIMatrix)
     return Ecis
 
@@ -45,19 +45,18 @@ def get_occ_unocc(occs):
         if fi>0.01: nocc += 1
     return nocc,ntot-nocc
 
-def CISMatrix(Ints,orbs,Ehf,orbe,occs):
+def CISMatrix(Ints,orbs,Ehf,orbe,nocc,nvirt):
     "Naive implementation: Int xfrm + slow formation"
     # The best reference for this stuff is Chap 4 of Szabo/Ostlund
 
-    # This is hideous! Maybe I should pass in nocc, nocc_ref, nvirt_ref
-    #  or something.
-    nocc, nvirt = get_occ_unocc(occs)
+    # Generate the list, and the number of excitations:
     singles = SingleExcitations(range(nocc),range(nocc,nocc+nvirt))
-    
     nex = len(singles)
 
+    # Do the four-index transformation of the 2e ints. This is expensive!
     MOInts = TransformInts(Ints,orbs)
 
+    # Build the CI matrix using the Slater Condon rules
     # see Szabo/Ostlund Table 4.1
     CIMatrix = zeros((nex,nex),'d')
     for ar in range(nex):
@@ -157,20 +156,36 @@ def TransformInts(Ints,orbs):
 
 def test():
     from Ints import getbasis,getints
-    from hartree_fock import scf
-    from IO import mtx2file
+    from hartree_fock import rhf
     from Molecule import Molecule
 
-    atoms = Molecule('h2',[(1,(1.,0,0)),(1,(-1.,0,0))])
-    bfs = getbasis(atoms)
-    S,h,Ints = getints(bfs,atoms)
-    en,orbe,orbs = scf(atoms,S,h,Ints,0,0.0001,10)
+    # Make a test molecule for the calculation
+    h2 = Molecule('h2',[(1,(1.,0,0)),(1,(-1.,0,0))])
+
+    # Get a basis set and compute the integrals.
+    # normally the routine will do this automatically, but we
+    # do it explicitly here so that we can pass the same set
+    # of integrals into the CI code and thus not recompute them.
+    bfs = getbasis(h2)
+    S,h,Ints = getints(bfs,h2)
+
+    # Compute the HF wave function for our molecule
+    en,orbe,orbs = rhf(h2,
+                       integrals=(S,h,Ints)
+                       )
     print "SCF completed, E = ",en
     print " orbital energies ",orbe
-    occs = [1.]+[0.]*9
 
-    Ecis = CIS(Ints,orbs,orbe,occs,en)
-    print Ecis
+    # Compute the occupied and unoccupied orbitals, used in the
+    # CIS program to generate the excitations
+    nclosed,nopen = h2.get_closedopen()
+    nbf = len(bfs)
+    nocc = nclosed+nopen
+    nvirt = nbf-nocc
+
+    # Call the CI program:
+    Ecis = CIS(Ints,orbs,orbe,nocc,nvirt,en)
+    print "Ecis = ",Ecis
 
 if __name__ == '__main__':
     test()
