@@ -15,7 +15,7 @@
 
 from NumWrap import array
 from PyQuante.cints import dist2,dist
-from Element import mass
+from Element import mass,symbol
 from Constants import bohr2ang
 
 # Careful about units! I'm not doing anything about them here;
@@ -38,6 +38,7 @@ class Atom:
         return self.r[i]
     def mass(self): return mass[self.atno]
     def pos(self): return tuple(self.r)
+    def symbol(self): return symbol[self.atno]
     
     def force(self): return self.f
     def velocity(self): return self.vel

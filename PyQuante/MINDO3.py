@@ -15,6 +15,7 @@ from MINDO3_Parameters import axy,Bxy
 from math import sqrt,exp,pow
 from NumWrap import zeros,eigh
 from LA2 import mkdens,trace2
+from PyQuante.Convergence import SimpleAverager
 A0 = bohr2ang
 
 def get_beta0(atnoi,atnoj):
@@ -379,9 +380,13 @@ def scf(atoms,**opts):
 def scfclosed(atoms,F0,nclosed,**opts):
     "SCF procedure for closed-shell molecules"
     verbose = opts.get('verbose',False)
+    do_avg = opts.get('avg',False)
+    maxiter = opts.get('maxiter',50)
     D = get_guess_D(atoms)
     Eold = 0
-    for i in range(10):
+    if do_avg: avg = SimpleAverager(do_avg)
+    for i in range(maxiter):
+        if do_avg: D = avg.getD(D)
         F1 = get_F1(atoms,D)
         F2 = get_F2(atoms,D)
         F = F0+F1+F2
@@ -782,12 +787,13 @@ def test_olap():
 
 def write_mopac_input(atoms,fname=None):
     from PyQuante.Element import symbol
+    from PyQuante.Constants import bohr2ang
     if not fname: fname = atoms.name + ".dat"
     lines = ['MINDO3',atoms.name,'Input file written by PyQuante']
     for atom in atoms:
         atno = atom.atno
         sym = symbol[atno]
-        x,y,z = atom.r
+        x,y,z = [bohr2ang*i for i in atom.r]
         lines.append('%s  %10.4f  0  %10.4f  0  %10.4f  0'
                      % (sym,x,y,z))
     open(fname,'w').write('\n'.join(lines))

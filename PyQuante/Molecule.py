@@ -80,8 +80,8 @@ class Molecule:
     def add_atuples(self,atoms):
         "Add a list of (atno,(x,y,z)) tuples to the atom list"
         from Atom import Atom
-        id=0
-        for atno,xyz in atoms: self.add_atuple(atno,xyz,id); id+=1
+        for id,(atno,xyz) in enumerate(atoms):
+            self.add_atuple(atno,xyz,id); id+=1
         return
 
     def atuples(self):
@@ -219,9 +219,19 @@ class Molecule:
         import copy
         return copy.deepcopy(self)
 
+    def xyz_file(self,fname=None):
+        if not fname: fname = self.name + ".xyz"
+        lines = ["%d\nWritten by PyQuante.Molecule" % len(self.atoms)]
+        for atom in self:
+            x,y,z = [bohr2ang*i for i in atom.pos()]
+            lines.append("%s %15.10f %15.10f %15.10f" % (atom.symbol(),x,y,z))
+        open(fname,'w').write("\n".join(lines))
+        return
+
 def toBohr(*args):
     if len(args) == 1: return ang2bohr*args[0]
     return [ang2bohr*arg for arg in args]
+
 def toAng(*args):
     if len(args) == 1: return bohr2ang*args[0]
     return [bohr2ang*arg for arg in args]
@@ -239,7 +249,6 @@ def ParseXYZLines(name,xyz_lines,**opts):
         xyz = map(float,words[1:4])
         atoms.append((sym,xyz))
     return Molecule(name,atoms,**opts)
-
 
 if __name__ == '__main__':
     h2o = Molecule('h2o',

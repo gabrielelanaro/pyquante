@@ -182,7 +182,9 @@ def uhf(atoms,**opts):
 
     orbs = opts.get('orbs',None)
     if orbs!=None:
-        orbsa = orbsb = orbs
+        #orbsa = orbsb = orbs
+        orbsa = orbs[0]
+        orbsb = orbs[1]
     else:
         orbe,orbs = geigh(h,S)
         orbea = orbeb = orbe
