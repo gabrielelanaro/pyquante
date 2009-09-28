@@ -96,3 +96,11 @@ def test():
 if __name__ == '__main__': test()
 
     
+# Sample times (9/28/09, Macbook Air:)
+# Int times: 
+# CHGP Ints:     3.02386283875
+# CRys Ints:    2.28243303299
+# CINTS Ints:    6.17023396492
+# HGP Ints:      250.576164007
+# Rys Ints:   204.740512133
+# Py Ints:   295.842331886

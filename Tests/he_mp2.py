@@ -26,7 +26,10 @@ def main():
     emp2 = MP2(Ints,orbs,orbe,nocc,nbf-nocc)
     return en+emp2
 
-if __name__ == '__main__': main() 
+def isnear(a,b,tol=1e-4): return abs(a-b)<tol
+
+if __name__ == '__main__':
+    print isnear(main(),energy)
 
 
     

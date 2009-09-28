@@ -16,7 +16,7 @@ class HDFTTest(sciunittest.TestCase):
     def runTest(self):
         """Energy of H atom (DFT) close to -0.4415033?"""
         E = main()
-        self.assertInside(E, energy, 1e-8)
+        self.assertInside(E, energy, 1e-5)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(HDFTTest)

@@ -5,7 +5,7 @@ from PyQuante.NumWrap import arange
 from PyQuante.dft import dft
 from PyQuante.Molecule import Molecule
 
-energy = -7.813809
+energy = -7.811516 # changed 9/28/09 to reflect nwchem
 name = "LiH/DFT"
 
 def dissoc(**opts):
@@ -48,9 +48,9 @@ def profmain():
 
 class LiHDFTTest(sciunittest.TestCase):
     def runTest(self):
-        """Energy of LiH (DFT) close to -7.813809?"""
+        """Energy of LiH (DFT) close to -7.811516"""
         E = main()
-        self.assertInside(E, energy, 1e-5)
+        self.assertInside(E, energy, 1e-4)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(LiHDFTTest)

@@ -38,7 +38,7 @@ class H2DFTTest(sciunittest.TestCase):
     def runTest(self):
         """Energy of H2 (DFT) close to -1.132710?"""
         E = main()
-        self.assertInside(E, energy, 1e-6)
+        self.assertInside(E, energy, 1e-4)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(H2DFTTest)

@@ -13,7 +13,7 @@ from PyQuante.Molecule import Molecule
 
 # Changed 2005-11-04 to reflect Becke projection + heteroatom corrections
 # Changed 2005-11-08 to remove the spingrid option
-energy = -75.896499
+energy = -75.8500459 # Changed 9/28/09 to reflect nwchem result
 name = "H2O/DFT"
 
 def main():
@@ -24,7 +24,7 @@ def main():
 
 class WaterDFTTest(sciunittest.TestCase):
     def runTest(self):
-        """Energy of H2O (DFT) close to -75.896499?"""
+        """Energy of H2O (DFT) close to -75.8500459"""
         E = main()
         self.assertInside(E, energy, 1e-4)
 

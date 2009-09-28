@@ -18,7 +18,7 @@ def main():
     en,orbe,orbs = rhf(atoms,integrals=(S,h,Ints))
     occs = [1.]+[0.]*9
 
-    Ecis = CIS(Ints,orbs,orbe,occs,en)
+    Ecis = CIS(Ints,orbs,orbe,1,9,en)
     return Ecis[0]
 
 class H2CISTest(sciunittest.TestCase):

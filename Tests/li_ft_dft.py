@@ -20,7 +20,7 @@ class LiFTDFTTest(sciunittest.TestCase):
     def runTest(self):
         """Energy of Li/FT/DFT close to -7.349422?"""
         E = main()
-        self.assertInside(E, energy, 1e-6)
+        self.assertInside(E, energy, 1e-4)
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(LiFTDFTTest)
