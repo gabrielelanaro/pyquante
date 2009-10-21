@@ -186,6 +186,13 @@ def dft(atoms,**opts):
 
     nclosed,nopen = atoms.get_closedopen()
 
+    if verbose:
+        print "DFT calculation on %s using functional %s" % \
+              (atoms.name,functional)
+        print "Nbf = %d" % len(bfs)
+        print "Nclosed = %d" % nclosed
+        print "Nopen = %d" % nclosed
+
     logging.debug("DFT calculation on %s using functional %s"
                  % (atoms.name,functional))
     logging.debug("Nbf = %d" % len(bfs))
@@ -196,6 +203,7 @@ def dft(atoms,**opts):
     eold = 0.
     if DoAveraging:
         logging.debug("Using DIIS averaging")
+        if verbose: print"Using DIIS averaging"
         avg=DIIS(S)
 
     # Converge the LDA density for the system:
@@ -226,6 +234,8 @@ def dft(atoms,**opts):
         if ETemp: energy += entropy
         logging.debug("%d %10.4f %10.4f %10.4f %10.4f %10.4f" %
                   (i,energy,Eone,Ej,Exc,enuke))
+        if verbose: print "%d %10.4f %10.4f %10.4f %10.4f %10.4f" % \
+           (i,energy,Eone,Ej,Exc,enuke)
         if abs(energy-eold) < ConvCriteria: break
         eold = energy
     logging.info("Final %s energy for system %s is %f"
@@ -304,6 +314,12 @@ def udft(atoms,**opts):
     logging.debug("Nbf = %d" % len(bfs))
     logging.debug("Nalpha = %d" % nalpha)
     logging.debug("Nbeta = %d" % nbeta)
+    if verbose: 
+        print "UDFT calculation on %s using functional %s" \
+              % (atoms.name,functional)
+        print "Nbf = %d" % len(bfs)
+        print "Nalpha = %d" % nalpha
+        print "Nbeta = %d" % nbeta
         
     eold = 0.
 

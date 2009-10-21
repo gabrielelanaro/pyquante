@@ -163,6 +163,7 @@ def uhf(atoms,**opts):
     DoAveraging = opts.get('DoAveraging',True)
     averaging = opts.get('averaging',0.5)
     ETemp = opts.get('ETemp',False)
+    verbose = opts.get('verbose',False)
 
     bfs = opts.get('bfs',None)
     if not bfs:
@@ -200,7 +201,7 @@ def uhf(atoms,**opts):
     logging.info("Averaging = %s" % DoAveraging)
     logging.debug("Optimization of HF orbitals")
     for i in range(MaxIter):
-        print "SCF Iteration:",i,"Starting Energy:",eold
+        if verbose: print "SCF Iteration:",i,"Starting Energy:",eold
         if ETemp:
             # We have to multiply nalpha and nbeta by 2
             #  to get the Fermi energies to come out correct:

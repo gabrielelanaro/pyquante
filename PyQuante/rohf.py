@@ -21,6 +21,7 @@ from PyQuante.Ints import getbasis,getints,getJ,getK,get2JmK
 from PyQuante.LA2 import mkdens,geigh,trace2,simx
 from PyQuante.NumWrap import zeros,take,transpose,matrixmultiply,eigh,dot
 from PyQuante.NumWrap import identity
+from PyQuante.hartree_fock import get_energy
 from math import sqrt
 
 def get_os_dens(orbs,f,noccsh):
@@ -93,7 +94,7 @@ def ocbse(orbs,h,Hs,f,a,b,noccsh):
         # form the orbital space of all of the orbs in ish plus the virts
         T = take(orbs,orbs_in_shell,1)
         # Transform to MO space
-        Fmo = simx(F,T)
+        Fmo = ao2mo(F,T)
         mo_orbe,mo_orbs = eigh(Fmo)
         # Insert orbital energies into the right place
         update_orbe(orbs_in_shell,orbe,mo_orbe)
@@ -162,24 +163,24 @@ def get_fab(nclosed,nopen):
 
     return f,a,b
 
-def rohf(atoms,noccsh=None,f=None,a=None,b=None,**opts):
+def rohf_wag(atoms,noccsh=None,f=None,a=None,b=None,**kwargs):
     """\
-    rohf(atoms,noccsh=None,f=None,a=None,b=None,**opts):
+    rohf(atoms,noccsh=None,f=None,a=None,b=None,**kwargs):
         Restricted open shell HF driving routine
 
     atoms      A Molecule object containing the system of interest
     """
-    ConvCriteria = opts.get('ConvCriteria',1e-4)
-    MaxIter = opts.get('MaxIter',20)
-    DoAveraging = opts.get('DoAveraging',False)
-    verbose = opts.get('verbose',True)
+    ConvCriteria = kwargs.get('ConvCriteria',1e-4)
+    MaxIter = kwargs.get('MaxIter',2)
+    DoAveraging = kwargs.get('DoAveraging',False)
+    verbose = kwargs.get('verbose',True)
 
-    bfs = opts.get('bfs',None)
+    bfs = kwargs.get('bfs',None)
     if not bfs:
-        basis_data = opts.get('basis_data',None)
+        basis_data = kwargs.get('basis_data',None)
         bfs = getbasis(atoms,basis_data)
 
-    integrals = opts.get('integrals', None)
+    integrals = kwargs.get('integrals', None)
     if integrals:
         S,h,Ints = integrals
     else:
@@ -187,7 +188,7 @@ def rohf(atoms,noccsh=None,f=None,a=None,b=None,**opts):
 
     nel = atoms.get_nel()
 
-    orbs = opts.get('orbs',None)
+    orbs = kwargs.get('orbs',None)
     if not orbs: orbe,orbs = geigh(h,S)
 
     nclosed,nopen = atoms.get_closedopen()
@@ -219,12 +220,12 @@ def rohf(atoms,noccsh=None,f=None,a=None,b=None,**opts):
         Ds = get_os_dens(orbs,f,noccsh)
         Hs = get_os_hams(Ints,Ds)
         #orbs = rotion(orbs,h,Hs,nclosed,nopen)
-        Smo = simx(S,orbs)
-        print "Smo: \n",Smo[:4,:4]
+        Smo = ao2mo(S,orbs)
+        #printmat(Smo,'Smo')
         orbe,orbs = ocbse(orbs,h,Hs,f,a,b,noccsh)
         orthogonalize(orbs,S)
-        Smo = simx(S,orbs)
-        print "Smo: \n",Smo[:4,:4]
+        Smo = ao2mo(S,orbs)
+        #printmat(Smo,'Smo')
         # Compute the energy
         eone = 0
         for ish in range(nsh): eone += trace2(Ds[ish],h)
@@ -233,6 +234,123 @@ def rohf(atoms,noccsh=None,f=None,a=None,b=None,**opts):
         if abs(energy-eold) < ConvCriteria: break
         eold = energy
     return energy,orbe,orbs
+
+def rohf(atoms,**opts):
+    """\
+    rohf(atoms,**opts) - Restriced Open Shell Hartree Fock
+    atoms       A Molecule object containing the molecule
+    """
+
+    ConvCriteria = opts.get('ConvCriteria',1e-5)
+    MaxIter = opts.get('MaxIter',40)
+    DoAveraging = opts.get('DoAveraging',True)
+    averaging = opts.get('averaging',0.95)
+    verbose = opts.get('verbose',True)
+
+    bfs = opts.get('bfs',None)
+    if not bfs:
+        basis_data = opts.get('basis_data',None)
+        bfs = getbasis(atoms,basis_data)
+    nbf = len(bfs)
+
+    integrals = opts.get('integrals', None)
+    if integrals:
+        S,h,Ints = integrals
+    else:
+        S,h,Ints = getints(bfs,atoms)
+
+    nel = atoms.get_nel()
+
+    nalpha,nbeta = atoms.get_alphabeta()
+    S,h,Ints = getints(bfs,atoms)
+
+    orbs = opts.get('orbs',None)
+    if orbs is None:
+        orbe,orbs = geigh(h,S)
+    norbs = nbf
+
+    enuke = atoms.get_enuke()
+    eold = 0.
+
+    if verbose: print "ROHF calculation on %s" % atoms.name
+    if verbose: print "Nbf = %d" % nbf
+    if verbose: print "Nalpha = %d" % nalpha
+    if verbose: print "Nbeta = %d" % nbeta
+    if verbose: print "Averaging = %s" % DoAveraging
+    print "Optimization of HF orbitals"
+
+    for i in range(MaxIter):
+        if verbose: print "SCF Iteration:",i,"Starting Energy:",eold
+        Da = mkdens(orbs,0,nalpha)
+        Db = mkdens(orbs,0,nbeta)
+        if DoAveraging:
+            if i: 
+                Da = averaging*Da + (1-averaging)*Da0
+                Db = averaging*Db + (1-averaging)*Db0
+            Da0 = Da
+            Db0 = Db
+
+        Ja = getJ(Ints,Da)
+        Jb = getJ(Ints,Db)
+        Ka = getK(Ints,Da)
+        Kb = getK(Ints,Db)
+
+        Fa = h+Ja+Jb-Ka
+        Fb = h+Ja+Jb-Kb
+        energya = get_energy(h,Fa,Da)
+        energyb = get_energy(h,Fb,Db)
+        energy = (energya+energyb)/2 + enuke
+        print i,energy
+        if abs(energy-eold) < ConvCriteria: break
+        eold = energy
+
+        Fa = ao2mo(Fa,orbs)
+        Fb = ao2mo(Fb,orbs)
+
+        # Building the approximate Fock matrices in the MO basis
+        F = 0.5*(Fa+Fb)
+        K = Fb-Fa
+
+        # The Fock matrix now looks like
+        #      F-K    |  F + K/2  |    F
+        #   ---------------------------------
+        #    F + K/2  |     F     |  F - K/2
+        #   ---------------------------------
+        #       F     |  F - K/2  |  F + K
+
+        # Make explicit slice objects to simplify this
+        do = slice(0,nbeta)
+        so = slice(nbeta,nalpha)
+        uo = slice(nalpha,norbs)
+        F[do,do] -= K[do,do]
+        F[uo,uo] += K[uo,uo]
+        F[do,so] += 0.5*K[do,so]
+        F[so,do] += 0.5*K[so,do]
+        F[so,uo] -= 0.5*K[so,uo]
+        F[uo,so] -= 0.5*K[uo,so]
+
+        orbe,mo_orbs = eigh(F)
+        orbs = matrixmultiply(orbs,mo_orbs)
+        
+    if verbose:
+        print "Final ROHF energy for system %s is %f" % (atoms.name,energy)
+    return energy,orbe,orbs
+
+def ao2mo(M,C): return simx(M,C)
+def mo2ao(M,C,S):
+    SC = matrixmultiply(S,C)
+    return simx(M,SC,'t')
+
+def symmetrize(A): return (A+A.T)/2
+
+def printmat(mat,name='mat',**kwargs):
+    istart = kwargs.get('istart',0)
+    istop = kwargs.get('istop',4)
+    jstart = kwargs.get('jstart',0)
+    jstop = kwargs.get('jstop',4)
+    suppress = kwargs.get('suppress',True)
+    print name,'\n',mat[istart:istop,jstart:jstop]
+    return
 
 def orthogonalize(orbs,S):
     nbf,norb = orbs.shape
@@ -251,11 +369,11 @@ if __name__ == '__main__':
     he = Molecule('He',[(2,(0,0,0))])
     li = Molecule('Li',[(3,(0,0,0))],multiplicity=2)
     be = Molecule('Be',[(4,(0,0,0))],multiplicity=3)
-    mol = li
+    mol = be
     print "HF results (for comparison)"
     hfen,hforbe,hforbs = hf(mol,verbose=True)
-    print "RHF Energy = ",hfen
-    print "RHF spectrum: ",hforbe
+    print "HF Energy = ",hfen
+    print "HF spectrum: ",hforbe
     energy,orbe,orbs = rohf(mol)
     print "ROHF Energy = ",energy
     print "ROHF spectrum: ",orbe
