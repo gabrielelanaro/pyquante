@@ -36,6 +36,11 @@ class UnitTests(unittest.TestCase):
         li_uhf.iterate()
         self.assertAlmostEqual(li_uhf.energy,-7.431364,4)
 
+    def testLiROHF(self):
+        li_uhf = SCF(li,method='ROHF')
+        li_uhf.iterate()
+        self.assertAlmostEqual(li_uhf.energy,-7.431369,4)
+
     def testLiUHFFT(self):
         li_uhf = SCF(li,method="UHF",etemp=1e4)
         li_uhf.iterate()

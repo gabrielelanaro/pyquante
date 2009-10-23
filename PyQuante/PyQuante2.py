@@ -82,7 +82,7 @@ class Integrals:
     def __init__(self,molecule,basis_set,**opts):
         from PyQuante.Ints import getints
         integrals = opts.get("integrals",None)
-        nbf = len(basis_set.get())
+        nbf = len(basis_set)
         if integrals:
             self.S, self.h, self.ERI = integrals
         else:
@@ -113,6 +113,7 @@ class BasisSet:
         logging.info("%d basis functions" % len(self.bfs))
         return
     def __repr__(self): return 'Gaussian basis set with %d bfns' %  len(self.bfs)
+    def __len__(self): return len(self.bfs)
 
     def get(self): return self.bfs
 
@@ -123,6 +124,8 @@ def HamiltonianFactory(molecule,**opts):
     method = opts.get('method','HF')
     if method == "UHF":
         return UHFHamiltonian(molecule,**opts)
+    elif method == 'ROHF':
+        return ROHFHamiltonian(molecule,**opts)
     elif method == "DFT":
         return DFTHamiltonian(molecule,**opts)
     elif method == 'MINDO3':
@@ -319,6 +322,88 @@ class UHFHamiltonian(AbstractHamiltonian):
         self.Fa = self.h + self.J - self.Ka
         self.Fb = self.h + self.J - self.Kb
         self.energy = self.Eone + self.Ej + self.Exc + self.Enuke + self.entropy
+        return
+
+class ROHFHamiltonian(AbstractHamiltonian):
+    method='ROHF'
+    def __init__(self,molecule,**opts):
+        self.molecule = molecule
+        logging.info("ROHF calculation on system %s" % self.molecule.name)
+        self.basis_set = BasisSet(molecule,**opts)
+        self.integrals = Integrals(molecule,self.basis_set,**opts)
+        self.iterator = SCFIterator()
+        self.h = self.integrals.get_h()
+        self.S = self.integrals.get_S()
+        self.ERI = self.integrals.get_ERI()
+        self.Enuke = molecule.get_enuke()
+
+        self.orbs = None
+        self.norbs = len(self.basis_set)
+
+        self.nalpha,self.nbeta = molecule.get_alphabeta()
+        logging.info("Nalpha/beta = %d, %d" % (self.nalpha,self.nbeta))
+        return
+
+    def __repr__(self):
+        lstr = ['Hamiltonian constructed for method %s' % self.method,
+                repr(self.molecule),
+                repr(self.basis_set),
+                repr(self.iterator)]
+        return '\n'.join(lstr)
+
+    def get_energy(self): return self.energy
+    def iterate(self,**opts): return self.iterator.iterate(self,**opts)
+
+    def update(self,**opts):
+        from PyQuante.Ints import getJ,getK
+        from PyQuante.LA2 import geigh,mkdens
+        from PyQuante.rohf import ao2mo
+        from PyQuante.hartree_fock import get_energy
+        from PyQuante.NumWrap import eigh,matrixmultiply
+
+        if self.orbs is None:
+            self.orbe,self.orbs = geigh(self.h, self.S)
+        Da = mkdens(self.orbs,0,self.nalpha)
+        Db = mkdens(self.orbs,0,self.nbeta)
+
+        Ja = getJ(self.ERI,Da)
+        Jb = getJ(self.ERI,Db)
+        Ka = getK(self.ERI,Da)
+        Kb = getK(self.ERI,Db)
+        Fa = self.h+Ja+Jb-Ka
+        Fb = self.h+Ja+Jb-Kb
+        energya = get_energy(self.h,Fa,Da)
+        energyb = get_energy(self.h,Fb,Db)
+        self.energy = (energya+energyb)/2 + self.Enuke
+
+        Fa = ao2mo(Fa,self.orbs)
+        Fb = ao2mo(Fb,self.orbs)
+
+        # Building the approximate Fock matrices in the MO basis
+        F = 0.5*(Fa+Fb)
+        K = Fb-Fa
+
+        # The Fock matrix now looks like
+        #      F-K    |  F + K/2  |    F
+        #   ---------------------------------
+        #    F + K/2  |     F     |  F - K/2
+        #   ---------------------------------
+        #       F     |  F - K/2  |  F + K
+
+        # Make explicit slice objects to simplify this
+        do = slice(0,self.nbeta)
+        so = slice(self.nbeta,self.nalpha)
+        uo = slice(self.nalpha,self.norbs)
+        F[do,do] -= K[do,do]
+        F[uo,uo] += K[uo,uo]
+        F[do,so] += 0.5*K[do,so]
+        F[so,do] += 0.5*K[so,do]
+        F[so,uo] -= 0.5*K[so,uo]
+        F[uo,so] -= 0.5*K[uo,so]
+
+        self.orbe,mo_orbs = eigh(F)
+        self.orbs = matrixmultiply(self.orbs,mo_orbs)
+        
         return
 
 class MINDO3Hamiltonian(AbstractHamiltonian):

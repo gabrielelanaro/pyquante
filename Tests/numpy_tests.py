@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 def numpy_test():
-    from numpy import array,matrixmultiply,identity
-    from numpy.linalg import Heigenvalues
+    from numpy import array,identity
+    from numpy import dot as matrixmultiply
+    from numpy.linalg import eigh as Heigenvalues
 
     A = array([[1,2],[2,3]],'d')
     I = identity(2,'d')
