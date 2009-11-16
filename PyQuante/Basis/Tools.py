@@ -47,7 +47,7 @@ def importname(modulename, name):
 def get_basis_data(name):
     dc_name = name.lower()
     if dc_name not in basis_map:
-        raise "Can't import basis set %s" % dc_name
+        raise Exception("Can't import basis set %s" % dc_name)
     return importname(basis_map[dc_name],"basis_data")
 
 def split_comment(line):

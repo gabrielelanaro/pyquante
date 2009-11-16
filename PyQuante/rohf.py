@@ -19,8 +19,8 @@
 """
 from PyQuante.Ints import getbasis,getints,getJ,getK,get2JmK
 from PyQuante.LA2 import mkdens,geigh,trace2,simx
-from PyQuante.NumWrap import zeros,take,transpose,matrixmultiply,eigh,dot
-from PyQuante.NumWrap import identity
+from PyQuante.NumWrap import zeros,transpose,matrixmultiply,eigh,dot
+from PyQuante.NumWrap import identity,take
 from PyQuante.hartree_fock import get_energy
 from math import sqrt
 
@@ -31,7 +31,7 @@ def get_os_dens(orbs,f,noccsh):
     assert len(f) == len(noccsh)
     for ish in range(nsh):
         iend += noccsh[ish]
-        Ds.append(f[ish]*mkdens(orbs,istart,iend))
+        Ds.append(mkdens(orbs,istart,iend))
         istart = iend
     return Ds
 
@@ -54,7 +54,7 @@ def get_orbs_in_shell(ish,noccsh,norb):
     iend = sum(noccsh[:ish+1])
     return range(istart,iend)+range(vstart,vend)
 
-def get_open_shell_fock(ish,nsh,f,a,b,h,Hs,**kwargs):
+def get_os_fock(ish,nsh,f,a,b,h,Hs,**kwargs):
     nof = kwargs.get('nof',False)
     # Form the Fock matrix for shell ish:
     if nof:
@@ -73,14 +73,9 @@ def update_orbe(orbs_in_shell,orbe,mo_orbe):
         orbe[iorb] = mo_orbe[i]
     return
 
-def update_orbs(orbs_in_shell,orbs,mo_orbs):
-    nbf,nmo = orbs.shape
-    # Map the orbs back to the occupied space
+def update_orbs(orbs_in_shell,orbs,new_orbs):
     for i,iorb in enumerate(orbs_in_shell):
-        vec = zeros(nbf,'d')
-        for j,cj in enumerate(mo_orbs[i,:]):
-            vec += cj*orbs[:,orbs_in_shell[j]]
-        orbs[:,iorb] = vec
+        orbs[:,iorb] = new_orbs[:,i]
     return 
         
 def ocbse(orbs,h,Hs,f,a,b,noccsh):
@@ -90,37 +85,85 @@ def ocbse(orbs,h,Hs,f,a,b,noccsh):
     orbe = zeros(norb,'d')
     for ish in range(nsh):
         orbs_in_shell = get_orbs_in_shell(ish,noccsh,norb)
-        F = get_open_shell_fock(ish,nsh,f,a,b,h,Hs)
+        F = get_os_fock(ish,nsh,f,a,b,h,Hs)
         # form the orbital space of all of the orbs in ish plus the virts
-        T = take(orbs,orbs_in_shell,1)
+        T = orbs.take(orbs_in_shell,1)
+        #print "take worked? ",(T==get_orbs(orbs,orbs_in_shell)).all()
         # Transform to MO space
         Fmo = ao2mo(F,T)
         mo_orbe,mo_orbs = eigh(Fmo)
+        T = matrixmultiply(T,mo_orbs)
         # Insert orbital energies into the right place
         update_orbe(orbs_in_shell,orbe,mo_orbe)
-        update_orbs(orbs_in_shell,orbs,mo_orbs)
+        update_orbs(orbs_in_shell,orbs,T)
     return orbe,orbs
 
-def rotion(orbs,h,Hs,nclosed,nopen):
-    nham = (len(Hs)+1)/2
-    if nham == 1: return orbs # No effect for closed shell systems
-    rot = get_rot(h,Hs)
-    erot = expmat(rot)
+def get_orbs(orbs,orbs_in_shell):
+    "This should do the same thing as take(orbs,orbs_in_shell,1)"
+    A = zeros((orbs.shape[0],len(orbs_in_shell)),'d')
+    for i,iorb in enumerate(orbs_in_shell):
+        A[:,i] = orbs[:,iorb]
+    return A
 
-def get_rot(h,Hs,nclosed,nopen):
-    rot = zeros((nclosed+nopen,nclosed+nopen))
-    for j in range(nclosed,nclosed+nopen):
-        for i in range(nclosed):
+def rotion(orbs,h,Hs,f,a,b,noccsh):
+    nsh = len(noccsh)
+    nocc = sum(noccsh)
+    if nsh == 1: return orbs # No effect for closed shell systems
+    rot = get_rot(h,Hs,f,a,b,noccsh)
+    print "Rotation matrix:\n",rot
+    erot = expmat(rot)
+    print "Exp rotation matrix:\n",erot
+    T = matrixmultiply(orbs[:,:nocc],erot)
+    orbs[:,:nocc] = T
+    return orbs
+
+def expmats(A):
+    # For testing agains scipy
+    from scipy.linalg.matfuncs import expm
+    return expm(A)
+
+def expmat(A,**kwargs):
+    nmax = kwargs.get('nmax',12)
+    cut = kwargs.get('cut',1e-8)
+    E = identity(A.shape[0],'d')
+    D = E
+    for i in range(1,nmax):
+        D = matrixmultiply(D,A)/i
+        E += D
+        maxel = D.max()
+        if abs(maxel) < cut:
+            break
+    else:
+        print "Warning: expmat unconverged after %d iters: %g" % (nmax,maxel)
+    return E
+
+def get_sh(i,noccsh):
+    nsh = len(noccsh)
+    isum = 0
+    for ish in range(nsh):
+        isum += noccsh[ish]
+        if i < isum:
+            return i
+    return None
+
+def get_rot(h,Hs,f,a,b,noccsh):
+    nocc = sum(noccsh)
+    nsh = len(noccsh)
+    rot = zeros((nocc,nocc),'d')
+    for i in range(nocc):
+        ish = get_sh(i,noccsh)
+        for j in range(nocc):
+            jsh = get_sh(j,noccsh)
+            if jsh == ish: continue
             Wij = -0.5*(h[i,j]+Hs[0][i,j])
             Wii = -0.5*(h[i,i]+Hs[0][i,i])
             Wjj = -0.5*(h[j,j]+Hs[0][j,j])
-            for k in range(nham):
+            for k in range(nsh):
                 Wij = Wij - 0.5*Hs[2*i+1][i,j]
                 Wii = Wij - 0.5*Hs[2*i+1][i,i]
                 Wjj = Wij - 0.5*Hs[2*i+1][j,j]
-            jsh = j-nclosed
-            Jij = Hs[2*jsh+1][i,i]
-            Kij = Hs[2*jsh+2][i,i]
+            Jij = Hs[2*jsh][i,i]
+            Kij = Hs[2*jsh+1][i,i]
             gamma = Kij-0.5*(Kij+Jij)
             Xij = -Wij
             Bij = Wii-Wjj+gamma
@@ -171,7 +214,7 @@ def rohf_wag(atoms,noccsh=None,f=None,a=None,b=None,**kwargs):
     atoms      A Molecule object containing the system of interest
     """
     ConvCriteria = kwargs.get('ConvCriteria',1e-4)
-    MaxIter = kwargs.get('MaxIter',2)
+    MaxIter = kwargs.get('MaxIter',25)
     DoAveraging = kwargs.get('DoAveraging',False)
     verbose = kwargs.get('verbose',True)
 
@@ -189,7 +232,8 @@ def rohf_wag(atoms,noccsh=None,f=None,a=None,b=None,**kwargs):
     nel = atoms.get_nel()
 
     orbs = kwargs.get('orbs',None)
-    if not orbs: orbe,orbs = geigh(h,S)
+    if orbs is None:
+        orbe,orbs = geigh(h,S)
 
     nclosed,nopen = atoms.get_closedopen()
     nocc = nopen+nclosed
@@ -219,18 +263,13 @@ def rohf_wag(atoms,noccsh=None,f=None,a=None,b=None,**kwargs):
     for i in range(MaxIter):
         Ds = get_os_dens(orbs,f,noccsh)
         Hs = get_os_hams(Ints,Ds)
-        #orbs = rotion(orbs,h,Hs,nclosed,nopen)
-        Smo = ao2mo(S,orbs)
-        #printmat(Smo,'Smo')
+        orbs = rotion(orbs,h,Hs,f,a,b,noccsh)
         orbe,orbs = ocbse(orbs,h,Hs,f,a,b,noccsh)
         orthogonalize(orbs,S)
-        Smo = ao2mo(S,orbs)
-        #printmat(Smo,'Smo')
         # Compute the energy
-        eone = 0
-        for ish in range(nsh): eone += trace2(Ds[ish],h)
+        eone = sum(f[ish]*trace2(Ds[ish],h) for ish in range(nsh))
         energy = enuke+eone+sum(orbe[:nocc])
-        print "energy = ",energy
+        print energy,eone
         if abs(energy-eold) < ConvCriteria: break
         eold = energy
     return energy,orbe,orbs
@@ -299,8 +338,10 @@ def rohf(atoms,**opts):
         Fb = h+Ja+Jb-Kb
         energya = get_energy(h,Fa,Da)
         energyb = get_energy(h,Fb,Db)
+        eone = (trace2(Da,h) + trace2(Db,h))/2
+        etwo = (trace2(Da,Fa) + trace2(Db,Fb))/2
         energy = (energya+energyb)/2 + enuke
-        print i,energy
+        print i,energy,eone,etwo,enuke
         if abs(energy-eold) < ConvCriteria: break
         eold = energy
 
@@ -354,12 +395,15 @@ def printmat(mat,name='mat',**kwargs):
 
 def orthogonalize(orbs,S):
     nbf,norb = orbs.shape
+    Smax = 0
     for i in range(norb):
         for j in range(i):
             Sij = dot(orbs[:,j],dot(S,orbs[:,i]))
+            Smax = max(Smax,abs(Sij))
             orbs[:,i] -= Sij*orbs[:,j]
         Sii = dot(orbs[:,i],dot(S,orbs[:,i]))
         orbs[:,i] /= sqrt(Sii)
+    print "Max orthogonalized element = ",Smax
     return 
 
 if __name__ == '__main__': 
@@ -369,12 +413,13 @@ if __name__ == '__main__':
     he = Molecule('He',[(2,(0,0,0))])
     li = Molecule('Li',[(3,(0,0,0))],multiplicity=2)
     be = Molecule('Be',[(4,(0,0,0))],multiplicity=3)
-    mol = be
+    mol = li
     print "HF results (for comparison)"
-    hfen,hforbe,hforbs = hf(mol,verbose=True)
-    print "HF Energy = ",hfen
-    print "HF spectrum: ",hforbe
     energy,orbe,orbs = rohf(mol)
     print "ROHF Energy = ",energy
-    print "ROHF spectrum: ",orbe
+    print "ROHF spectrum: \n",orbe
+    #energy,orbe,orbs = rohf_wag(mol,orbs=orbs)
+    energy,orbe,orbs = rohf_wag(mol)
+    print "ROHF Energy = ",energy
+    print "ROHF spectrum: \n",orbe
     

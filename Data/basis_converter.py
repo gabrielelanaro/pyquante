@@ -54,5 +54,7 @@ def main(*args):
             pprint(basis)
     return
 
-if __name__ == "__main__": main('basis_631.dat')
+if __name__ == "__main__":
+    #main('basis_631.dat')
+    main('basis-rn-ano.dat')
     

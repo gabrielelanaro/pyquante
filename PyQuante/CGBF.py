@@ -20,7 +20,6 @@ from NumWrap import zeros
 from math import sqrt
 
 from PyQuante.cints import overlap
-#from PyQuante.crys import contr_coulomb
 from PyQuante.chgp import contr_coulomb
 
 class CGBF:
@@ -203,7 +202,7 @@ def coulomb(a,b,c,d):
                             c.exps(),c.coefs(),c.pnorms(),c.origin(),c.powers(),
                             d.exps(),d.coefs(),d.pnorms(),d.origin(),d.powers())
     except:
-        raise "Two-electron integral failed"
+        raise Exception("Two-electron integral failed")
     return a.norm()*b.norm()*c.norm()*d.norm()*Jij
 
 def three_center(a,b,c):

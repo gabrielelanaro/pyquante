@@ -695,7 +695,7 @@ static void gcf(double *gammcf, double a, double x, double *gln){
 /*  coefficients, etc., used by the contracted code. Decided to  */
 /*  allocate this all at once rather than doing mallocs/frees. */
 /*  Only speeds things up a little, but every little bit counts, I guess. */
-#define MAX_PRIMS_PER_CONT (10)
+#define MAX_PRIMS_PER_CONT (30)
 double work[12*MAX_PRIMS_PER_CONT];
 
 static PyObject *contr_coulomb_wrap(PyObject *self,PyObject *args){
