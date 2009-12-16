@@ -1,0 +1,451 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PyQuante: Python Quantum Chemistry &mdash; PyQuante v1.6.3 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.6.3',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyQuante v1.6.3 documentation" href="" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="">PyQuante v1.6.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pyquante-python-quantum-chemistry">
+<h1>PyQuante: Python Quantum Chemistry<a class="headerlink" href="#pyquante-python-quantum-chemistry" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+</ul>
+</div>
+<div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="http://pyquante.sourceforge.net">PyQuante</a> (<a class="reference external" href="http://sourceforge.net/projects/pyquante">Sourceforge Project Page</a>) is an open-source suite of
+programs for developing quantum chemistry methods. The program is
+written in the Python programming language, but has many
+&#8220;rate-determining&#8221; modules also written in C for speed. The resulting
+code, though not as fast as <a class="reference external" href="http://www.schrodinger.org">Jaguar</a>, <a class="reference external" href="http://www.nwchem.org">NWChem</a>, <a class="reference external" href="http://www.gaussian.com">Gaussian</a>, or <a class="reference external" href="http://mpqc.net">MPQC</a>, is
+much easier to understand and modify. The goal of this software is not
+necessarily to provide a working quantum chemistry program (although
+it will hopefully do that), but rather to provide a well-engineered
+set of tools so that scientists can construct their own quantum
+chemistry programs without going through the tedium of having to write
+every low-level routine.</p>
+<div class="section" id="current-features">
+<h2>Current features<a class="headerlink" href="#current-features" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Hartree-Fock: Restriced closed-shell HF and unrestricted open-shell
+HF;</li>
+<li>DFT: LDA (SVWN, Xalpha) and GGA (BLYP) functionals;</li>
+<li>Optimized-effective potential DFT;</li>
+<li>Two electron integrals computed using Huzinaga, Rys, or
+Head-Gordon/Pople techniques; C and Python interfaces to all of
+these programs;</li>
+<li>MINDO/3 semiempirical energies and forces;</li>
+<li>CI-Singles excited states;</li>
+<li>DIIS convergence acceleration;</li>
+<li>Second-order Moller-Plesset (MP2) perturbation theory.</li>
+</ul>
+</div>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>See the <a class="reference internal" href="#cookbook">cookbook</a> for short snippets to get started, and also see the
+tests subdirectory of the code distribution. Subscription to the
+<a class="reference external" href="https://lists.sourceforge.net/lists/listinfo/pyquante-users">pyquante-users</a> mailing list is highly recommended for further
+support. Additionally, people interested in day-to-day development
+issues in <a class="reference external" href="http://pyquante.sourceforge.net">PyQuante</a> are urged to subscribe to the <a class="reference external" href="https://lists.sourceforge.net/lists/listinfo/pyquante-devel">pyquante-devel</a>
+mailing list.</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>The software is released under the modified BSD license, which means
+that everyone is free to download, use, and modify the code without
+charge.</p>
+</div>
+</div>
+<div class="section" id="download-and-installation">
+<h1>Download and Installation<a class="headerlink" href="#download-and-installation" title="Permalink to this headline">¶</a></h1>
+<p>The program is available in tarball form from the PyQuante
+<a class="reference external" href="http://sourceforge.net/projects/pyquante">Sourceforge Project Page</a>.
+The SVN archive for the program is also at Sourceforge, and is
+recommended for anyone wanting to stay current with the codebase;
+information on how to access the SVN archive is available here.</p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>You will need to have a recent (2.3 or later) version of Python
+installed on your computer; this can be installed by following
+instructions on the Python Website, and binary packages exist for most
+platforms. Additionally, you need the multidimensional arrays and
+linear algebra libraries provided by either Numeric or numpy; both of
+these can be downloaded from the Numpy Website.</p>
+<p>Given the choice between Numeric and Numpy, please use Numpy. The
+library is much newer, and future developments will center on this
+library. Although we will make every effort to continue supporting
+Numeric, Numpy is what we will use as the default, and should be much
+more stable with PyQuante.</p>
+<p>Note: If you&#8217;re installing on a Macintosh, I recommend the Framework
+binaries of Python and Numpy from the Pythonmac Packages Directory.</p>
+<p>On Ubuntu and other Linux distros, several additional packages may be
+required, including python-dev, python-numpy, and possibly
+python-matplotlib.</p>
+</div>
+<div class="section" id="building-the-code">
+<h2>Building the Code<a class="headerlink" href="#building-the-code" title="Permalink to this headline">¶</a></h2>
+<p>Much of the code is written in Python, and thus is platform
+independent. The rest of the code now uses the python distutils
+procedures for building the C modules:</p>
+<div class="highlight-python"><pre>% (sudo) python setup.py install</pre>
+</div>
+<p>and the code should build and install properly. I&#8217;ve tested this on
+Linux, Windows/Cygwin, and Macintosh OS X. Installing the module like
+this will insure that the modules are installed where Python can find
+them.</p>
+<p>However, the above assumes that you have write priviledges in the
+Python site-packages directory, possibly via the _sudo_ command. If
+you do not have access to these directories, create an install
+directory where you do have access and pass this directory to the
+install process:</p>
+<div class="highlight-python"><pre>% mkdir ~/pyquante_lib
+% python setup.py install --install-lib=~/pyquante_lib
+% export PYTHONPATH=~/pyquante_lib:$PYTHONPATH</pre>
+</div>
+<p>Email me (<a class="reference external" href="mailto:rmuller&#37;&#52;&#48;sandia&#46;gov">rmuller<span>&#64;</span>sandia<span>&#46;</span>gov</a>) if you need additional help.</p>
+</div>
+</div>
+<div class="section" id="using-the-code">
+<h1>Using the Code<a class="headerlink" href="#using-the-code" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="cookbook">
+<h2>Cookbook<a class="headerlink" href="#cookbook" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="specifying-a-molecule">
+<h3>Specifying a molecule<a class="headerlink" href="#specifying-a-molecule" title="Permalink to this headline">¶</a></h3>
+<p>You can specify a molecule using the following code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyQuante.Molecule</span> <span class="kn">import</span> <span class="n">Molecule</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h2</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="s">&#39;h2&#39;</span><span class="p">,[(</span><span class="mf">1</span><span class="p">,(</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">)),(</span><span class="mf">1</span><span class="p">,(</span><span class="mf">1.4</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">))])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="simple-hf-calculation">
+<h3>Simple HF calculation<a class="headerlink" href="#simple-hf-calculation" title="Permalink to this headline">¶</a></h3>
+<p>Using the above definition, you can run a simple HF calculation via:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyQuante.hartree_fock</span> <span class="kn">import</span> <span class="n">rhf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">en</span><span class="p">,</span><span class="n">orbe</span><span class="p">,</span><span class="n">orbs</span> <span class="o">=</span> <span class="n">rhf</span><span class="p">(</span><span class="n">h2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;HF Energy = &quot;</span><span class="p">,</span><span class="n">en</span>
+</pre></div>
+</div>
+<p>We&#8217;re also working on a more object-oriented interface (called
+<em>PyQuante 2</em>) that will hopefully decrease the amount of duplicated
+code in the project. You can run the same calculation as above using:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyQuante</span> <span class="kn">import</span> <span class="n">SCF</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">solver</span> <span class="o">=</span> <span class="n">SCF</span><span class="p">(</span><span class="n">h2</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s">&quot;HF&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">solver</span><span class="o">.</span><span class="n">iterate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;HF Result = &quot;</span><span class="p">,</span><span class="n">solver</span><span class="o">.</span><span class="n">energy</span>
+</pre></div>
+</div>
+<p>With the new solvers, you can run with an alternate basis set (say,
+STO-3G), via:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">solver</span> <span class="o">=</span> <span class="n">SCF</span><span class="p">(</span><span class="n">h2</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s">&quot;HF&quot;</span><span class="p">,</span><span class="n">basis</span><span class="o">=</span><span class="s">&quot;sto-3g&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">solver</span><span class="o">.</span><span class="n">iterate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;HF Result = &quot;</span><span class="p">,</span><span class="n">solver</span><span class="o">.</span><span class="n">energy</span>
+</pre></div>
+</div>
+<p>At this geometry (R=1.4 bohr) this should produce an energy of -1.1313
+hartrees. Note that you may also import Molecule and SCF directly
+from the PyQuante namespace now.</p>
+</div>
+<div class="section" id="simple-dft-calculation">
+<h3>Simple DFT calculation<a class="headerlink" href="#simple-dft-calculation" title="Permalink to this headline">¶</a></h3>
+<p>We can run a DFT calculation on the same molecule by running
+the commands:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyQuante.dft</span> <span class="kn">import</span> <span class="n">dft</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">en</span><span class="p">,</span><span class="n">orbe</span><span class="p">,</span><span class="n">orbs</span> <span class="o">=</span> <span class="n">dft</span><span class="p">(</span><span class="n">h2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will produce an energy of -1.1353 hartrees. Again, the 6-31G**
+basis set is used by default. In DFT calculations, the functional
+defaults to SVWN (LDA). To use a different functional, you can type:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">en</span><span class="p">,</span><span class="n">orbe</span><span class="p">,</span><span class="n">orbs</span> <span class="o">=</span> <span class="n">dft</span><span class="p">(</span><span class="n">h2</span><span class="p">,</span><span class="n">functional</span><span class="o">=</span><span class="s">&#39;BLYP&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which will produce an energy of -1.1665 hartrees.</p>
+<p>With the new solvers this calculation could be run via:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyQuante</span> <span class="kn">import</span> <span class="n">SCF</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lda</span> <span class="o">=</span> <span class="n">SCF</span><span class="p">(</span><span class="n">h2</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s">&quot;DFT&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lda</span><span class="o">.</span><span class="n">iterate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blyp</span> <span class="o">=</span> <span class="n">SCF</span><span class="p">(</span><span class="n">h2</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s">&quot;DFT&quot;</span><span class="p">,</span><span class="n">functional</span><span class="o">=</span><span class="s">&quot;BLYP&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">blyp</span><span class="o">.</span><span class="n">iterate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;DFT Results: LDA = </span><span class="si">%f</span><span class="s">  BLYP = </span><span class="si">%f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lda</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span><span class="n">blyp</span><span class="o">.</span><span class="n">energy</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="users-guide">
+<h2>Users Guide<a class="headerlink" href="#users-guide" title="Permalink to this headline">¶</a></h2>
+<p>Here we provide a bit more detail about the PyQuante functions.</p>
+<div class="section" id="molecules">
+<h3>Molecules<a class="headerlink" href="#molecules" title="Permalink to this headline">¶</a></h3>
+<p>PyQuante programs use the Molecule object to contain the information
+about the molecule - the atoms, the charge, and the multiplicity. The
+syntax for Molecule is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Molecule</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">atomlist</span><span class="p">,</span><span class="o">**</span><span class="n">opts</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The atomlist is a list of atomic numbers and a tuple with the x,y,z
+coordinates. Here&#8217;s an example for constructing a molecule object for
+water:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">h2o</span><span class="o">=</span><span class="n">Molecule</span><span class="p">(</span><span class="s">&#39;h2o&#39;</span><span class="p">,[(</span><span class="mf">8</span><span class="p">,(</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">)),(</span><span class="mf">1</span><span class="p">,(</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">)),(</span><span class="mf">1</span><span class="p">,(</span><span class="mf">0</span><span class="p">,</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">0</span><span class="p">))],</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;Angstrom&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(of course the bond-angle is 90 degrees here, and is thus completely
+wrong, but this is only an example). Here&#8217;s an example for the
+hydroxide ion that shows the use of the charge field:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">oh</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="s">&#39;OH-&#39;</span><span class="p">,[(</span><span class="mf">8</span><span class="p">,(</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">)),(</span><span class="mf">1</span><span class="p">,(</span><span class="mf">0.96</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">))],</span> <span class="n">units</span> <span class="o">=</span> <span class="s">&#39;Angstrom&#39;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=-</span><span class="mf">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here&#8217;s an example for the NO molecule that shows the use of the multiplicity field:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">no</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="s">&#39;NO&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="mf">7</span><span class="p">,(</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">)),(</span><span class="mf">8</span><span class="p">,(</span><span class="mf">2.12955</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">))],</span><span class="n">multiplicity</span><span class="o">=</span><span class="mf">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As of version 1.5.1, you may construct molecules using the atomic symbol instead of the atomic number, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">h2o</span><span class="o">=</span><span class="n">Molecule</span><span class="p">(</span><span class="s">&#39;h2o&#39;</span><span class="p">,[(</span><span class="s">&#39;O&#39;</span><span class="p">,(</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">)),</span> <span class="p">(</span><span class="s">&#39;H&#39;</span><span class="p">,(</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">)),(</span><span class="s">&#39;H&#39;</span><span class="p">,(</span><span class="mf">0</span><span class="p">,</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">0</span><span class="p">))],</span><span class="n">units</span> <span class="o">=</span> <span class="s">&#39;Angstrom&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Currently, the semiempirical code uses an extended verion of the
+Molecule object that adds a variety of additional features. Upcoming
+releases will hopefully unify the use of the Molecule between the HF,
+DFT, and semiempirical codes.</p>
+<p>As of version 1.6, you can directly import Molecule from the PyQuante
+module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyQuante</span> <span class="kn">import</span> <span class="n">Molecule</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="basis-sets">
+<h3>Basis Sets<a class="headerlink" href="#basis-sets" title="Permalink to this headline">¶</a></h3>
+<p>Basis functions are constructed using the CGBF (contracted Gaussian
+basis function) object, which, in turn, uses the PGBF (primitive
+Gaussian basis function) object. Basis sets are simply lists of
+CGBF&#8217;s. In the Ints module there is a convenience function getbasis
+that constructs basis sets for different molecules. The syntax for the
+getbasis function is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">bfs</span> <span class="o">=</span> <span class="n">getbasis</span><span class="p">(</span><span class="n">molecule</span><span class="p">,</span><span class="n">basis_data</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The basis data can be input from a number of data files in the
+PyQuante suite. Here are some of the more commonly used basis sets:</p>
+<ul class="simple">
+<li>basis_631ss The Pople 6-31G** basis set</li>
+<li>basis_sto3g The Pople STO-3G basis set</li>
+<li>basis_321 The Pople 3-21G basis set</li>
+<li>basis_ccpvtz The Dunning cc-pVTZ basis set</li>
+<li>basis_ccpvtzmf The Dunning cc-pVTZ(-f) basis set (cc-pVTZ without
+f-functions)</li>
+</ul>
+<p>For, example, to construct a basis set for the h2o object for water
+created above, we would call:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">basis_631ss</span> <span class="kn">import</span> <span class="n">basis_data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bfs</span> <span class="o">=</span> <span class="n">getbasis</span><span class="p">(</span><span class="n">h2o</span><span class="p">,</span><span class="n">basis_data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the basis_data argument is omitted, the program will default to
+6-31G**. As of version 1.6, you may now specify a string for the
+basis_data argument, e.g. &#8220;6-31G**&#8221; so you may do things like:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">bfs</span> <span class="o">=</span> <span class="n">getbasis</span><span class="p">(</span><span class="n">h2o</span><span class="p">,</span><span class="s">&#39;6-31G**&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bfs2</span> <span class="o">=</span> <span class="n">getbasis</span><span class="p">(</span><span class="n">h2o</span><span class="p">,</span><span class="s">&#39;sto-3g&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>and so on. Use PyQuante.Basis.Tools.basis_map.keys() for a list of the
+supported basis strings.</p>
+</div>
+<div class="section" id="integrals">
+<h3>Integrals<a class="headerlink" href="#integrals" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="one-electron-integrals">
+<h4>One-electron integrals<a class="headerlink" href="#one-electron-integrals" title="Permalink to this headline">¶</a></h4>
+<p>The one-electron integrals consist of the overlap matrix S, the
+kinetic energy matrix T, and the nuclear attraction matrix V. The
+latter two are often combined into the one-electron Hamiltonian h.</p>
+<p>There are a number of helper functions in the Ints module:</p>
+<ul class="simple">
+<li>getT: Form the kinetic energy matrix T</li>
+<li>getS: Form the overlap matrix S</li>
+<li>getV: Form the nuclear attraction matrix V</li>
+<li>get1ints: Form and return S,h</li>
+<li>getints: Form and return S,h,Ints, where Ints are the two-electron
+integrals (see below).</li>
+</ul>
+<p>These functions actually call instance functions of the CGBF objects,
+which can themselves be used individually. Some of the instance
+functions in the CGBF module use functions in the pyints and cints
+modules.</p>
+</div>
+<div class="section" id="two-electron-integrals">
+<h4>Two-electron integrals<a class="headerlink" href="#two-electron-integrals" title="Permalink to this headline">¶</a></h4>
+<p>The two-electron integrals consist of the electron-electron Coulomb
+repulsion interactions. The easiest way to construct these is to use
+the functions in the Ints module</p>
+<ul class="simple">
+<li>get2ints: Form and return Ints, where Ints are the two-electron
+integrals (see below).</li>
+<li>getints: Form and return S,h,Ints, where Ints are the two-electron
+integrals.</li>
+</ul>
+<p>The Ints object (not to be confused with the Ints module, which is
+just a collection of helper functions) consists of a list of the
+two-electron integrals.</p>
+<p>There are actually three different methods to computing the
+two-electron integrals, and the helper functions in the Ints module
+default to one of these functions.</p>
+<ul class="simple">
+<li>Huzinaga&#8217;s original method for computing integrals over Gaussians.</li>
+<li>Rys quadrature.</li>
+<li>Head-Gordon and Pople&#8217;s recurrance relations.</li>
+</ul>
+<p>There are python versions of these methods implemented in the modules
+pyints, rys, and hgp, respectively. For speed, there are also
+C-versions of these modules in cints, crys, and chgp. The program
+defaults to the Coulomb repulsion routines in crys, since these are
+the fastest (although recent improvements to chgp make it not much
+slower).</p>
+<p>The coulomb_repulsion function is the same in all six modules:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">integral</span> <span class="o">=</span> <span class="n">coulomb_repulsion</span><span class="p">((</span><span class="n">xa</span><span class="p">,</span><span class="n">ya</span><span class="p">,</span><span class="n">za</span><span class="p">),</span><span class="n">norma</span><span class="p">,(</span><span class="n">la</span><span class="p">,</span><span class="n">ma</span><span class="p">,</span><span class="n">na</span><span class="p">),</span><span class="n">alphaa</span><span class="p">,</span>
+<span class="go">                      (xb,yb,zb),normb,(lb,mb,nb),alphab,</span>
+<span class="go">                      (xc,yc,zc),normc,(lc,mc,nc),alphac,</span>
+<span class="go">                      (xd,yd,zd),normd,(ld,md,nd),alphad)</span>
+</pre></div>
+</div>
+<p>This routine computes the Coulomb repulsion integral between four
+basis functions. The terms xi, yi, zi are the origins of the different
+basis functions. The terms normi are the normalization constants for
+the basis function. The terms li, mi, ni are the exponents of the
+Cartesian powers for the basis function. And the terms alphai are the
+Gaussian exponents.</p>
+</div>
+</div>
+<div class="section" id="hartree-fock-calculations">
+<h3>Hartree-Fock Calculations<a class="headerlink" href="#hartree-fock-calculations" title="Permalink to this headline">¶</a></h3>
+<p>This section is under construction. In the meantime, see the PyQuante
+Cookbook recipe <a class="reference internal" href="#simple-hf-calculation">Simple HF calculation</a> for an example of a HF
+calculation using PyQuante.</p>
+</div>
+<div class="section" id="density-functional-theory-calculations">
+<h3>Density Functional Theory Calculations<a class="headerlink" href="#density-functional-theory-calculations" title="Permalink to this headline">¶</a></h3>
+<p>This section is under construction. In the meantime, see the PyQuante
+Cookbook recipe <a class="reference internal" href="#simple-dft-calculation">Simple DFT calculation</a> for an example of a DFT
+calculation using PyQuante.</p>
+</div>
+<div class="section" id="semiempirical-calculations">
+<h3>Semiempirical Calculations<a class="headerlink" href="#semiempirical-calculations" title="Permalink to this headline">¶</a></h3>
+<p>This section is under construction.</p>
+<p>The material on this page is copyright (c) 2009, Richard P. Muller.
+Reuse of the material on this page is permitted under either the Gnu
+Free Documentation License or the CC-BY-SA License.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">PyQuante: Python Quantum Chemistry</a><ul>
+</ul>
+</li>
+<li><a class="reference external" href="#overview">Overview</a><ul>
+<li><a class="reference external" href="#current-features">Current features</a></li>
+<li><a class="reference external" href="#getting-started">Getting Started</a></li>
+<li><a class="reference external" href="#license">License</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#download-and-installation">Download and Installation</a><ul>
+<li><a class="reference external" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference external" href="#building-the-code">Building the Code</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#using-the-code">Using the Code</a><ul>
+<li><a class="reference external" href="#cookbook">Cookbook</a><ul>
+<li><a class="reference external" href="#specifying-a-molecule">Specifying a molecule</a></li>
+<li><a class="reference external" href="#simple-hf-calculation">Simple HF calculation</a></li>
+<li><a class="reference external" href="#simple-dft-calculation">Simple DFT calculation</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#users-guide">Users Guide</a><ul>
+<li><a class="reference external" href="#molecules">Molecules</a></li>
+<li><a class="reference external" href="#basis-sets">Basis Sets</a></li>
+<li><a class="reference external" href="#integrals">Integrals</a><ul>
+<li><a class="reference external" href="#one-electron-integrals">One-electron integrals</a></li>
+<li><a class="reference external" href="#two-electron-integrals">Two-electron integrals</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#hartree-fock-calculations">Hartree-Fock Calculations</a></li>
+<li><a class="reference external" href="#density-functional-theory-calculations">Density Functional Theory Calculations</a></li>
+<li><a class="reference external" href="#semiempirical-calculations">Semiempirical Calculations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/index.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="">PyQuante v1.6.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2009, Rick Muller.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+    </div>
+  </body>
+</html>
