@@ -7,6 +7,7 @@ from PyQuante.NumWrap import eigh,zeros,matrixmultiply,transpose,dot,\
      identity,diagonal,array
 from math import sqrt
 
+
 ### General functions required for the davidson solver
 def appendColumn(A,newVec):
     """\

@@ -13,7 +13,7 @@
 from Constants import bohr2ang,e2,ev2kcal
 from MINDO3_Parameters import axy,Bxy
 from math import sqrt,exp,pow
-from NumWrap import zeros,eigh
+from NumWrap import zeros,eigh,dot,array
 from LA2 import mkdens,trace2
 from PyQuante.Convergence import SimpleAverager
 A0 = bohr2ang
@@ -593,13 +593,14 @@ def numeric_forces(atoms,D=None,**opts):
                 Forces[iat,idir] = (Ep-E0)/dx
     if return_energy: return E0,Forces
     return Forces
-            
+
 def forces(atoms,D):
     "Compute analytic forces on list of atoms"
     print "Warning: Analytical forces not tested yet!"
     nat = len(atoms)
     Forces = zeros((nat,3),'d')
     # Loop over all pairs of atoms and compute the force between them
+    #cached_dSij = full_dSij(atoms)
     for iat in range(nat):
         atomi = atoms[iat]
         for jat in range(iat):

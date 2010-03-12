@@ -16,7 +16,7 @@
 """
 
 import PGBF
-from NumWrap import zeros
+from NumWrap import zeros,array
 from math import sqrt
 
 from PyQuante.cints import overlap

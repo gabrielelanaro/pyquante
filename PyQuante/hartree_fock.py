@@ -18,6 +18,8 @@ from Ints import get2JmK,getbasis,getints,getJ,getK
 from Convergence import DIIS
 import logging
 
+logger = logging.getLogger("pyquante") # Hack!!!
+
 from math import sqrt,pow
 from PyQuante.cints import dist
 
@@ -85,11 +87,20 @@ def rhf(atoms,**opts):
     MaxIter = opts.get('MaxIter',20)
     DoAveraging = opts.get('DoAveraging',False)
     ETemp = opts.get('ETemp',False)
+    
+    logger.info("RHF calculation on %s" % atoms.name)
 
     bfs = opts.get('bfs',None)
     if not bfs:
         basis_data = opts.get('basis_data',None)
         bfs = getbasis(atoms,basis_data)
+
+    nclosed,nopen = atoms.get_closedopen()
+    nocc = nclosed
+    assert(nopen == 0), "SCF currently only works for closed-shell systems"
+    
+    logger.info("Nbf = %d" % len(bfs))
+    logger.info("Nclosed = %d" % nclosed)
 
     integrals = opts.get('integrals', None)
     if integrals:
@@ -102,18 +113,12 @@ def rhf(atoms,**opts):
     orbs = opts.get('orbs',None)
     if orbs is None: orbe,orbs = geigh(h,S)
 
-    nclosed,nopen = atoms.get_closedopen()
-    nocc = nclosed
-    assert(nopen == 0), "SCF currently only works for closed-shell systems"
     enuke = atoms.get_enuke()
     eold = 0.
 
-    logging.info("RHF calculation on %s" % atoms.name)
-    logging.info("Nbf = %d" % len(bfs))
-    logging.info("Nclosed = %d" % nclosed)
-
+    
     if DoAveraging:
-        logging.info("Using DIIS averaging")
+        logger.info("Using DIIS averaging")
         avg = DIIS(S)
     logging.debug("Optimization of HF orbitals")
     for i in range(MaxIter):
@@ -133,13 +138,14 @@ def rhf(atoms,**opts):
             energy += entropy
         logging.debug("%d %f" % (i,energy))
         if abs(energy-eold) < ConvCriteria: break
+        logger.info("Iteration: %d    Energy: %f    EnergyVar: %f"%(i,energy,abs(energy-eold)))
         eold = energy
     if i < MaxIter:
-        logging.info("PyQuante converged in %d iterations" % i)
+        logger.info("PyQuante converged in %d iterations" % i)
     else:
-        logging.warning("PyQuante failed to converge after %d iterations"
+        logger.warning("PyQuante failed to converge after %d iterations"
                             % MaxIter)
-    logging.info("Final HF energy for system %s is %f" % (atoms.name,energy))
+    logger.info("Final HF energy for system %s is %f" % (atoms.name,energy))
     return energy,orbe,orbs
 
 def uhf(atoms,**opts):
@@ -194,11 +200,11 @@ def uhf(atoms,**opts):
     enuke = atoms.get_enuke()
     eold = 0.
 
-    logging.info("UHF calculation on %s" % atoms.name)
-    logging.info("Nbf = %d" % len(bfs))
-    logging.info("Nalpha = %d" % nalpha)
-    logging.info("Nbeta = %d" % nbeta)
-    logging.info("Averaging = %s" % DoAveraging)
+    logger.info("UHF calculation on %s" % atoms.name)
+    logger.info("Nbf = %d" % len(bfs))
+    logger.info("Nalpha = %d" % nalpha)
+    logger.info("Nbeta = %d" % nbeta)
+    logger.info("Averaging = %s" % DoAveraging)
     logging.debug("Optimization of HF orbitals")
     for i in range(MaxIter):
         if verbose: print "SCF Iteration:",i,"Starting Energy:",eold
@@ -240,10 +246,10 @@ def uhf(atoms,**opts):
         Ej = 0.5*trace2(Dab,Ja+Jb)
         Ek = -0.5*(trace2(Da,Ka)+trace2(Db,Kb))
         if ETemp: energy += entropy
-        logging.debug("%d %f %f %f %f" % (i,energy,Eone,Ej,Ek))
+        logger.debug("%d %f %f %f %f" % (i,energy,Eone,Ej,Ek))
         if abs(energy-eold) < ConvCriteria: break
         eold = energy
-    logging.info("Final UHF energy for system %s is %f" % (atoms.name,energy))
+    logger.info("Final UHF energy for system %s is %f" % (atoms.name,energy))
     return energy,(orbea,orbeb),(orbsa,orbsb)
 
 
@@ -373,7 +379,7 @@ def uhf_fixed_occ(atoms,occa, occb,**opts):
         eold = energy
         if i==(MaxIter-1):
             print "Warning: Reached maximum number of SCF cycles may want to rerun calculation with more SCF cycles"
-    logging.info("Final UHF energy for system %s is %f" % (atoms.name,energy))
+    logger.info("Final UHF energy for system %s is %f" % (atoms.name,energy))
     return energy,(orbea,orbeb),(orbsa,orbsb)
 
 

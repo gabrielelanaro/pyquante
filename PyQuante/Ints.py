@@ -14,6 +14,9 @@ from CGBF import CGBF,coulomb
 from NumWrap import zeros,dot,reshape
 from PyQuante.cints import ijkl2intindex as intindex
 from PyQuante.Basis.Tools import get_basis_data
+import logging
+
+logger = logging.getLogger("pyquante")
 
 sym2powerlist = {
     'S' : [(0,0,0)],
@@ -56,8 +59,10 @@ def getbasis(atoms,basis_data=None,**opts):
     return bfs
 
 def getints(bfs,atoms):
+    logger.info("Calculating Integrals...")
     S,h = get1ints(bfs,atoms)
     Ints = get2ints(bfs)
+    logger.info("Integrals Calculated.")
     return S,h,Ints
 
 def get1ints(bfs,atoms):

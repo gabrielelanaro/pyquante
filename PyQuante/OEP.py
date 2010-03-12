@@ -12,6 +12,7 @@ from PyQuante.fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs,\
      get_entropy,mkdens_fermi
 import logging
 
+logger = logging.getLogger("pyquante")
 gradcall=0
 
 class EXXSolver:
@@ -518,7 +519,7 @@ def oep_hf_an(atoms,orbs,**opts):
         # This should actually be a pseudoinverse...
         b = solve(X,c)
 
-    logging.info("Final OEP energy = %f" % energy)
+    logger.info("Final OEP energy = %f" % energy)
     return energy,orbe,orbs
 
 def oep_uhf_an(atoms,orbsa,orbsb,**opts):
@@ -678,7 +679,7 @@ def oep_uhf_an(atoms,orbsa,orbsb,**opts):
         # This should actually be a pseudoinverse...
         bb = solve(X,c)
 
-    logging.info("Final OEP energy = %f" % energy)
+    logger.info("Final OEP energy = %f" % energy)
     return energy,(orbea,orbeb),(orbsa,orbsb)
 
 def test_old():

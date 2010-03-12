@@ -15,6 +15,7 @@ from math import exp,log
 from Constants import Kboltz
 from LA2 import mkdens
 import logging
+logger = logging.getLogger("pyquante")
 
 def mkdens_fermi(nel,orbe,orbs,e_temp):
     """
@@ -103,10 +104,10 @@ def get_efermi(nel,orbe,temp,**opts):
     nhigh = 2*sum(get_fermi_occs(ehigh,orbe,temp))
 
     if nlow > nel:
-        logging.error("elow incorrect %f -> %f " % (elow,nlow))
+        logger.error("elow incorrect %f -> %f " % (elow,nlow))
         raise Exception("elow incorrect %f -> %f " % (elow,nlow))
     if nhigh < nel:
-        logging.error("ehigh incorrect %f -> %f " % (ehigh,nhigh))
+        logger.error("ehigh incorrect %f -> %f " % (ehigh,nhigh))
         raise Exception("ehigh incorrect %f -> %f " % (ehigh,nhigh))
 
     for i in range(100):

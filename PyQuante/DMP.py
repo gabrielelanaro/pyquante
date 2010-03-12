@@ -27,6 +27,8 @@ from PyQuante.LA2 import mkdens,SymOrth,simx
 from PyQuante.hartree_fock import get_energy
 from PyQuante.NumWrap import matrixmultiply,identity,trace,zeros,eigh,solve
 
+logger = logging.getLogger("pyquante")
+
 class AbstractDMP:
     "AbstractDMP - Functions common to all density matrix purifiers"
     method = "Abstract"
@@ -71,10 +73,10 @@ class AbstractDMP:
             
     def print_iter_end_info(self):
         if self.iter == self.maxit-1:
-            logging.warning("Too many iterations taken in %s: %d" %
+            logger.warning("Too many iterations taken in %s: %d" %
                             (self.method,self.iter))
         else:
-            logging.debug("%s converged in %d iterations" % 
+            logger.debug("%s converged in %d iterations" % 
                             (self.method,self.iter))
         return
     def print_iter_info(self): return

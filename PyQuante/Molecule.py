@@ -250,6 +250,30 @@ def ParseXYZLines(name,xyz_lines,**opts):
         atoms.append((sym,xyz))
     return Molecule(name,atoms,**opts)
 
+def mol2mpqc(mol,**kwargs):
+    xc = kwargs.get('xc','B3LYP')
+    basis = kwargs.get('basis','6-31g**')
+    lines = ['%% %s calculation with MPQC' % xc,
+             'optimize: yes',
+             'method: KS (xc=%s)' % xc,
+             'basis: %s' % basis,
+             'molecule:']
+    for atom in mol:
+        atno,xyz = atom.atuple()
+        xyz = toAng(xyz)
+        lines.append("   %4s %12.6f %12.6f %12.6f" %
+                     (symbol[atno],xyz[0],xyz[1],xyz[2]))
+    return "\n".join(lines)
+
+def mol2xyz(mol,**kwargs):
+    lines = ['%d\nXYZ File for %s' % (len(mol),mol.name)]
+    for atom in mol:
+        atno,xyz = atom.atuple()
+        xyz = toAng(xyz)
+        lines.append("   %4s %12.6f %12.6f %12.6f" %
+                     (symbol[atno],xyz[0],xyz[1],xyz[2]))
+    return "\n".join(lines)
+
 if __name__ == '__main__':
     h2o = Molecule('h2o',
                    [('O',(0.,0.,0.)),('H',(1.,0.,0.)),('H',(0.,1.,0.))],

@@ -33,3 +33,4 @@ PyQuante: Python Quantum Chemistry
 from PyQuante.Molecule import Molecule
 from PyQuante.PyQuante2 import SCF
 from PyQuante.CGBF import CGBF
+from PyQuante.logger import configure_output
