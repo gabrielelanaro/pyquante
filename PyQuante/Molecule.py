@@ -17,6 +17,15 @@ from PyQuante.Atom import Atom
 from PyQuante.Element import sym2no
 from PyQuante.Constants import bohr2ang,ang2bohr
 
+from PyQuante.settings import openbabel_enabled
+
+if openbabel_enabled:
+    from PyQuante.IO.OpenBabelBackend import BabelFileHandler as FileHandler
+    from PyQuante.IO.OpenBabelBackend import BabelStringHandler as StringHandler
+else:
+    from PyQuante.IO.PyQuanteBackend import PyQuanteStringHandler as StringHandler
+    from PyQuante.IO.PyQuanteBackend import PyQuanteFileHandler as FileHandler
+
 allowed_units = ['bohr','angs']
 
 class Molecule:
@@ -45,7 +54,37 @@ class Molecule:
         self.charge = int(opts.get('charge',0))
         self.multiplicity = int(opts.get('multiplicity',1))
         return
+    # Alternative constructors
+    # @classmethod <- python2.4
+    def from_file(cls, filename, format=None,name="molecule"):
+        hand = FileHandler()
+        data = hand.read(filename,format)
+        atomlist = [ (at.atno, at.r) for at in data.molecule.atoms ]
+        return cls( name, atomlist = atomlist,
+                    charge = data.molecule.charge,
+                    multiplicity = data.molecule.multiplicity)
+    from_file = classmethod(from_file) # old decorator syntax
 
+    def from_string(cls, string, format, name="molecule"):
+        hand = StringHandler()
+        data = hand.read(string,format)
+        atomlist = [ (at.atno, at.r) for at in data.molecule.atoms ]
+        return cls( name, atomlist = atomlist,
+                    charge = data.molecule.charge,
+                    multiplicity = data.molecule.multiplicity)
+    from_string = classmethod(from_string) # old decorator syntax
+    def as_string(self,format="xyz"):
+        from PyQuante.IO.Data import Data
+        data = Data()
+        data.molecule = self
+        hand = StringHandler()
+        return hand.write(data, format)
+    def dump(self,filename, format=None):
+        from PyQuante.IO.Data import Data
+        data = Data()
+        data.molecule = self
+        hand = FileHandler()
+        hand.write(filename,data,format)
     def __repr__(self):
         outl = "\n%s: %s" % (self.__class__.__name__,self.name)
         for atom in self.atoms:

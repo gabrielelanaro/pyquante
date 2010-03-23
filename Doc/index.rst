@@ -45,7 +45,7 @@ Getting Started
 See the cookbook_ for short snippets to get started, and also see the
 tests subdirectory of the code distribution. Subscription to the
 pyquante-users_ mailing list is highly recommended for further
-support. Additionally, people interested in day-to-day development
+nsupport. Additionally, people interested in day-to-day development
 issues in PyQuante_ are urged to subscribe to the pyquante-devel_
 mailing list.
 
@@ -98,7 +98,8 @@ procedures for building the C modules::
 
 and the code should build and install properly. I've tested this on
 Linux, Windows/Cygwin, and Macintosh OS X. Installing the module like
-this will insure that the modules are installed where Python can find
+tsetxkbmap -option ctrl:nocaps       # Make Caps Lock a Control key
+his will insure that the modules are installed where Python can find
 them.
 
 However, the above assumes that you have write priviledges in the
@@ -126,6 +127,7 @@ You can specify a molecule using the following code::
 
     >>> from PyQuante.Molecule import Molecule
     >>> h2 = Molecule('h2',[(1,(0,0,0)),(1,(1.4,0,0))])
+
 
 Simple HF calculation
 .....................
@@ -263,6 +265,33 @@ basis_data argument, e.g. "6-31G**" so you may do things like::
 
 and so on. Use PyQuante.Basis.Tools.basis_map.keys() for a list of the
 supported basis strings.
+
+Output
+..................
+
+If you want to check the output of PyQuante and to have a feedback of
+what's happening, you can use the `configure_output` routine before
+launching the calculation::
+
+    >>> from PyQuante import configure_output
+    >>> configure_output()
+
+This will display to the standar output the log of PyQuante.  You can
+also specify other ways to handle the output::
+
+    >>> configure_output("calc.log") # save also in a log file and display on stdout 
+    >>> configure_output(stream=sys.stderr) # Redirect the output on a generic stream
+    >>> configure_output(filename="h2.log", stream=None) # Suppress stream output
+
+Internally, the output is handled using the `logging` module
+(available in the standard library), you can access the logger used by
+PyQuante in this way::
+
+    >>> import logging
+    >>> logger = logging.getLogger("pyquante")
+
+Further information about using Loggers:
+http://docs.python.org/library/logging.html
 
 Integrals
 .........
