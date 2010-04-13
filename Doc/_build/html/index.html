@@ -48,7 +48,7 @@
 programs for developing quantum chemistry methods. The program is
 written in the Python programming language, but has many
 &#8220;rate-determining&#8221; modules also written in C for speed. The resulting
-code, though not as fast as <a class="reference external" href="http://www.schrodinger.org">Jaguar</a>, <a class="reference external" href="http://www.nwchem.org">NWChem</a>, <a class="reference external" href="http://www.gaussian.com">Gaussian</a>, or <a class="reference external" href="http://mpqc.net">MPQC</a>, is
+code, though not as fast as <a class="reference external" href="http://www.schrodinger.com">Jaguar</a>, <a class="reference external" href="http://www.nwchem.org">NWChem</a>, <a class="reference external" href="http://www.gaussian.com">Gaussian</a>, or <a class="reference external" href="http://www.mpqc.org">MPQC</a>, is
 much easier to understand and modify. The goal of this software is not
 necessarily to provide a working quantum chemistry program (although
 it will hopefully do that), but rather to provide a well-engineered
@@ -76,7 +76,7 @@ these programs;</li>
 <p>See the <a class="reference internal" href="#cookbook">cookbook</a> for short snippets to get started, and also see the
 tests subdirectory of the code distribution. Subscription to the
 <a class="reference external" href="https://lists.sourceforge.net/lists/listinfo/pyquante-users">pyquante-users</a> mailing list is highly recommended for further
-support. Additionally, people interested in day-to-day development
+nsupport. Additionally, people interested in day-to-day development
 issues in <a class="reference external" href="http://pyquante.sourceforge.net">PyQuante</a> are urged to subscribe to the <a class="reference external" href="https://lists.sourceforge.net/lists/listinfo/pyquante-devel">pyquante-devel</a>
 mailing list.</p>
 </div>
@@ -122,7 +122,8 @@ procedures for building the C modules:</p>
 </div>
 <p>and the code should build and install properly. I&#8217;ve tested this on
 Linux, Windows/Cygwin, and Macintosh OS X. Installing the module like
-this will insure that the modules are installed where Python can find
+tsetxkbmap -option ctrl:nocaps       # Make Caps Lock a Control key
+his will insure that the modules are installed where Python can find
 them.</p>
 <p>However, the above assumes that you have write priviledges in the
 Python site-packages directory, possibly via the _sudo_ command. If
@@ -147,9 +148,36 @@ install process:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">h2</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="s">&#39;h2&#39;</span><span class="p">,[(</span><span class="mf">1</span><span class="p">,(</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">)),(</span><span class="mf">1</span><span class="p">,(</span><span class="mf">1.4</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">))])</span>
 </pre></div>
 </div>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; .mine
+You can specify the units (either &#8216;Bohr&#8217; or &#8216;Angstrom&#8217;):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">h2</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="s">&#39;H2&#39;</span><span class="p">,</span>
+<span class="go">                 [(1,  (0.00000000,     0.00000000,     0.36628549)),</span>
+<span class="go">                  (1,  (0.00000000,     0.00000000,    -0.36628549))],</span>
+<span class="go">                 units=&#39;Angstrom&#39;)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h2o</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="s">&#39;H2O&#39;</span><span class="p">,</span>
+<span class="go">                   [(8,  ( 0.00000000,     0.00000000,     0.04851804)),</span>
+<span class="go">                    (1,  ( 0.75300223,     0.00000000,    -0.51923377)),</span>
+<span class="go">                    (1,  (-0.75300223,     0.00000000,    -0.51923377))],</span>
+<span class="go">                   units=&#39;Angstrom&#39;)</span>
+</pre></div>
 </div>
-<div class="section" id="simple-hf-calculation">
-<h3>Simple HF calculation<a class="headerlink" href="#simple-hf-calculation" title="Permalink to this headline">¶</a></h3>
+<p>You can also specify the spin multiplicity:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">li</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="s">&#39;Li&#39;</span><span class="p">,</span><span class="n">atomlist</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">3</span><span class="p">,(</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">,</span><span class="mf">0</span><span class="p">))],</span> <span class="n">multiplicity</span><span class="o">=</span><span class="mf">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As well as charge:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">oh</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="s">&#39;OH&#39;</span><span class="p">,</span>
+<span class="go">                  [(8,  (0.00000000,     0.00000000,    -0.08687037)),</span>
+<span class="go">                   (1,  (0.00000000,     0.00000000,     0.86464814))],</span>
+<span class="go">                   units=&#39;Angstrom&#39;,</span>
+<span class="go">                   charge=-1)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>&gt;&gt;&gt;&gt;&gt;&gt;&gt; .r145
+Simple HF calculation
+.....................</p>
 <p>Using the above definition, you can run a simple HF calculation via:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyQuante.hartree_fock</span> <span class="kn">import</span> <span class="n">rhf</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">en</span><span class="p">,</span><span class="n">orbe</span><span class="p">,</span><span class="n">orbs</span> <span class="o">=</span> <span class="n">rhf</span><span class="p">(</span><span class="n">h2</span><span class="p">)</span>
@@ -197,9 +225,45 @@ defaults to SVWN (LDA). To use a different functional, you can type:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">lda</span><span class="o">.</span><span class="n">iterate</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">blyp</span> <span class="o">=</span> <span class="n">SCF</span><span class="p">(</span><span class="n">h2</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s">&quot;DFT&quot;</span><span class="p">,</span><span class="n">functional</span><span class="o">=</span><span class="s">&quot;BLYP&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">blyp</span><span class="o">.</span><span class="n">iterate</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;DFT Results: LDA = </span><span class="si">%f</span><span class="s">  BLYP = </span><span class="si">%f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lda</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span><span class="n">blyp</span><span class="o">.</span><span class="n">energy</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;DFT Results: LDA = &quot;</span><span class="p">,</span><span class="n">lda</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span><span class="s">&quot; BLYP = &quot;</span><span class="p">,</span><span class="n">blyp</span><span class="o">.</span><span class="n">energy</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="open-shell-hartree-fock">
+<h3>Open Shell Hartree Fock<a class="headerlink" href="#open-shell-hartree-fock" title="Permalink to this headline">¶</a></h3>
+<p>You can perform unrestricted (UHF) open shell HF calculations:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">li_uhf</span> <span class="o">=</span> <span class="n">SCF</span><span class="p">(</span><span class="n">li</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s">&#39;UHF&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">li_uhf</span><span class="o">.</span><span class="n">iterate</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(which should give an energy of -7.332 h). You can also perform
+restricted open shell HF (ROHF) calculations:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">li_uhf</span> <span class="o">=</span> <span class="n">SCF</span><span class="p">(</span><span class="n">li</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s">&#39;ROHF&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">li_uhf</span><span class="o">.</span><span class="n">iterate</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(which should give an energy of -7.4314 h).</p>
+</div>
+<div class="section" id="mp2-calculations">
+<h3>MP2 Calculations<a class="headerlink" href="#mp2-calculations" title="Permalink to this headline">¶</a></h3>
+<p>The following will perform an MP2 calculation on H2:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">hf</span> <span class="o">=</span> <span class="n">SCF</span><span class="p">(</span><span class="n">h2</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s">&quot;HF&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hf</span><span class="o">.</span><span class="n">iterate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nclosed</span><span class="p">,</span><span class="n">nopen</span> <span class="o">=</span> <span class="n">h2</span><span class="o">.</span><span class="n">get_closedopen</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nbf</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hf</span><span class="o">.</span><span class="n">basis_set</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emp2</span> <span class="o">=</span> <span class="n">MP2</span><span class="p">(</span><span class="n">hf</span><span class="o">.</span><span class="n">ERI</span><span class="p">,</span><span class="n">hf</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">orbs</span><span class="p">,</span><span class="n">hf</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">orbe</span><span class="p">,</span><span class="n">nclosed</span><span class="p">,</span><span class="n">nbf</span><span class="o">-</span><span class="n">nclosed</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(which should give an energy of -1.1577 for the hf.energy + emp2 part).</p>
+</div>
+<div class="section" id="mindo-3-calculations">
+<h3>MINDO/3 Calculations<a class="headerlink" href="#mindo-3-calculations" title="Permalink to this headline">¶</a></h3>
+<p>PyQuante can also perform semiempirical MINDO/3 calculations:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">h2o_mindo3</span> <span class="o">=</span> <span class="n">SCF</span><span class="p">(</span><span class="n">h2o</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s">&quot;MINDO3&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h2o_mindo3</span><span class="o">.</span><span class="n">iterate</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(which should give an energy of -53.5176 kcal/mol).</p>
 </div>
 </div>
 <div class="section" id="users-guide">
@@ -257,11 +321,11 @@ getbasis function is:</p>
 <p>The basis data can be input from a number of data files in the
 PyQuante suite. Here are some of the more commonly used basis sets:</p>
 <ul class="simple">
-<li>basis_631ss The Pople 6-31G** basis set</li>
-<li>basis_sto3g The Pople STO-3G basis set</li>
-<li>basis_321 The Pople 3-21G basis set</li>
-<li>basis_ccpvtz The Dunning cc-pVTZ basis set</li>
-<li>basis_ccpvtzmf The Dunning cc-pVTZ(-f) basis set (cc-pVTZ without
+<li>basis_631ss: The Pople 6-31G** basis set</li>
+<li>basis_sto3g: The Pople STO-3G basis set</li>
+<li>basis_321: The Pople 3-21G basis set</li>
+<li>basis_ccpvtz: The Dunning cc-pVTZ basis set</li>
+<li>basis_ccpvtzmf: The Dunning cc-pVTZ(-f) basis set (cc-pVTZ without
 f-functions)</li>
 </ul>
 <p>For, example, to construct a basis set for the h2o object for water
@@ -279,6 +343,32 @@ basis_data argument, e.g. &#8220;6-31G**&#8221; so you may do things like:</p>
 </div>
 <p>and so on. Use PyQuante.Basis.Tools.basis_map.keys() for a list of the
 supported basis strings.</p>
+</div>
+<div class="section" id="output">
+<h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
+<p>If you want to check the output of PyQuante and to have a feedback of
+what&#8217;s happening, you can use the <cite>configure_output</cite> routine before
+launching the calculation:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyQuante</span> <span class="kn">import</span> <span class="n">configure_output</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">configure_output</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will display to the standar output the log of PyQuante.  You can
+also specify other ways to handle the output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">configure_output</span><span class="p">(</span><span class="s">&quot;calc.log&quot;</span><span class="p">)</span> <span class="c"># save also in a log file and display on stdout</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">configure_output</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span> <span class="c"># Redirect the output on a generic stream</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">configure_output</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&quot;h2.log&quot;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span> <span class="c"># Suppress stream output</span>
+</pre></div>
+</div>
+<p>Internally, the output is handled using the <cite>logging</cite> module
+(available in the standard library), you can access the logger used by
+PyQuante in this way:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&quot;pyquante&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Further information about using Loggers:
+<a class="reference external" href="http://docs.python.org/library/logging.html">http://docs.python.org/library/logging.html</a></p>
 </div>
 <div class="section" id="integrals">
 <h3>Integrals<a class="headerlink" href="#integrals" title="Permalink to this headline">¶</a></h3>
@@ -347,7 +437,7 @@ Gaussian exponents.</p>
 <div class="section" id="hartree-fock-calculations">
 <h3>Hartree-Fock Calculations<a class="headerlink" href="#hartree-fock-calculations" title="Permalink to this headline">¶</a></h3>
 <p>This section is under construction. In the meantime, see the PyQuante
-Cookbook recipe <a class="reference internal" href="#simple-hf-calculation">Simple HF calculation</a> for an example of a HF
+Cookbook recipe <a href="#id1"><span class="problematic" id="id2">`Simple HF calculation`_</span></a> for an example of a HF
 calculation using PyQuante.</p>
 </div>
 <div class="section" id="density-functional-theory-calculations">
@@ -358,12 +448,63 @@ calculation using PyQuante.</p>
 </div>
 <div class="section" id="semiempirical-calculations">
 <h3>Semiempirical Calculations<a class="headerlink" href="#semiempirical-calculations" title="Permalink to this headline">¶</a></h3>
-<p>This section is under construction.</p>
-<p>The material on this page is copyright (c) 2009, Richard P. Muller.
-Reuse of the material on this page is permitted under either the Gnu
-Free Documentation License or the CC-BY-SA License.</p>
+<p>This section is under construction. In the meantime, see the PyQuante
+Cookbook recipe <a class="reference internal" href="#mindo-3-calculations">MINDO/3 Calculations</a> for an example of a MINDO/3
+calculation.</p>
 </div>
 </div>
+</div>
+<div class="section" id="todo-wish-list">
+<h1>Todo/Wish List<a class="headerlink" href="#todo-wish-list" title="Permalink to this headline">¶</a></h1>
+<p>Some near term desired improvements include:</p>
+<ul class="simple">
+<li>Expansion of the ROHF functions to include GVB;</li>
+<li>Debugging of the Becke exchange;</li>
+<li>Faster atomic grids for DFT;</li>
+</ul>
+<p>and some longer term additions would include:</p>
+<ul class="simple">
+<li>Simple CISD and CCSD calculation;</li>
+<li>Hybrid screened exchange and B3LYP;</li>
+<li>Divide and conquer diagonalization;</li>
+<li>Pseudopotentials;</li>
+<li>Expanded force and structure optimization.</li>
+</ul>
+</div>
+<div class="section" id="copyright-information">
+<h1>Copyright information<a class="headerlink" href="#copyright-information" title="Permalink to this headline">¶</a></h1>
+<p>PyQuante is copyright (c) 2004, Richard P. Muller, all rights
+reserved. Versions 1.2 and later are covered by the modified BSD
+license.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:</p>
+<ul class="simple">
+<li>Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the
+distribution.</li>
+<li>Neither the name of Dr. Muller nor the names of its contributors
+may be used to endorse or promote products derived from this
+software without specific prior written permission.</li>
+</ul>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+&#8220;AS IS&#8221; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<p>You may contact the author via email at <a class="reference external" href="mailto:rmuller&#37;&#52;&#48;sandia&#46;gov">rmuller<span>&#64;</span>sandia<span>&#46;</span>gov</a></p>
+<p>The documentation material on this page is copyright (c) 2009, Richard
+P. Muller. Reuse of the material on this page is permitted under
+either the Gnu Free Documentation License or the CC-BY-SA License.</p>
 </div>
 
 
@@ -391,13 +532,16 @@ Free Documentation License or the CC-BY-SA License.</p>
 <li><a class="reference external" href="#using-the-code">Using the Code</a><ul>
 <li><a class="reference external" href="#cookbook">Cookbook</a><ul>
 <li><a class="reference external" href="#specifying-a-molecule">Specifying a molecule</a></li>
-<li><a class="reference external" href="#simple-hf-calculation">Simple HF calculation</a></li>
 <li><a class="reference external" href="#simple-dft-calculation">Simple DFT calculation</a></li>
+<li><a class="reference external" href="#open-shell-hartree-fock">Open Shell Hartree Fock</a></li>
+<li><a class="reference external" href="#mp2-calculations">MP2 Calculations</a></li>
+<li><a class="reference external" href="#mindo-3-calculations">MINDO/3 Calculations</a></li>
 </ul>
 </li>
 <li><a class="reference external" href="#users-guide">Users Guide</a><ul>
 <li><a class="reference external" href="#molecules">Molecules</a></li>
 <li><a class="reference external" href="#basis-sets">Basis Sets</a></li>
+<li><a class="reference external" href="#output">Output</a></li>
 <li><a class="reference external" href="#integrals">Integrals</a><ul>
 <li><a class="reference external" href="#one-electron-integrals">One-electron integrals</a></li>
 <li><a class="reference external" href="#two-electron-integrals">Two-electron integrals</a></li>
@@ -410,6 +554,8 @@ Free Documentation License or the CC-BY-SA License.</p>
 </li>
 </ul>
 </li>
+<li><a class="reference external" href="#todo-wish-list">Todo/Wish List</a></li>
+<li><a class="reference external" href="#copyright-information">Copyright information</a></li>
 </ul>
 
             <h3>This Page</h3>

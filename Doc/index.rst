@@ -19,10 +19,10 @@ chemistry programs without going through the tedium of having to write
 every low-level routine.
 
 .. _PyQuante: http://pyquante.sourceforge.net
-.. _Jaguar: http://www.schrodinger.org
+.. _Jaguar: http://www.schrodinger.com
 .. _NWChem: http://www.nwchem.org
 .. _Gaussian: http://www.gaussian.com
-.. _MPQC: http://mpqc.net
+.. _MPQC: http://www.mpqc.org
 .. _`Sourceforge Project Page`: http://sourceforge.net/projects/pyquante
 
 Current features
@@ -128,7 +128,36 @@ You can specify a molecule using the following code::
     >>> from PyQuante.Molecule import Molecule
     >>> h2 = Molecule('h2',[(1,(0,0,0)),(1,(1.4,0,0))])
 
+<<<<<<< .mine
+You can specify the units (either 'Bohr' or 'Angstrom')::
 
+  >>> h2 = Molecule('H2',
+                   [(1,  (0.00000000,     0.00000000,     0.36628549)),
+                    (1,  (0.00000000,     0.00000000,    -0.36628549))],
+                   units='Angstrom')
+
+  >>> h2o = Molecule('H2O',
+                     [(8,  ( 0.00000000,     0.00000000,     0.04851804)),
+                      (1,  ( 0.75300223,     0.00000000,    -0.51923377)),
+                      (1,  (-0.75300223,     0.00000000,    -0.51923377))],
+                     units='Angstrom')
+
+You can also specify the spin multiplicity::
+
+  >>> li = Molecule('Li',atomlist = [(3,(0,0,0))], multiplicity=2)
+
+As well as charge::
+
+  >>> oh = Molecule('OH',
+                    [(8,  (0.00000000,     0.00000000,    -0.08687037)),
+                     (1,  (0.00000000,     0.00000000,     0.86464814))],
+                     units='Angstrom',
+                     charge=-1)
+
+
+=======
+
+>>>>>>> .r145
 Simple HF calculation
 .....................
 
@@ -182,7 +211,48 @@ With the new solvers this calculation could be run via::
     >>> lda.iterate()
     >>> blyp = SCF(h2,method="DFT",functional="BLYP")
     >>> blyp.iterate()
-    >>> print "DFT Results: LDA = %f  BLYP = %f" % (lda.energy,blyp.energy)
+    >>> print "DFT Results: LDA = ",lda.energy," BLYP = ",blyp.energy
+
+Open Shell Hartree Fock
+.......................
+
+You can perform unrestricted (UHF) open shell HF calculations::
+
+  >>> li_uhf = SCF(li,method='UHF')
+  >>> li_uhf.iterate()
+
+(which should give an energy of -7.332 h). You can also perform
+restricted open shell HF (ROHF) calculations::
+
+   >>> li_uhf = SCF(li,method='ROHF')
+   >>> li_uhf.iterate()
+
+(which should give an energy of -7.4314 h).
+
+MP2 Calculations
+................
+
+The following will perform an MP2 calculation on H2::
+
+  >>> hf = SCF(h2,method="HF")
+  >>> hf.iterate()
+  >>> nclosed,nopen = h2.get_closedopen()
+  >>> nbf = len(hf.basis_set.get())
+  >>> emp2 = MP2(hf.ERI,hf.solver.orbs,hf.solver.orbe,nclosed,nbf-nclosed)
+
+(which should give an energy of -1.1577 for the hf.energy + emp2 part).
+
+
+MINDO/3 Calculations
+....................
+
+PyQuante can also perform semiempirical MINDO/3 calculations::
+
+   >>> h2o_mindo3 = SCF(h2o,method="MINDO3")
+   >>> h2o_mindo3.iterate()
+
+(which should give an energy of -53.5176 kcal/mol).
+
 
 Users Guide
 -----------
@@ -243,11 +313,11 @@ getbasis function is::
 The basis data can be input from a number of data files in the
 PyQuante suite. Here are some of the more commonly used basis sets: 
 
-* basis_631ss The Pople 6-31G** basis set
-* basis_sto3g The Pople STO-3G basis set
-* basis_321 The Pople 3-21G basis set
-* basis_ccpvtz The Dunning cc-pVTZ basis set
-* basis_ccpvtzmf The Dunning cc-pVTZ(-f) basis set (cc-pVTZ without
+* basis_631ss: The Pople 6-31G** basis set
+* basis_sto3g: The Pople STO-3G basis set
+* basis_321: The Pople 3-21G basis set
+* basis_ccpvtz: The Dunning cc-pVTZ basis set
+* basis_ccpvtzmf: The Dunning cc-pVTZ(-f) basis set (cc-pVTZ without
   f-functions) 
 
 For, example, to construct a basis set for the h2o object for water
@@ -376,12 +446,65 @@ calculation using PyQuante.
 
 Semiempirical Calculations
 ..........................
-This section is under construction.
+This section is under construction. In the meantime, see the PyQuante
+Cookbook recipe `MINDO/3 Calculations`_ for an example of a MINDO/3
+calculation. 
 
+Todo/Wish List
+==============
 
+Some near term desired improvements include:
 
+* Expansion of the ROHF functions to include GVB;
+* Debugging of the Becke exchange;
+* Faster atomic grids for DFT;
 
-The material on this page is copyright (c) 2009, Richard P. Muller.
-Reuse of the material on this page is permitted under either the Gnu
-Free Documentation License or the CC-BY-SA License.
+and some longer term additions would include:
+
+* Simple CISD and CCSD calculation;
+* Hybrid screened exchange and B3LYP;
+* Divide and conquer diagonalization;
+* Pseudopotentials;
+* Expanded force and structure optimization.
+
+Copyright information
+=====================
+
+PyQuante is copyright (c) 2004, Richard P. Muller, all rights
+reserved. Versions 1.2 and later are covered by the modified BSD
+license.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met: 
+
+- Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+
+- Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the
+  distribution.
+
+- Neither the name of Dr. Muller nor the names of its contributors
+  may be used to endorse or promote products derived from this
+  software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  
+
+You may contact the author via email at rmuller@sandia.gov
+
+The documentation material on this page is copyright (c) 2009, Richard
+P. Muller. Reuse of the material on this page is permitted under
+either the Gnu Free Documentation License or the CC-BY-SA License.
 
