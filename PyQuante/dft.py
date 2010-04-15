@@ -49,9 +49,9 @@ def getXCold(gr,nel,bfgrid,**opts):
     Exc = dot(weight,exc)
     wv = weight*vxc  # Combine w*v in a vector for multiplication by bfs
     
-    for a in range(nbf):
+    for a in xrange(nbf):
         wva = wv*bfgrid[:,a] 
-        for b in range(nbf):
+        for b in xrange(nbf):
             Vxc[a,b] = dot(wva,bfgrid[:,b])
     return Exc,Vxc
 
@@ -90,9 +90,9 @@ def getXC(gr,nel,bfgrid,**opts):
     # First do the part that doesn't depend upon gamma
     nbf = gr.nbf()
     Fxc = zeros((nbf,nbf),'d')
-    for a in range(nbf):
+    for a in xrange(nbf):
         wva = wv*bfgrid[:,a] 
-        for b in range(nbf):
+        for b in xrange(nbf):
             Fxc[a,b] = dot(wva,bfgrid[:,b])
 
     # Now do the gamma-dependent part.
@@ -201,7 +201,7 @@ def dft(atoms,**opts):
 
     # Converge the LDA density for the system:
     if verbose: print "Optimization of DFT density"
-    for i in range(MaxIter):
+    for i in xrange(MaxIter):
         if ETemp:
             efermi = get_efermi(nel,orbe,ETemp)
             occs = get_fermi_occs(efermi,orbe,ETemp)
@@ -310,7 +310,7 @@ def udft(atoms,**opts):
 
     # Converge the LDA density for the system:
     if verbose: print "Optimization of DFT density"
-    for i in range(MaxIter):
+    for i in xrange(MaxIter):
         Da = mkdens(orbsa,0,nalpha)
         Db = mkdens(orbsb,0,nbeta)
 
@@ -356,7 +356,7 @@ def mk_auger_dens(c, occ):
     #count how many states we were given
     nstates = occ.shape[0]
     D = 0.0
-    for i in range(nstates):
+    for i in xrange(nstates):
         D += occ[i]*dot( c[:,i:i+1], transpose(c[:,i:i+1]))
     #pad_out(D)
     return D
@@ -447,7 +447,7 @@ def dft_fixed_occ(atoms,occs,**opts):
 
     # Converge the LDA density for the system:
     if verbose: print "Optimization of DFT density"
-    for i in range(MaxIter):
+    for i in xrange(MaxIter):
         #print "SCF Iteration:",i,"Starting Energy:",eold
         #save the starting orbitals
         oldorbs=orbs
@@ -574,7 +574,7 @@ def udft_fixed_occ(atoms,occa, occb, **opts):
 
     # Converge the LDA density for the system:
     print "Optimization of DFT density"
-    for i in range(MaxIter):
+    for i in xrange(MaxIter):
         Da = mk_auger_dens(orbsa, occa)
         Db = mk_auger_dens(orbsb, occb)
         Dab = Da + Db

@@ -31,10 +31,10 @@ def contr_coulomb(aexps,acoefs,anorms,xyza,powa,
                   cexps,ccoefs,cnorms,xyzc,powc,
                   dexps,dcoefs,dnorms,xyzd,powd):
     val = 0.
-    for i in range(len(aexps)):
-        for j in range(len(bexps)):
-            for k in range(len(cexps)):
-                for l in range(len(dexps)):
+    for i in xrange(len(aexps)):
+        for j in xrange(len(bexps)):
+            for k in xrange(len(cexps)):
+                for l in xrange(len(dexps)):
                     val = val + acoefs[i]*bcoefs[j]*ccoefs[k]*dcoefs[l]\
                           *coulomb_repulsion(xyza,anorms[i],powa,aexps[i],
                                              xyzb,bnorms[j],powb,bexps[j],
@@ -60,7 +60,7 @@ def coulomb_repulsion((xa,ya,za),norma,(la,ma,na),alphaa,
     roots,weights = Roots(norder,X)
 
     sum = 0.
-    for i in range(len(roots)):
+    for i in xrange(len(roots)):
         t = roots[i]
         Ix = Int1d(t,la,lb,lc,ld,xa,xb,xc,xd,
                    alphaa,alphab,alphac,alphad)
@@ -1413,16 +1413,16 @@ def Recur(t,i,j,k,l,xi,xj,xk,xl,alphai,alphaj,alphak,alphal):
     if n > 0: G[1,0] = C*G[0,0]  # ABD eq 15
     if m > 0: G[0,1] = Cp*G[0,0] # ABD eq 16
 
-    for a in range(2,n+1):      
+    for a in xrange(2,n+1):      
         G[a,0] = B1*(a-1)*G[a-2,0] + C*G[a-1,0]
-    for b in range(2,m+1):     
+    for b in xrange(2,m+1):     
         G[0,b] = B1p*(b-1)*G[0,b-2] + Cp*G[0,b-1]
 
     if m==0 or n==0: return G
 
-    for a in range(1,n+1):
+    for a in xrange(1,n+1):
         G[a,1] = a*B0*G[a-1,0] + Cp*G[a,0]
-        for b in range(2,m+1):
+        for b in xrange(2,m+1):
             G[a,b] = B1p*(b-1)*G[a,b-2] + a*B0*G[a-1,b-1] + Cp*G[a,b-1]
 
     return G
@@ -1436,9 +1436,9 @@ def Shift(G,i,k,xij,xkl):
     l = mdim-k-1
 
     ijkl = 0.
-    for m in range(l+1):
+    for m in xrange(l+1):
         ijm0 = 0
-        for n in range(j+1): # I(i,j,m,0)<-I(n,0,m,0)
+        for n in xrange(j+1): # I(i,j,m,0)<-I(n,0,m,0)
             ijm0 += binomial(j,n)*pow(xij,j-n)*G[n+i,m+k]
         ijkl += binomial(l,m)*pow(xkl,l-m)*ijm0 # I(i,j,k,l)<-I(i,j,m,0)
     return ijkl

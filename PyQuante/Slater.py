@@ -160,7 +160,7 @@ def get_overlap(atnoi,i,xyzi,atnoj,j,xyzj):
         zetaj = zetas[atnoj]
 
     # Multiply the functions by \zeta^2
-    for a in range(6):
+    for a in xrange(6):
         gi.add_primitive(zi[a]*zetai*zetai,ci[a])
         gj.add_primitive(zj[a]*zetaj*zetaj,cj[a])
     gi.normalize()
@@ -248,7 +248,7 @@ class SlaterFunction:
         cgbf = CGBF(self.origin,(a,b,c))
         expos,coefs = gexps[(self.N,self.L)],gcoefs[(self.N,self.L)]
         zet2 = self.zeta*self.zeta
-        for i in range(6):
+        for i in xrange(6):
             cgbf.add_primitive(zet2*expos[i],coefs[i])
         cgbf.normalize()
         return cgbf        

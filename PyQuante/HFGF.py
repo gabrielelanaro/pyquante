@@ -67,7 +67,7 @@ class Sigma2:
         del0 = self.eval0(i,self.e0[i])
         dele = del0
         delold = dele
-        for j in range(60):
+        for j in xrange(60):
             dele = self.eval0(i,self.e0[i]+dele)
             if abs(dele-delold)<1e-5: break
             delold = dele
@@ -109,10 +109,10 @@ def print_orbe(orbe,nclosed,nvirt,tag=None):
     if tag: print tag
     print "   N  Occ    Energy"
     print "---------------------"
-    for i in range(nclosed):
+    for i in xrange(nclosed):
         print "%4d  1   %10.4f" % (i+1,orbe[i])
     nv = min(nvirt,10) 
-    for i in range(nclosed, nclosed+nv):
+    for i in xrange(nclosed, nclosed+nv):
         print "%4d  0   %10.4f" % (i+1,orbe[i])
     return
     

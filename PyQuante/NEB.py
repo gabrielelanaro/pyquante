@@ -28,26 +28,26 @@ def eb(reactant,product,nimages):
     geos = [None]*nbeads
     geos[0] = fhf(reactant)
     geos[nbeads] = fhf(product)
-    for i in range(nimages):
+    for i in xrange(nimages):
         coef = coefs[i]
         geos[i+1] = fhf((1-coef)*reactant+coef*product)
 
     # Set the initial E,F for each bead
     Es = [0]*nbeads
     Fs = [0]*nbeads
-    for i in range(nbeads):
+    for i in xrange(nbeads):
         Es[i],Fs[i] = get_energy_forces(geos[i],-1)
-    for iter in range(20):
+    for iter in xrange(20):
         # compute forces on each bead
-        for i in range(nimages):
+        for i in xrange(nimages):
             E[i+1],F[i+1] = get_energy_foces(geos[i+1],-1)
 
         # add bead-bead forces
-        for i in range(nimages):
+        for i in xrange(nimages):
             geo = geos[i+1]
             geo_plus = geos[i+2]
             geo_minus = geos[i]
-            for iatom in range(len(geo)):
+            for iatom in xrange(len(geo)):
                 dx2p,dy2p,dz2p = geo[iatom].dist2(geo_plus[iatom])
                 dx2m,dy2m,dz2m = geo[iatom].dist2(geo_minus[iatom])
                 F[i+1][iatom,0] += 0.5*kbead*(dx2p+dx2m)

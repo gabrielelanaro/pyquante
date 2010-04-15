@@ -94,14 +94,14 @@ class Molecule:
     def update_from_atuples(self,geo):
         nat = len(geo)
         assert nat == len(self.atoms)
-        for i in range(nat):
+        for i in xrange(nat):
             self.atoms[i].update_from_atuple(geo[i])
         return
 
     def update_coords(self,coords):
         nat = len(coords)/3
         assert nat == len(self.atoms)
-        for i in range(nat):
+        for i in xrange(nat):
             self.atoms[i].update_coords(coords[3*i:3*i+3])
         return
 
@@ -164,9 +164,9 @@ class Molecule:
     def get_enuke(self):
         enuke = 0.
         nat = len(self.atoms)
-        for i in range(nat):
+        for i in xrange(nat):
             ati = self.atoms[i]
-            for j in range(i):
+            for j in xrange(i):
                 atj = self.atoms[j]
                 enuke += ati.get_nuke_chg()*atj.get_nuke_chg()/ati.dist(atj)
         return enuke

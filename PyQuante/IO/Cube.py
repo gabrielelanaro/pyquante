@@ -58,14 +58,14 @@ def mesh_orb(atoms,bfs,orbs,index):
         print "%5i %11.6f %11.6f %11.6f %11.6f" %  (atno,atno,x,y,z)
     nbf = len(bfs)
     print " ",
-    for i in range(nx):
+    for i in xrange(nx):
         xg = xmin + i*spacing
-        for j in range(ny):
+        for j in xrange(ny):
             yg = ymin + j*spacing
-            for k in range(nz):
+            for k in xrange(nz):
                 zg = zmin + k*spacing
                 amp = 0
-                for ibf in range(nbf):
+                for ibf in xrange(nbf):
                     amp += bfs[ibf].amp(xg,yg,zg)*orbs[ibf,index]
                 if abs(amp) < 1e-12: amp = 0
                 print " %11.5e" % amp,

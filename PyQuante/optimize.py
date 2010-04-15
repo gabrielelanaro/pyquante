@@ -92,7 +92,7 @@ def fmin(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=None, maxfun=None, ful
     fsim[0] = apply(func,(x0,)+args)
     nonzdelt = 0.05
     zdelt = 0.00025
-    for k in range(0,N):
+    for k in xrange(0,N):
         y = Num.array(x0,copy=1)
         if y[k] != 0:
             y[k] = (1+nonzdelt)*y[k]
@@ -310,7 +310,7 @@ def approx_fprime(xk,f,*args):
     f0 = apply(f,(xk,)+args)
     grad = Num.zeros((len(xk),),'d')
     ei = Num.zeros((len(xk),),'d')
-    for k in range(len(xk)):
+    for k in xrange(len(xk)):
         ei[k] = 1.0
         grad[k] = (apply(f,(xk+epsilon*ei,)+args) - f0)/epsilon
         ei[k] = 0.0
@@ -549,7 +549,7 @@ if __name__ == "__main__":
     print "\nMinimizing the Rosenbrock function of order 3\n"
     print " Algorithm \t\t\t       Seconds"
     print "===========\t\t\t      ========="
-    for k in range(len(algor)):
+    for k in xrange(len(algor)):
         print algor[k], "\t -- ", times[k]
         
 

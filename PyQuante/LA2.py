@@ -81,7 +81,7 @@ def SymOrth(S):
     val,vec = eigh(S)
     n = vec.shape[0]
     shalf = identity(n,'d')
-    for i in range(n):
+    for i in xrange(n):
         shalf[i,i] /= sqrt(val[i])
     X = simx(shalf,vec,'T')
     return X
@@ -98,7 +98,7 @@ def SymOrthCutoff(S,scut=1e-5):
     val,vec = eigh(S)
     n = vec.shape[0]
     shalf = identity(n,'d')
-    for i in range(n):
+    for i in xrange(n):
         if val[i] > scut:
             shalf[i,i] /= sqrt(val[i])
         else:
@@ -111,7 +111,7 @@ def CanOrth(S):
     U(1/sqrt(lambda)), where lambda,U are the eigenvalues/vectors."""
     val,vec = eigh(S)
     n = vec.shape[0]
-    for i in range(n):
+    for i in xrange(n):
         vec[:,i] = vec[:,i] / sqrt(val[i])
     return vec
 
@@ -152,7 +152,7 @@ def diagonal_mat(vector):
     matrix = zeros((len,len),'d')
     
     i=0
-    for i in range(len):
+    for i in xrange(len):
         matrix[i][i]=vector[i]
 
     return matrix    

@@ -163,7 +163,7 @@ Unrestricted
         if self.restricted:
             nstates = self.occs.shape[0]
             D = 0.0
-            for i in range(nstates):
+            for i in xrange(nstates):
                 D += self.occs[i]*dot( self.orbs[:,i:i+1], transpose(self.orbs[:,i:i+1]))
             #pad_out(D)
             return D
@@ -171,9 +171,9 @@ Unrestricted
             nastates = self.occs_a.shape[0]
             nbstates = self.occs_b.shape[0]
             Da,Db = 0.0,0.0
-            for i in range(nastates):
+            for i in xrange(nastates):
                 Da += self.occs_a[i]*dot( self.orbs_a[:,i:i+1], transpose(self.orbs_a[:,i:i+1]))
-            for i in range(nbstates):
+            for i in xrange(nbstates):
                 Db += self.occs_b[i]*dot( self.orbs_b[:,i:i+1], transpose(self.orbs_b[:,i:i+1]))
             
             return Da,Db
@@ -183,7 +183,7 @@ Unrestricted
         if self.restricted:
             nstates = self.occs.shape[0]
             Qmat = 0.0
-            for i in range(nstates):
+            for i in xrange(nstates):
                 Qmat += self.orbe[i]*self.occs[i]*dot( self.orbs[:,i:i+1], transpose(self.orbs[:,i:i+1]))
             return Qmat
             
@@ -191,9 +191,9 @@ Unrestricted
             nastates = self.occs_a.shape[0]
             nbstates = self.occs_b.shape[0]
             Qa,Qb = 0.0,0.0
-            for i in range(nastates):
+            for i in xrange(nastates):
                 Qa += self.orbe_a[i]*self.occs_a[i]*dot( self.orbs_a[:,i:i+1], transpose(self.orbs_a[:,i:i+1]))
-            for i in range(nbstates):
+            for i in xrange(nbstates):
                 Qb += self.orbe_a[i]*self.occs_b[i]*dot( self.orbs_b[:,i:i+1], transpose(self.orbs_b[:,i:i+1]))
             
             return Qa,Qb

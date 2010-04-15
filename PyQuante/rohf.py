@@ -29,7 +29,7 @@ def get_os_dens(orbs,f,noccsh):
     nsh = len(f)
     Ds = [ ]
     assert len(f) == len(noccsh)
-    for ish in range(nsh):
+    for ish in xrange(nsh):
         iend += noccsh[ish]
         Ds.append(mkdens(orbs,istart,iend))
         istart = iend
@@ -61,7 +61,7 @@ def get_os_fock(ish,nsh,f,a,b,h,Hs,**kwargs):
         F = h
     else:
         F = f[ish]*h
-    for jsh in range(nsh):
+    for jsh in xrange(nsh):
         if nof:
             F += a[ish,jsh]*Hs[2*jsh]/f[ish]+b[ish,jsh]*Hs[2*jsh+1]/f[ish]
         else:
@@ -83,7 +83,7 @@ def ocbse(orbs,h,Hs,f,a,b,noccsh):
     nsh = len(noccsh)
     nbf = norb = h.shape[0]
     orbe = zeros(norb,'d')
-    for ish in range(nsh):
+    for ish in xrange(nsh):
         orbs_in_shell = get_orbs_in_shell(ish,noccsh,norb)
         F = get_os_fock(ish,nsh,f,a,b,h,Hs)
         # form the orbital space of all of the orbs in ish plus the virts
@@ -127,7 +127,7 @@ def expmat(A,**kwargs):
     cut = kwargs.get('cut',1e-8)
     E = identity(A.shape[0],'d')
     D = E
-    for i in range(1,nmax):
+    for i in xrange(1,nmax):
         D = matrixmultiply(D,A)/i
         E += D
         maxel = D.max()
@@ -140,7 +140,7 @@ def expmat(A,**kwargs):
 def get_sh(i,noccsh):
     nsh = len(noccsh)
     isum = 0
-    for ish in range(nsh):
+    for ish in xrange(nsh):
         isum += noccsh[ish]
         if i < isum:
             return i
@@ -150,15 +150,15 @@ def get_rot(h,Hs,f,a,b,noccsh):
     nocc = sum(noccsh)
     nsh = len(noccsh)
     rot = zeros((nocc,nocc),'d')
-    for i in range(nocc):
+    for i in xrange(nocc):
         ish = get_sh(i,noccsh)
-        for j in range(nocc):
+        for j in xrange(nocc):
             jsh = get_sh(j,noccsh)
             if jsh == ish: continue
             Wij = -0.5*(h[i,j]+Hs[0][i,j])
             Wii = -0.5*(h[i,i]+Hs[0][i,i])
             Wjj = -0.5*(h[j,j]+Hs[0][j,j])
-            for k in range(nsh):
+            for k in xrange(nsh):
                 Wij = Wij - 0.5*Hs[2*i+1][i,j]
                 Wii = Wij - 0.5*Hs[2*i+1][i,i]
                 Wjj = Wij - 0.5*Hs[2*i+1][j,j]
@@ -193,8 +193,8 @@ def get_fab(nclosed,nopen):
     a = zeros((nsh,nsh),'d')
     b = zeros((nsh,nsh),'d')
 
-    for i in range(nsh):
-        for j in range(nsh):
+    for i in xrange(nsh):
+        for j in xrange(nsh):
             a[i,j] = 2.*f[i]*f[j]
             b[i,j] = -f[i]*f[j]
 
@@ -249,25 +249,25 @@ def rohf_wag(atoms,noccsh=None,f=None,a=None,b=None,**kwargs):
         print "noccsh = ",noccsh
         print "f = ",f
         print "a_ij: "
-        for i in range(nsh):
-            for j in range(i+1):
+        for i in xrange(nsh):
+            for j in xrange(i+1):
                 print a[i,j],
             print
         print "b_ij: "
-        for i in range(nsh):
-            for j in range(i+1):
+        for i in xrange(nsh):
+            for j in xrange(i+1):
                 print b[i,j],
             print
     enuke = atoms.get_enuke()
     energy = eold = 0.
-    for i in range(MaxIter):
+    for i in xrange(MaxIter):
         Ds = get_os_dens(orbs,f,noccsh)
         Hs = get_os_hams(Ints,Ds)
         orbs = rotion(orbs,h,Hs,f,a,b,noccsh)
         orbe,orbs = ocbse(orbs,h,Hs,f,a,b,noccsh)
         orthogonalize(orbs,S)
         # Compute the energy
-        eone = sum(f[ish]*trace2(Ds[ish],h) for ish in range(nsh))
+        eone = sum(f[ish]*trace2(Ds[ish],h) for ish in xrange(nsh))
         energy = enuke+eone+sum(orbe[:nocc])
         print energy,eone
         if abs(energy-eold) < ConvCriteria: break
@@ -318,7 +318,7 @@ def rohf(atoms,**opts):
     if verbose: print "Averaging = %s" % DoAveraging
     print "Optimization of HF orbitals"
 
-    for i in range(MaxIter):
+    for i in xrange(MaxIter):
         if verbose: print "SCF Iteration:",i,"Starting Energy:",eold
         Da = mkdens(orbs,0,nalpha)
         Db = mkdens(orbs,0,nbeta)
@@ -396,8 +396,8 @@ def printmat(mat,name='mat',**kwargs):
 def orthogonalize(orbs,S):
     nbf,norb = orbs.shape
     Smax = 0
-    for i in range(norb):
-        for j in range(i):
+    for i in xrange(norb):
+        for j in xrange(i):
             Sij = dot(orbs[:,j],dot(S,orbs[:,i]))
             Smax = max(Smax,abs(Sij))
             orbs[:,i] -= Sij*orbs[:,j]

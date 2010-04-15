@@ -94,8 +94,8 @@ def MP2(aoints,orbs,orbe,nclosed,nvirt):
                                    (orbe[a]+orbe[b]-orbe[r]-orbe[s])
     if VERBOSE:
         print "MP2 pair energies"
-        for a in range(nocc):
-            for b in range(a):
+        for a in xrange(nocc):
+            for b in xrange(a):
                 print a,b,Epairs[a,b]+Epairs[b,a]
             print a,a,Epairs[a,a]
     return sum(sum(Epairs))
@@ -119,8 +119,8 @@ def EN2(aoints,orbs,orbe,nclosed,nvirt):
                                    (orbe[a]+orbe[b]-orbe[r]-orbe[s])
     if VERBOSE:
         print "EN2 pair energies"
-        for a in range(nocc):
-            for b in range(a):
+        for a in xrange(nocc):
+            for b in xrange(a):
                 print a,b,Epairs[a,b]+Epairs[b,a]
             print a,a,Epairs[a,a]
     return sum(sum(Epairs))

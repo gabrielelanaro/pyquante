@@ -71,9 +71,9 @@ def get1ints(bfs,atoms):
     S = zeros((nbf,nbf),'d')
     h = zeros((nbf,nbf),'d')
 
-    for i in range(nbf):
+    for i in xrange(nbf):
         bfi = bfs[i]
-        for j in range(nbf):
+        for j in xrange(nbf):
             bfj = bfs[j]
             S[i,j] = bfi.overlap(bfj)
             h[i,j] = bfi.kinetic(bfj)
@@ -86,9 +86,9 @@ def getT(bfs):
     nbf = len(bfs)
     T = zeros((nbf,nbf),'d')
 
-    for i in range(nbf):
+    for i in xrange(nbf):
         bfi = bfs[i]
-        for j in range(nbf):
+        for j in xrange(nbf):
             bfj = bfs[j]
             T[i,j] = bfi.kinetic(bfj)
     return T
@@ -98,9 +98,9 @@ def getS(bfs):
     nbf = len(bfs)
     S = zeros((nbf,nbf),'d')
 
-    for i in range(nbf):
+    for i in xrange(nbf):
         bfi = bfs[i]
-        for j in range(nbf):
+        for j in xrange(nbf):
             bfj = bfs[j]
             S[i,j] = bfi.overlap(bfj)
     return S
@@ -110,9 +110,9 @@ def getV(bfs,atoms):
     nbf = len(bfs)
     V = zeros((nbf,nbf),'d')
 
-    for i in range(nbf):
+    for i in xrange(nbf):
         bfi = bfs[i]
-        for j in range(nbf):
+        for j in xrange(nbf):
             bfj = bfs[j]
             for atom in atoms:
                 V[i,j] = V[i,j] + atom.atno*bfi.nuclear(bfj,atom.pos())
@@ -139,8 +139,8 @@ def get2ints(bfs):
     return Ints
 
 def sortints(nbf,Ints):
-    for i in range(nbf):
-        for j in range(i+1):
+    for i in xrange(nbf):
+        for j in xrange(i+1):
             jints[i,j] = fetch_jints(Ints,i,j,nbf)
             kints[i,j] = fetch_kints(Ints,i,j,nbf)
     return

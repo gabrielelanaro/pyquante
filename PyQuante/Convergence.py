@@ -110,10 +110,10 @@ class DIIS:
         nit = len(self.Errs)
         a = zeros((nit+1,nit+1),'d')
         b = zeros(nit+1,'d')
-        for i in range(nit):
-            for j in range(nit):
+        for i in xrange(nit):
+            for j in xrange(nit):
                 a[i,j] = dot(self.Errs[i],self.Errs[j])
-        for i in range(nit):
+        for i in xrange(nit):
             a[nit,i] = a[i,nit] = -1.0
             b[i] = 0
         #mtx2file(a,'A%d.dat' % nit)
@@ -129,7 +129,7 @@ class DIIS:
             return F
         
         F = zeros((n,m),'d')
-        for i in range(nit):
+        for i in xrange(nit):
             F += c[i]*self.Fs[i]
         return F
 
@@ -215,7 +215,7 @@ def test():
     enuke = get_enuke(h2o)
     eold = 0.
     avg = DIIS2(S)
-    for i in range(30):
+    for i in xrange(30):
         D = mkdens(orbs,0,nocc)
         mtx2file(D)
         G = get2JmK(Ints,D)

@@ -19,7 +19,7 @@ def parseline(line,format):
     result = []
     words = line.split()
     if len(words) < len(format): return None
-    for i in range(len(format)):
+    for i in xrange(len(format)):
         f = format[i]
         trans = xlat.get(f)
         if trans: result.append(trans(words[i]))

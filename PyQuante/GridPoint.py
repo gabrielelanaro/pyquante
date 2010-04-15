@@ -44,14 +44,14 @@ class GridPoint:
         x,y,z,w = self.xyzw()
         nbf = len(bfs)
         self.bfs = zeros(nbf,'d')
-        for i in range(nbf):
+        for i in xrange(nbf):
             self.bfs[i] = bfs[i].amp(x,y,z)
         # This *if* statement is potentially slow. If it becomes
         #  a factor, pull it up to AtomicGrids and have two
         #  explicit cases here.
         if self.do_grad_dens:
             self.bfgrads = zeros((nbf,3),'d')
-            for i in range(nbf):
+            for i in xrange(nbf):
                 self.bfgrads[i,:] = bfs[i].grad(x,y,z)
         return
 

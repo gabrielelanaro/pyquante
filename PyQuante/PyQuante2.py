@@ -48,7 +48,7 @@ class SCFIterator:
 
     def iterate(self,ham,**opts):
         self.max_iter = opts.get('max_iter',50)
-        for self.iter in range(1,self.max_iter+1):
+        for self.iter in xrange(1,self.max_iter+1):
             ham.update(**opts)
             logging.debug("%d %f" % (self.iter,ham.energy))
             energy_var=abs(ham.energy - self.energy_history[-1]) 

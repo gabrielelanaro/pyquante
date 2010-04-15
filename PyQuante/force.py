@@ -179,7 +179,7 @@ def der_enuke(a,atoms):
     
     denuke_Xa,denuke_Ya,denuke_Za = 0.0,0.0,0.0
     
-    for b in range(natoms):
+    for b in xrange(natoms):
         if b!=a:
             at_b = atoms[b]
             coef = at_a.get_nuke_chg()*at_b.get_nuke_chg()/(at_a.dist(at_b))**3
@@ -204,8 +204,8 @@ def der_Hcore_matrix(a,bset,atoms):
     dHcore_dYa = zeros((nbf,nbf),'d')
     dHcore_dZa = zeros((nbf,nbf),'d')
 
-    for i in range(nbf): #rows
-        for j in range(nbf): #columns
+    for i in xrange(nbf): #rows
+        for j in xrange(nbf): #columns
             dHcore_dXa[i][j],dHcore_dYa[i][j],dHcore_dZa[i][j] = der_Hcore_element(a,bset[i],bset[j],atoms)
     
     #if a==1: print "dH_dXa"; pad_out(dHcore_dXa); print "dH_dYa"; pad_out(dHcore_dYa); print "dH_dZa"; pad_out(dHcore_dZa);
@@ -222,8 +222,8 @@ def der_overlap_matrix(a,bset):
     dS_dYa = zeros((nbf,nbf),'d')
     dS_dZa = zeros((nbf,nbf),'d')
     
-    for i in range(nbf): #rows
-        for j in range(nbf): #columns
+    for i in xrange(nbf): #rows
+        for j in xrange(nbf): #columns
             dS_dXa[i][j],dS_dYa[i][j],dS_dZa[i][j] = der_overlap_element(a,bset[i],bset[j])
 
     #if a==1: print "dS_dXa"; pad_out(dS_dXa); print "dS_dYa"; pad_out(dS_dYa); print "dS_dZa"; pad_out(dS_dZa);
@@ -239,11 +239,11 @@ def der2Ints(a,bset):
     d2Ints_dXa = array('d',[0]*totlen)
     d2Ints_dYa = array('d',[0]*totlen)
     d2Ints_dZa = array('d',[0]*totlen)
-    for i in range(nbf):
-        for j in range(i+1):
+    for i in xrange(nbf):
+        for j in xrange(i+1):
             ij = i*(i+1)/2+j
-            for k in range(nbf):
-                for l in range(k+1):
+            for k in xrange(nbf):
+                for l in xrange(k+1):
                     kl = k*(k+1)/2+l
                     if ij >= kl:
                         ijkl = ijkl2intindex(i,j,k,l)
@@ -260,14 +260,14 @@ def derJ(D,d2Ints_dXa,d2Ints_dYa,d2Ints_dZa):
     dJy = zeros((nbf,nbf),'d')
     dJz = zeros((nbf,nbf),'d')
 
-    for i in range(nbf):
-        for j in range(i+1):
+    for i in xrange(nbf):
+        for j in xrange(i+1):
             xtemp = zeros(nbf*nbf,'d')
             ytemp = zeros(nbf*nbf,'d')
             ztemp = zeros(nbf*nbf,'d')
             kl = 0
-            for k in range(nbf):
-                for l in range(nbf):
+            for k in xrange(nbf):
+                for l in xrange(nbf):
                     index = ijkl2intindex(i,j,k,l)
                     xtemp[kl] = d2Ints_dXa[index]
                     ytemp[kl] = d2Ints_dYa[index]
@@ -291,14 +291,14 @@ def derK(D,d2Ints_dXa,d2Ints_dYa,d2Ints_dZa):
     dKx = zeros((nbf,nbf),'d')
     dKy = zeros((nbf,nbf),'d')
     dKz = zeros((nbf,nbf),'d')
-    for i in range(nbf):
-        for j in range(i+1):
+    for i in xrange(nbf):
+        for j in xrange(i+1):
             xtemp = zeros(nbf*nbf,'d')
             ytemp = zeros(nbf*nbf,'d')
             ztemp = zeros(nbf*nbf,'d')
             kl = 0
-            for k in range(nbf):
-                for l in range(nbf):
+            for k in xrange(nbf):
+                for l in xrange(nbf):
                     index_k1 = ijkl2intindex(i,k,j,l)
                     index_k2 = ijkl2intindex(i,l,k,j)
                     xtemp[kl] = 0.5*(d2Ints_dXa[index_k1]+d2Ints_dXa[index_k2])
@@ -324,14 +324,14 @@ def der2JmK(D,d2Ints_dXa,d2Ints_dYa,d2Ints_dZa):
     Gy = zeros((nbf,nbf),'d')
     Gz = zeros((nbf,nbf),'d')
     
-    for i in range(nbf):
-        for j in range(i+1):
+    for i in xrange(nbf):
+        for j in xrange(i+1):
             xtemp = zeros(nbf*nbf,'d')
             ytemp = zeros(nbf*nbf,'d')
             ztemp = zeros(nbf*nbf,'d')
             kl = 0
-            for k in range(nbf):
-                for l in range(nbf):
+            for k in xrange(nbf):
+                for l in xrange(nbf):
                     index_j = ijkl2intindex(i,j,k,l)
                     index_k1 = ijkl2intindex(i,k,j,l)
                     index_k2 = ijkl2intindex(i,l,k,j)

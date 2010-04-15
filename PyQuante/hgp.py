@@ -106,12 +106,12 @@ def contr_hrr_iter((xa,ya,za),norma,(la,ma,na),aexps,acoefs,
     # not the prettiest data structure in the world, and will probably
     # be a challenge when I convert to C.
     hrr_terms = {}
-    for i in range(la+lb+1):
-        for j in range(ma+mb+1):
-            for k in range(na+nb+1):
-                for l in range(lc+ld+1):
-                    for m in range(mc+md+1):
-                        for n in range(nc+nd+1):
+    for i in xrange(la+lb+1):
+        for j in xrange(ma+mb+1):
+            for k in xrange(na+nb+1):
+                for l in xrange(lc+ld+1):
+                    for m in xrange(mc+md+1):
+                        for n in xrange(nc+nd+1):
                             hrr_terms[i,j,k,0,0,0,l,m,n,0,0,0] = (
                                 contr_vrr((xa,ya,za),norma,(i,j,k),aexps,acoefs,
                                           (xb,yb,zb),normb,bexps,bcoefs,
@@ -120,57 +120,57 @@ def contr_hrr_iter((xa,ya,za),norma,(la,ma,na),aexps,acoefs,
                                 )
     # At this point we have all of the integrals (i0|j0).
     # We now need to use the hrrs to build up all (ab|cd).
-    for i in range(1,lb+1):
-        for j in range(ma+mb+1):
-            for k in range(na+nb+1):
-                for l in range(lc+ld+1):
-                    for m in range(mc+md+1):
-                        for n in range(nc+nd+1):
+    for i in xrange(1,lb+1):
+        for j in xrange(ma+mb+1):
+            for k in xrange(na+nb+1):
+                for l in xrange(lc+ld+1):
+                    for m in xrange(mc+md+1):
+                        for n in xrange(nc+nd+1):
                             hrr_terms[la+lb-i,j,k,i,0,0,l,m,n,0,0,0] = (
                                 hrr_terms[la+lb-i+1,j,k,i-1,0,0,l,m,n,0,0,0]
                                 + (xa-xb)*
                                 hrr_terms[la+lb-i,j,k,i-1,0,0,l,m,n,0,0,0]
                                 )
     
-    for i in range(1,mb+1):
-        for j in range(na+nb+1):
-            for k in range(lc+ld+1):
-                for l in range(mc+md+1):
-                    for m in range(nc+nd+1):
+    for i in xrange(1,mb+1):
+        for j in xrange(na+nb+1):
+            for k in xrange(lc+ld+1):
+                for l in xrange(mc+md+1):
+                    for m in xrange(nc+nd+1):
                         hrr_terms[la,ma+mb-i,j,lb,i,0,k,l,m,0,0,0] = (
                             hrr_terms[la,ma+mb-i+1,j,lb,i-1,0,k,l,m,0,0,0]
                             + (ya-yb)*
                             hrr_terms[la,ma+mb-i,j,lb,i-1,0,k,l,m,0,0,0]
                             )
 
-    for i in range(1,nb+1):
-        for j in range(lc+ld+1):
-            for k in range(mc+md+1):
-                for l in range(nc+nd+1):
+    for i in xrange(1,nb+1):
+        for j in xrange(lc+ld+1):
+            for k in xrange(mc+md+1):
+                for l in xrange(nc+nd+1):
                     hrr_terms[la,ma,na+nb-i,lb,mb,i,j,k,l,0,0,0] = (
                         hrr_terms[la,ma,na+nb-i+1,lb,mb,i-1,j,k,l,0,0,0]
                         + (za-zb)*
                         hrr_terms[la,ma,na+nb-i,lb,mb,i-1,j,k,l,0,0,0]
                         )
 
-    for i in range(1,ld+1):
-        for j in range(mc+md+1):
-            for k in range(nc+nd+1):
+    for i in xrange(1,ld+1):
+        for j in xrange(mc+md+1):
+            for k in xrange(nc+nd+1):
                 hrr_terms[la,ma,na,lb,mb,nb,lc+ld-i,j,k,i,0,0] = (
                     hrr_terms[la,ma,na,lb,mb,nb,lc+ld-i+1,j,k,i-1,0,0]
                     + (xc-xd)*
                     hrr_terms[la,ma,na,lb,mb,nb,lc+ld-i,j,k,i-1,0,0]
                     )
         
-    for i in range(1,md+1):
-        for j in range(nc+nd+1):
+    for i in xrange(1,md+1):
+        for j in xrange(nc+nd+1):
             hrr_terms[la,ma,na,lb,mb,nb,lc,mc+md-i,j,ld,i,0] = (
                 hrr_terms[la,ma,na,lb,mb,nb,lc,mc+md-i+1,j,ld,i-1,0]
                 + (yc-yd)*
                 hrr_terms[la,ma,na,lb,mb,nb,lc,mc+md-i,j,ld,i-1,0]
                 )
 
-    for i in range(1,nd+1):
+    for i in xrange(1,nd+1):
         hrr_terms[la,ma,na,lb,mb,nb,lc,mc,nc+nd-i,ld,md,i] = (
             hrr_terms[la,ma,na,lb,mb,nb,lc,mc,nc+nd-i+1,ld,md,i-1]
             + (zc-zd)*
@@ -186,10 +186,10 @@ def contr_vrr((xa,ya,za),norma,(la,ma,na),aexps,acoefs,
               (xc,yc,zc),normc,(lc,mc,nc),cexps,ccoefs,
               (xd,yd,zd),normd,dexps,dcoefs):
     val = 0.
-    for i in range(len(aexps)):
-        for j in range(len(bexps)):
-            for k in range(len(cexps)):
-                for l in range(len(dexps)):
+    for i in xrange(len(aexps)):
+        for j in xrange(len(bexps)):
+            for k in xrange(len(cexps)):
+                for l in xrange(len(dexps)):
                     val = val + acoefs[i]*bcoefs[j]*ccoefs[k]*dcoefs[l]\
                           *vrr((xa,ya,za),norma[i],(la,ma,na),aexps[i],
                                (xb,yb,zb),normb[j],bexps[j],
@@ -462,20 +462,20 @@ def vrr((xa,ya,za),norma,(la,ma,na),alphaa,
 
     Fgterms = [0]*(mtot+1)
     Fgterms[mtot] = Fgamma(mtot,T)
-    for im in range(mtot-1,-1,-1):
+    for im in xrange(mtot-1,-1,-1):
         Fgterms[im]=(2.*T*Fgterms[im+1]+exp(-T))/(2.*im+1)
 
     # Store the vrr values as a 7 dimensional array
     # vrr_terms[la,ma,na,lc,mc,nc,m]
     vrr_terms = {}
-    for im in range(mtot+1):
+    for im in xrange(mtot+1):
         vrr_terms[0,0,0,0,0,0,im] = (
             #norma*normb*normc*normd*Kab*Kcd/sqrt(zeta+eta)*Fgamma(im,T)
             norma*normb*normc*normd*Kab*Kcd/sqrt(zeta+eta)*Fgterms[im]
             )
 
-    for i in range(la):
-        for im in range(mtot-i):
+    for i in xrange(la):
+        for im in xrange(mtot-i):
             vrr_terms[i+1,0,0, 0,0,0, im] = (
                 (px-xa)*vrr_terms[i,0,0, 0,0,0, im]
                 + (wx-px)*vrr_terms[i,0,0, 0,0,0, im+1]
@@ -486,9 +486,9 @@ def vrr((xa,ya,za),norma,(la,ma,na),alphaa,
                                - eta/(zeta+eta)*vrr_terms[i-1,0,0, 0,0,0, im+1]
                                ))
 
-    for j in range(ma):
-        for i in range(la+1):
-            for im in range(mtot-i-j):
+    for j in xrange(ma):
+        for i in xrange(la+1):
+            for im in xrange(mtot-i-j):
                 vrr_terms[i,j+1,0, 0,0,0, im] = (
                     (py-ya)*vrr_terms[i,j,0, 0,0,0, im]
                     + (wy-py)*vrr_terms[i,j,0, 0,0,0, im+1]
@@ -501,10 +501,10 @@ def vrr((xa,ya,za),norma,(la,ma,na),alphaa,
                                   ))
 
 
-    for k in range(na):
-        for j in range(ma+1):
-            for i in range(la+1):
-                for im in range(mtot-i-j-k):
+    for k in xrange(na):
+        for j in xrange(ma+1):
+            for i in xrange(la+1):
+                for im in xrange(mtot-i-j-k):
                     vrr_terms[i,j,k+1, 0,0,0, im] = (
                         (pz-za)*vrr_terms[i,j,k, 0,0,0, im]
                         + (wz-pz)*vrr_terms[i,j,k, 0,0,0, im+1]
@@ -516,11 +516,11 @@ def vrr((xa,ya,za),norma,(la,ma,na),alphaa,
                                       *vrr_terms[i,j,k-1, 0,0,0, im+1]
                                       ))
 
-    for q in range(lc):
-        for k in range(na+1):
-            for j in range(ma+1):
-                for i in range(la+1):
-                    for im in range(mtot-i-j-k-q):
+    for q in xrange(lc):
+        for k in xrange(na+1):
+            for j in xrange(ma+1):
+                for i in xrange(la+1):
+                    for im in xrange(mtot-i-j-k-q):
                         vrr_terms[i,j,k, q+1,0,0, im] = (
                             (qx-xc)*vrr_terms[i,j,k, q,0,0, im]
                             + (wx-qx)*vrr_terms[i,j,k, q,0,0, im+1]
@@ -536,12 +536,12 @@ def vrr((xa,ya,za),norma,(la,ma,na),alphaa,
                                 i/2./(zeta+eta)*vrr_terms[i-1,j,k, q,0,0, im+1]
                                 )
 
-    for r in range(mc):
-        for q in range(lc+1):
-            for k in range(na+1):
-                for j in range(ma+1):
-                    for i in range(la+1):
-                        for im in range(mtot-i-j-k-q-r):
+    for r in xrange(mc):
+        for q in xrange(lc+1):
+            for k in xrange(na+1):
+                for j in xrange(ma+1):
+                    for i in xrange(la+1):
+                        for im in xrange(mtot-i-j-k-q-r):
                             vrr_terms[i,j,k, q,r+1,0, im] = (
                                 (qy-yc)*vrr_terms[i,j,k, q,r,0, im]
                                 + (wy-qy)*vrr_terms[i,j,k, q,r,0, im+1]
@@ -557,13 +557,13 @@ def vrr((xa,ya,za),norma,(la,ma,na),alphaa,
                                     j/2./(zeta+eta)*vrr_terms[i,j-1,k,q,r,0,im+1]
                                     )
 
-    for s in range(nc):
-        for r in range(mc+1):
-            for q in range(lc+1):
-                for k in range(na+1):
-                    for j in range(ma+1):
-                        for i in range(la+1):
-                            for im in range(mtot-i-j-k-q-r-s):
+    for s in xrange(nc):
+        for r in xrange(mc+1):
+            for q in xrange(lc+1):
+                for k in xrange(na+1):
+                    for j in xrange(ma+1):
+                        for i in xrange(la+1):
+                            for im in xrange(mtot-i-j-k-q-r-s):
                                 vrr_terms[i,j,k,q,r,s+1,im] = (
                                     (qz-zc)*vrr_terms[i,j,k,q,r,s,im]
                                     + (wz-qz)*vrr_terms[i,j,k,q,r,s,im+1]

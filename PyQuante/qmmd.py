@@ -87,7 +87,7 @@ def rhf_dyn(atoms,**opts):
     #xyz.write("#job: %s  nsteps: %d  dt:%f\n"%(job,nsteps,dt))
     xyz.write(xyz_str(atoms))
     t=0.
-    for n in range(nsteps):
+    for n in xrange(nsteps):
         t+=n*dt
         pe,orben,coefs = rhf(atoms,ConvCriteria=cc,MaxIter=maxit,\
                            DoAveraging=doavg,ETemp=temp,bfs=bfcns,\
@@ -165,7 +165,7 @@ def uhf_dyn(atoms,**opts):
     #xyz.write("#job: %s  nsteps: %d  dt:%f\n"%(job,nsteps,dt))
     xyz.write(xyz_str(atoms))
     t=0.
-    for n in range(nsteps):
+    for n in xrange(nsteps):
         t+=n*dt
         pe,(orbea,orbeb),(coefsa,coefsb) = uhf(atoms,ConvCriteria=cc,MaxIter=maxit,\
                                                DoAveraging=doavg,ETemp=temp,bfs=bfcns,\
@@ -251,7 +251,7 @@ def fixedocc_uhf_dyn(atoms,occa,occb,**opts):
     #xyz.write("#job: %s  nsteps: %d  dt:%f\n"%(job,nsteps,dt))
     xyz.write(xyz_str(atoms))
     t=0.
-    for n in range(nsteps):
+    for n in xrange(nsteps):
         t+=n*dt
         pe,(orbea,orbeb),(coefsa,coefsb) = uhf_fixed_occ(atoms,occa,occb, ConvCriteria=cc,MaxIter=maxit,\
                                                DoAveraging=doavg,ETemp=temp,bfs=bfcns,\

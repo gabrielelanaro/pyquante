@@ -29,7 +29,7 @@ class Handler(object):
             nat = int(line.split()[0])
             title = lines.pop(0)
             atoms = []
-            for i in range(nat):
+            for i in xrange(nat):
                 line = lines.pop(0)
                 words = line.split()
                 atno = sym2no[words[0]]

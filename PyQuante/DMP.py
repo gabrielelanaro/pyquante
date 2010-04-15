@@ -51,7 +51,7 @@ class AbstractDMP:
         return
 
     def iterate(self):
-        for self.iter in range(self.maxit):
+        for self.iter in xrange(self.maxit):
             if self.converged(): break
             self.update()
             self.print_iter_info()
@@ -104,7 +104,7 @@ class NOTCP:
         return
 
     def iterate(self):
-        for self.iter in range(self.maxit):
+        for self.iter in xrange(self.maxit):
             if self.converged(): break
             self.update()
             self.print_iter_info()
@@ -241,7 +241,7 @@ class McWeeny(AbstractDMP):
         nelow = self.get_nel(elow,alpha,beta)
         nehigh = self.get_nel(ehigh,alpha,beta)
 
-        for i in range(100):
+        for i in xrange(100):
             efermi = 0.5*(elow+ehigh)
             #nefermi = trace(alpha*(efermi*I-F)+ beta*I)
             nefermi = self.get_nel(efermi,alpha,beta)
@@ -278,7 +278,7 @@ def gershgorin_minmax(A):
     n,m = A.shape
     mins = []
     maxs = []
-    for i in range(n):
+    for i in xrange(n):
         offsum = sum(abs(A[i,:]))-abs(A[i,i])
         mins.append(A[i,i]-offsum)
         maxs.append(A[i,i]+offsum)
@@ -287,7 +287,7 @@ def gershgorin_minmax(A):
 def tridiagmat(alpha,beta):
     N = len(alpha)
     A = zeros((N,N),'d')
-    for i in range(N):
+    for i in xrange(N):
         A[i,i] = alpha[i]
         if i < N-1:
             A[i,i+1] = A[i+1,i] = beta[i]
@@ -310,7 +310,7 @@ def lanczos_minmax(F,S=None,**kwargs):
         r = q
     beta = sqrt(matrixmultiply(q,r))
     wold = zeros(N,'d')
-    for i in range(niter):
+    for i in xrange(niter):
         w = r/beta
         v = q/beta
         r = matrixmultiply(F,v)

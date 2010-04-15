@@ -17,8 +17,8 @@ def mtx2file(a,filename='bs.dat'):
     n,m = a.shape
     file = open(filename,'w')
     file.write("%d %d\n" % (n,m))
-    for i in range(n):
-        for j in range(m):
+    for i in xrange(n):
+        for j in xrange(m):
             file.write("%f " % a[i,j])
         file.write("\n")
     file.close()
@@ -29,10 +29,10 @@ def rdmtx(filename):
     line = file.readline()
     n,m = map(int,line.split())
     A = zeros((n,m),'d')
-    for i in range(n):
+    for i in xrange(n):
         line = file.readline()
         vals = map(float,line.split())
-        for j in range(m):
+        for j in xrange(m):
             A[i,j] = vals[j]
     file.close()
     return A
@@ -40,8 +40,8 @@ def rdmtx(filename):
 def print_halfmat(A,name=None):
     "Print the lower half of a square matrix"
     if name: print "%s Matrix" % name
-    for i in range(A.shape[0]):
-        for j in range (i+1):
+    for i in xrange(A.shape[0]):
+        for j in xrange (i+1):
             print '%10.4f ' % A[i,j],
         print ''
     return

@@ -58,14 +58,14 @@ class MolecularGrid:
         parent nucleus, its weight is set to zero.
         """
         nat = len(self.atoms)
-        for iat in range(nat):
+        for iat in xrange(nat):
             ati = self.atoms[iat]
             npts = len(self.atomgrids[iat])
-            for i in range(npts):
+            for i in xrange(npts):
                 point = self.atomgrids[iat].points[i]
                 xp,yp,zp,wp = point.xyzw()
                 rip2 = dist2(ati.pos(),(xp,yp,zp))
-                for jat in range(nat):
+                for jat in xrange(nat):
                     if jat == iat: continue
                     atj = self.atoms[jat]
                     rjp2 = dist2(atj.pos(),(xp,yp,zp))
@@ -78,7 +78,7 @@ class MolecularGrid:
         the normalization that is in eq 22 of that reference.
         """
         nat = len(self.atoms)
-        for iat in range(nat):
+        for iat in xrange(nat):
             ati = self.atoms[iat]
             npts = len(self.atomgrids[iat])
             for i in xrange(npts):
@@ -139,7 +139,7 @@ class MolecularGrid:
         pts = self._points
         npts = len(pts)
         gr = zeros((npts,3),'d')
-        for i in range(npts):
+        for i in xrange(npts):
             gr[i,:] = pts[i].grad()
         return gr        
 
@@ -185,7 +185,7 @@ class MolecularGrid:
 
 # These are the functions for the becke projection operator
 def fbecke(x,n=3):
-    for i in range(n): x = pbecke(x)
+    for i in xrange(n): x = pbecke(x)
     return x
 def pbecke(x): return 1.5*x-0.5*pow(x,3)
 def sbecke(x,n=3): return 0.5*(1-fbecke(x,n))
@@ -197,7 +197,7 @@ def becke_atomic_grid_p(iat,(xp,yp,zp),atoms,**opts):
     ati = atoms[iat]
     rip2 = dist2(ati.pos(),(xp,yp,zp))
     rip = sqrt(rip2)
-    for jat in range(nat):
+    for jat in xrange(nat):
         if jat == iat: continue
         atj = atoms[jat]
         rjp2 = dist2(atj.pos(),(xp,yp,zp))

@@ -22,7 +22,7 @@ def read_xyz(filename):
         nat = int(line.split()[0])
         title = file.readline()
         atoms = []
-        for i in range(nat):
+        for i in xrange(nat):
             line = file.readline()
             words = line.split()
             atno = sym2no[words[0]]

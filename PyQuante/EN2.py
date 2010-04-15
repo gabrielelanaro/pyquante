@@ -110,9 +110,9 @@ def EN2(molecule,**opts):#
     #compute correction term for two alpha electrons
 
     for a in aoccs:
-        for b in range(a):
+        for b in xrange(a):
             for r in avirt:
-                for s in range(nalpha,r):
+                for s in xrange(nalpha,r):
                     arbs = aamoints[ijkl2intindex(a,r,b,s)]
                     asbr = aamoints[ijkl2intindex(a,s,b,r)]
                     rraa = aamoints[ijkl2intindex(r,r,a,a)] - \
@@ -151,9 +151,9 @@ def EN2(molecule,**opts):#
     #compute correction term for two beta electrons
 
     for a in boccs:
-        for b in range(a):
+        for b in xrange(a):
             for r in bvirt:
-                for s in range(nbeta,r):
+                for s in xrange(nbeta,r):
                     arbs = bbmoints[ijkl2intindex(a,r,b,s)]
                     asbr = bbmoints[ijkl2intindex(a,s,b,r)]
                     rraa = bbmoints[ijkl2intindex(r,r,a,a)] - \
@@ -227,7 +227,7 @@ def EN2(molecule,**opts):#
         Yalpha[a] = 1 + Yalpha[a]
     for b in boccs:
         Ybeta[b] = 1 + Ybeta[b]
-    #for a in range(nbf):
+    #for a in xrange(nbf):
         #print "For alpha = ",a,"the fractional occupation is ",Yalpha[a]
         #print "For beta  = ",a,"the fractional occupation is ",Ybeta[a]
 

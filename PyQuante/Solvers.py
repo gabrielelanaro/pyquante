@@ -26,7 +26,7 @@ def orthog(q,qs,**kwargs):
     north = kwargs.get('north',nvec)
     #if north==-1: north = nvec
     #north = min(north,nvec)
-    for i in range(north):
+    for i in xrange(north):
         olap = dot(q,qs[:,i])
         q -= olap*qs[:,i]
     norm = sqrt(dot(q,q))
@@ -38,11 +38,11 @@ def davidson(A,nroots,**kwargs):
     n,m = A.shape
     ninit = max(nroots,2)
     B = zeros((n,ninit),'d')
-    for i in range(ninit): B[i,i] = 1.
+    for i in xrange(ninit): B[i,i] = 1.
 
     nc = 0 # number of converged roots
     eigold = 1e10
-    for iter in range(n):
+    for iter in xrange(n):
         if nc >= nroots: break
         D = matrixmultiply(A,B)
         S = matrixmultiply(transpose(B),D)
@@ -50,10 +50,10 @@ def davidson(A,nroots,**kwargs):
         eval,evec = eigh(S)
 
         bnew = zeros(n,'d')
-        for i in range(m):
+        for i in xrange(m):
             bnew += evec[i,nc]*(D[:,i] - eval[nc]*B[:,i])
 
-        for i in range(n):
+        for i in xrange(n):
             denom = max(eval[nc]-A[i,i],1e-8) # Maximum amplification factor
             bnew[i] /= denom
 
@@ -89,10 +89,10 @@ def jacobi(A,**kwargs):
     d = diagonal(A)
     z = zeros(n,'d')
     nrot = 0
-    for irot in range(max_sweeps):
+    for irot in xrange(max_sweeps):
         sm = 0
-        for ip in range(n-1):
-            for iq in range(ip+1,n):
+        for ip in xrange(n-1):
+            for iq in xrange(ip+1,n):
                 sm += abs(A[ip,iq])
         if sm < tol:
             # Normal return
@@ -101,8 +101,8 @@ def jacobi(A,**kwargs):
         thresh = 0
         if  irot < 3: thresh = 0.2*sm/n/n
 
-        for ip in range(n-1):
-            for iq in range(ip+1,n):
+        for ip in xrange(n-1):
+            for iq in xrange(ip+1,n):
                 g = 100*abs(A[ip,iq])
                 if irot > 3 and g < tol:
                     A[ip,iq] = 0
@@ -123,16 +123,16 @@ def jacobi(A,**kwargs):
                     d[ip] -= h
                     d[iq] += h
                     A[ip,iq] = 0
-                    for j in range(ip):
+                    for j in xrange(ip):
                         A[j,ip],A[j,iq] = rotate(A[j,ip],A[j,iq],s,tau)
-                    for j in range(ip+1,iq):
+                    for j in xrange(ip+1,iq):
                         A[ip,j],A[j,iq] = rotate(A[ip,j],A[j,iq],s,tau)
-                    for j in range(iq+1,n):
+                    for j in xrange(iq+1,n):
                         A[ip,j],A[iq,j] = rotate(A[ip,j],A[iq,j],s,tau)
-                    for j in range(n):
+                    for j in xrange(n):
                         V[j,ip],V[j,iq] = rotate(V[j,ip],V[j,iq],s,tau)
                     nrot += 1
-        for ip in range(n):
+        for ip in xrange(n):
             b[ip] += z[ip]
             d[ip] = b[ip]
             z[ip] = 0

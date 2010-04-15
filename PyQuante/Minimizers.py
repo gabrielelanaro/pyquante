@@ -28,7 +28,7 @@ def NumericForces(atomlist,EnergyFunction):
     "Return the forces on each atom in atomlist via finite differences"
     Forces = []
     nat = len(atomlist)
-    for i in range(nat):
+    for i in xrange(nat):
         plus_x_geo = shift_geo(copy(atomlist),i,0,dx)
         minus_x_geo = shift_geo(copy(atomlist),i,0,-dx)
         plus_y_geo = shift_geo(copy(atomlist),i,1,dx)
@@ -53,10 +53,10 @@ def SteepestDescent(atomlist,EnergyForces):
     step = 0.0001 # this seems awfully small
     Eold = None
     write_xyz(file,atomlist)
-    for i in range(50):
+    for i in xrange(50):
         E,F = EnergyForces(atomlist)
         print i,E,Frms(F)
-        for i in range(len(atomlist)):
+        for i in xrange(len(atomlist)):
             atno,(x,y,z) = atomlist[i]
             fx,fy,fz = F[i]
             x -= step*fx

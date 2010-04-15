@@ -104,14 +104,14 @@ class AtomicGrid:
     def weights(self):
         "Return a vector of weights of each point in the grid"
         weights = zeros(len(self.points),'d')
-        for i in range(len(self.points)):
+        for i in xrange(len(self.points)):
             weights[i] = self.points[i].weight()
         return weights
     
     def dens(self):
         "Return the density for each point in the grid"
         dens = zeros(len(self.points),'d')
-        for i in range(len(self.points)):
+        for i in xrange(len(self.points)):
             dens[i] = self.points[i].dens()
         return dens
 
@@ -119,7 +119,7 @@ class AtomicGrid:
         "Return the density gradient gamma for each point in the grid"
         if not self.do_grad_dens: return None
         gamma = zeros(len(self.points),'d')
-        for i in range(len(self.points)):
+        for i in xrange(len(self.points)):
             gamma[i] = self.points[i].gamma()
         return gamma
 
@@ -127,7 +127,7 @@ class AtomicGrid:
         "Return a vector of the product of two basis functions "
         " over the entire grid"
         bfs = zeros(len(self.points),'d')
-        for j in range(len(self.points)):
+        for j in xrange(len(self.points)):
             bfs[j] = self.points[j].bfs[i]
         return bfs
 
@@ -163,7 +163,7 @@ def LegendreGrid(nrad,Rmax,fineness):
 
     radial = Legendre[nrad]
     grid = []
-    for i in range(nrad):
+    for i in xrange(nrad):
         xrad,wrad = radial[i]
         rrad = BeckeRadMap(xrad,Rmax)
         dr = 2*Rmax/pow(1-xrad,2)
@@ -216,7 +216,7 @@ def random_spin(angshell):
 
     npts = len(angshell)
     # Rotations around the z axis affect x and y
-    for i in range(npts):
+    for i in xrange(npts):
         x,y,z,w = angshell[i]
         xtmp = ang1*x+ang2*y
         ytmp = ang1*y-ang2*x
@@ -247,7 +247,7 @@ def regular_spin(angshell,i):
         x=2*pi*(deg_per_shell*i)/360.
         ang5=cos(x)
         ang6=sin(x)
-        for i in range(npts):
+        for i in xrange(npts):
             x,y,z,w = angshell[i]
             ytmp = ang5*y+ang6*z
             ztmp = ang5*z-ang6*y
@@ -258,7 +258,7 @@ def regular_spin(angshell,i):
         y=2*pi*(deg_per_shell*i)/360.
         ang3=cos(y)
         ang4=sin(y)
-        for i in range(npts):
+        for i in xrange(npts):
             x,y,z,w = angshell[i]
             xtmp = ang3*x+ang4*z
             ztmp = ang3*z-ang4*x
@@ -269,7 +269,7 @@ def regular_spin(angshell,i):
         z=2*pi*(deg_per_shell*i)/360.
         ang1=cos(z)
         ang2=sin(z)
-        for i in range(npts):
+        for i in xrange(npts):
             x,y,z,w = angshell[i]
             xtmp = ang1*x+ang2*y
             ytmp = ang1*y-ang2*x
@@ -282,7 +282,7 @@ def EulerMaclaurinRadialGrid(nrad,Z):
     # Radial part of the Gill, Johnson, Pople SG-1 grid
     R = PopleRadii[Z]
     grid = []
-    for i in range(1,nrad+1):
+    for i in xrange(1,nrad+1):
         # Changed to include a factor of 4pi
         #w = 2.*pow(R,3)*(nrad+1.)*pow(i,5)*pow(nrad+1-i,-7)
         w = 8.*pi*pow(R,3)*(nrad+1.)*pow(i,5)*pow(nrad+1-i,-7)
@@ -293,9 +293,9 @@ def EulerMaclaurinRadialGrid(nrad,Z):
 def SG1Angs(r,Z):
     # Gill, Johnson, Pople rules for SG-1 angular densities
     R = PopleRadii[Z]
-    if Z in range(1,3): # H-He
+    if Z in xrange(1,3): # H-He
         alphas = [0.25,0.5,1.0,4.5]
-    elif Z in range(3,11): # Li-Ne
+    elif Z in xrange(3,11): # Li-Ne
         alphas = [0.1667, 0.500, 0.900, 3.5]
     else: # only fit for Na-Ar
         alphas = [0.1,0.4,0.8,2.5]

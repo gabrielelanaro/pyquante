@@ -65,7 +65,7 @@ def parse_basis(lines):
             nprim = int(words[1])
             coef = float(words[2])
             prims = []
-            for i in range(nprim):
+            for i in xrange(nprim):
                 line = lines.pop(0)
                 exp,coef = map(float,line.split())
                 prims.append((exp,coef))
@@ -103,7 +103,7 @@ def parse_orbs(lines,nbf):
     orbmtx = zeros((nbf,norb),'d')
     orbe = zeros(norb,'d')
     occs = zeros(norb,'d')
-    for i in range(norb):
+    for i in xrange(norb):
         sym,ene,spin,occ,coefs = orbs[i]
         occs[i] = occ
         orbe[i] = ene

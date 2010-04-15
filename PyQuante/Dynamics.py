@@ -28,7 +28,7 @@ def Dynamics(atoms,EnergyForces,nsteps=1000,Ti=298,dt=1e-3):
     dat = open('pyqmd.dat','w')
     set_boltzmann_velocities(atoms,Ti)
     Etot = 0
-    for step in range(nsteps):
+    for step in xrange(nsteps):
         append_xyz(xyz,atoms.atuples(),"PQMD %4d  E = %10.4f" % (step,Etot))
         try:
             Ev,F = EnergyForces(atoms)
@@ -78,7 +78,7 @@ def LeapFrogUpdate(atoms,dt):
     return
 
 def set_forces(atoms,F):
-    for i in range(len(atoms)):
+    for i in xrange(len(atoms)):
         fx,fy,fz = F[i]
         atoms[i].F = array((fx,fy,fz))
     return

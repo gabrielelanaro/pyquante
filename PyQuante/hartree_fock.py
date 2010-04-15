@@ -121,7 +121,7 @@ def rhf(atoms,**opts):
         logger.info("Using DIIS averaging")
         avg = DIIS(S)
     logging.debug("Optimization of HF orbitals")
-    for i in range(MaxIter):
+    for i in xrange(MaxIter):
         if ETemp:
             efermi = get_efermi(nel,orbe,ETemp)
             occs = get_fermi_occs(efermi,orbe,ETemp)
@@ -206,7 +206,7 @@ def uhf(atoms,**opts):
     logger.info("Nbeta = %d" % nbeta)
     logger.info("Averaging = %s" % DoAveraging)
     logging.debug("Optimization of HF orbitals")
-    for i in range(MaxIter):
+    for i in xrange(MaxIter):
         if verbose: print "SCF Iteration:",i,"Starting Energy:",eold
         if ETemp:
             # We have to multiply nalpha and nbeta by 2
@@ -259,7 +259,7 @@ def mk_auger_dens(c, occ):
     #count how many states we were given
     nstates = occ.shape[0]
     D = 0.0
-    for i in range(nstates):
+    for i in xrange(nstates):
         D += occ[i]*dot( c[:,i:i+1], transpose(c[:,i:i+1]))
     #pad_out(D)
     return D
@@ -331,7 +331,7 @@ def uhf_fixed_occ(atoms,occa, occb,**opts):
     enuke = atoms.get_enuke()
     eold = 0.
 
-    for i in range(MaxIter):
+    for i in xrange(MaxIter):
         print "SCF Iteration:",i,"Starting Energy:",eold
         #save the starting orbitals
         oldorbs_a=orbsa
