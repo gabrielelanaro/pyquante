@@ -6,14 +6,14 @@ from PyQuante.cints import ijkl2intindex as intindex
 
 # My Libint library
 cdef extern from "clibint.h":
-    int cshell_compute "shell_compute" (cShell *shell1, cShell *shell2, cShell *shell3, cShell *shell4, double *output)
+    int cshell_compute_eri "shell_compute_eri" (cShell *shell1, cShell *shell2, cShell *shell3, cShell *shell4, double *output)
 
 # Libint initialization, should be done once.
 cdef extern from "libint.h":
    void init_libint_base()
 init_libint_base()
 
-def shell_compute(Shell shell1,Shell shell2,Shell shell3,Shell shell4, Ints):
+def shell_compute_eri(Shell shell1,Shell shell2,Shell shell3,Shell shell4, Ints):
     '''
     Compute a Cartesian shell putting the result in the Ints array.
     The position of each ERI is given by the
@@ -30,7 +30,7 @@ def shell_compute(Shell shell1,Shell shell2,Shell shell3,Shell shell4, Ints):
     
     output = <double *>malloc(n * sizeof(double))
 
-    cshell_compute(shell1.this,
+    cshell_compute_eri(shell1.this,
                    shell2.this,
                    shell3.this,
                    shell4.this, output)

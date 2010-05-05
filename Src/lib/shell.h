@@ -4,7 +4,7 @@
  * 
  * Defines the struct Shell and the related functions.
  *
- * Implementation of the shell_compute function is done in the
+ * Implementation of the shell_compute_eri function is done in the
  * clibint.h. libint library is used to compute integrals in a fast
  * way
  *

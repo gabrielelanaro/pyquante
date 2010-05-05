@@ -38,7 +38,7 @@ void shell_libint_renorm(Shell *shell, double *output );
  * allocate space for
  * shell1->nfuncs * shell2->nfuncs * shell3->nfuncs * shell4->nfuncs  values.
  */
-void shell_compute(Shell *shell1, Shell *shell2, Shell *shell3, Shell *shell4, double *output);
+void shell_compute_eri(Shell *shell1, Shell *shell2, Shell *shell3, Shell *shell4, double *output);
 
 /**
  * Internal use function, needed to feed the libint library.

@@ -59,7 +59,7 @@ void shell_libint_renorm(Shell *shell, double *output)
  * with the necessary informations, calculate the ERIs and put them in
  * the output buffer in the correct order.
  */
-void shell_compute(Shell *shell1, Shell *shell2, Shell *shell3, Shell *shell4, double *output)
+void shell_compute_eri(Shell *shell1, Shell *shell2, Shell *shell3, Shell *shell4, double *output)
 {
 
     Libint_t *intobj; /* Integral object to pass to libint */

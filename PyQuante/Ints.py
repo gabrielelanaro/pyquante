@@ -137,7 +137,7 @@ if settings.libint_enabled == True:
                 for k,c in enumerate(basis.shells):
                     for l,d in enumerate(basis.shells[:k+1]):
                         if (i+j)>=(k+l):
-                            clibint.shell_compute(a,b,c,d,Ints)
+                            clibint.shell_compute_eri(a,b,c,d,Ints)
         if sorted:
             sortints(lenbasis,Ints)
         return Ints
