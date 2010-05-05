@@ -613,14 +613,14 @@ def test_contr():
 
     t0 = time()
     val = \
-        contr_coulomb(h2_s.exps(),h2_s.coefs(),h2_s.pnorms(),
-                      h2_s.origin(),h2_s.powers(),
-                      h2_s.exps(),h2_s.coefs(),h2_s.pnorms(),
-                      h2_s.origin(),h2_s.powers(),
-                      h2_s.exps(),h2_s.coefs(),h2_s.pnorms(),
-                      h2_s.origin(),h2_s.powers(),
-                      o_pz.exps(),o_pz.coefs(),o_pz.pnorms(),
-                      o_pz.origin(),o_pz.powers())
+        contr_coulomb(h2_s.pexps,h2_s.pcoefs,h2_s.pnorms,
+                      h2_s.origin,h2_s.powers,
+                      h2_s.pexps,h2_s.pcoefs,h2_s.pnorms,
+                      h2_s.origin,h2_s.powers,
+                      h2_s.pexps,h2_s.pcoefs,h2_s.pnorms,
+                      h2_s.origin,h2_s.powers,
+                      o_pz.pexps,o_pz.pcoefs,o_pz.pnorms,
+                      o_pz.origin,o_pz.powers)
     t1 = time()
     print val,t1-t0
 

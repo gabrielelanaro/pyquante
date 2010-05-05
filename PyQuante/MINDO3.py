@@ -664,17 +664,17 @@ def forces(atoms,D):
 
 def mopac_overlap(bfi,bfj): # from the routine gover.f
     cgbfi,cgbfj = bfi.cgbf,bfj.cgbf
-    ri = cgbfi.origin() # distance in bohr
-    rj = cgbfj.origin()
+    ri = cgbfi.origin # distance in bohr
+    rj = cgbfj.origin
     RR = pow(ri[0]-rj[0],2)+pow(ri[1]-rj[1],2)+pow(ri[2]-rj[2],2)
     itype = bfi.type
     jtype = bfj.type
     Sij = 0
-    for primi in cgbfi.prims():
+    for primi in cgbfi.prims:
         for primj in cgbfj.prims():
 
-            amb = primi.exp()+primj.exp()
-            apb = primi.exp()*primj.exp()
+            amb = primialpha+primjalpha
+            apb = primialpha*primjalpha
             adb = apb/amb
 
             if itype > 0 and jtype > 0:
@@ -686,24 +686,24 @@ def mopac_overlap(bfi,bfj): # from the routine gover.f
             elif itype > 0:
                 #is = 3
                 tomb = (ri[itype-1]-rj[itype-1])
-                abn = -2*tomb*primj.exp()*sqrt(primi.exp())/amb
+                abn = -2*tomb*primjalpha*sqrt(primialpha)/amb
             elif jtype > 0:
                 #is = 2
                 tomb = (ri[jtype-1]-rj[jtype-1])
-                abn = 2*tomb*primi.exp()*sqrt(primj.exp())/amb
+                abn = 2*tomb*primialpha*sqrt(primjalpha)/amb
             else:
                 #is = 1
                 abn = 1.0
                 
             if adb*RR < 90:
-                Sij += primi.coef()*primj.coef()*\
+                Sij += primi.coef*primj.coef*\
                        pow(2*sqrt(apb)/amb,1.5)*exp(-adb*RR)*abn
     return Sij
 
 def mopac_doverlap(bfi,bfj,dir): # from the routine dcart.f
     cgbfi,cgbfj = bfi.cgbf,bfj.cgbf
-    ri = cgbfi.origin() # distance in bohr
-    rj = cgbfj.origin()
+    ri = cgbfi.origin # distance in bohr
+    rj = cgbfj.origin
     RR = pow(ri[0]-rj[0],2)+pow(ri[1]-rj[1],2)+pow(ri[2]-rj[2],2)
     del1 = ri[dir] - rj[dir]
     itype = bfi.type
@@ -713,8 +713,8 @@ def mopac_doverlap(bfi,bfj,dir): # from the routine dcart.f
         for primj in cgbfj.prims():
             del2 = del3 = 0
             SS = 0
-            apb = primi.exp()*primj.exp()
-            amb = primi.exp()+primj.exp()
+            apb = primialpha*primjalpha
+            amb = primialpha+primjalpha
             adb = apb/amb
             adr = min(adb*RR,35.0)
             if itype == 0 and jtype == 0: # ss
@@ -723,19 +723,19 @@ def mopac_doverlap(bfi,bfj,dir): # from the routine dcart.f
             elif itype == 0 and jtype > 0: # sp
                 if jtype-1 == dir: 
                     #is = 3
-                    abn = 2*adb/sqrt(primj.exp())*(1-2*adb*del1*del1)/A0
+                    abn = 2*adb/sqrt(primjalpha)*(1-2*adb*del1*del1)/A0
                 else:
                     #is = 2
                     del2 = ri[jtype-1]-rj[jtype-1]
-                    abn = -4*adb*adb*del1*del2/sqrt(primj.exp())/A0
+                    abn = -4*adb*adb*del1*del2/sqrt(primjalpha)/A0
             elif itype > 0 and jtype == 0: # ps
                 if itype-1 == dir: 
                     #is = 5
-                    abn = -2*adb/sqrt(primi.exp())*(1-2*adb*del1*del1)/A0
+                    abn = -2*adb/sqrt(primialpha)*(1-2*adb*del1*del1)/A0
                 else:
                     #is = 4
                     del2 = ri[itype-1]-rj[itype-1]
-                    abn = 4*adb*adb*del1*del2/sqrt(primi.exp())/A0
+                    abn = 4*adb*adb*del1*del2/sqrt(primialpha)/A0
             elif itype == jtype: 
                 if dir == itype-1:
                     #is = 9 (p|p)
@@ -754,7 +754,7 @@ def mopac_doverlap(bfi,bfj,dir): # from the routine dcart.f
                 del2 = ri[itype+jtype-dir-2]-rj[itype+jtype-dir-2]
                 abn=-4*adb*adb*del2/sqrt(apb)*(1-2*adb*del1*del1)/A0
             SS = pow(2*sqrt(apb)/amb,1.5)*exp(-adr)*abn
-            DS += SS*primi.coef()*primj.coef()
+            DS += SS*primi.coef*primj.coef
     return DS
 
 def test_olap():

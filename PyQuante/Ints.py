@@ -11,9 +11,11 @@
 """
 
 from CGBF import CGBF,coulomb
+#from contracted_gto import coulomb
 from NumWrap import zeros,dot,reshape
 from PyQuante.cints import ijkl2intindex as intindex
 from PyQuante.Basis.Tools import get_basis_data
+import settings
 import logging
 
 logger = logging.getLogger("pyquante")
@@ -21,7 +23,7 @@ logger = logging.getLogger("pyquante")
 sym2powerlist = {
     'S' : [(0,0,0)],
     'P' : [(1,0,0),(0,1,0),(0,0,1)],
-    'D' : [(2,0,0),(0,2,0),(0,0,2),(1,1,0),(0,1,1),(1,0,1)],
+    'D' : [(2,0,0),(1,1,0),(1,0,1),(0,2,0),(0,1,1),(0,0,2)],
     'F' : [(3,0,0),(2,1,0),(2,0,1),(1,2,0),(1,1,1),(1,0,2),
            (0,3,0),(0,2,1),(0,1,2), (0,0,3)]
     }
@@ -37,6 +39,8 @@ def getbasis(atoms,basis_data=None,**opts):
     Given a Molecule object and a basis library, form a basis set
     constructed as a list of CGBF basis functions objects.
     """
+    from PyQuante.Basis.basis import BasisSet
+    return BasisSet(atoms, basis_data, **opts)
     # Option to omit f basis functions from imported basis sets
     omit_f = opts.get('omit_f',False)
     if not basis_data:
@@ -57,6 +61,7 @@ def getbasis(atoms,basis_data=None,**opts):
                 bf.normalize()
                 bfs.append(bf)
     return bfs
+
 
 def getints(bfs,atoms):
     logger.info("Calculating Integrals...")
@@ -109,7 +114,6 @@ def getV(bfs,atoms):
     "Form the nuclear attraction matrix V"
     nbf = len(bfs)
     V = zeros((nbf,nbf),'d')
-
     for i in xrange(nbf):
         bfi = bfs[i]
         for j in xrange(nbf):
@@ -118,25 +122,49 @@ def getV(bfs,atoms):
                 V[i,j] = V[i,j] + atom.atno*bfi.nuclear(bfj,atom.pos())
     return V
 
-def get2ints(bfs):
-    """Store integrals in a long array in the form (ij|kl) (chemists
-    notation. We only need i>=j, k>=l, and ij <= kl"""
-    from array import array
-    nbf = len(bfs)
-    totlen = nbf*(nbf+1)*(nbf*nbf+nbf+2)/8
-    Ints = array('d',[0]*totlen)
-    for i in xrange(nbf):
-        for j in xrange(i+1):
-            ij = i*(i+1)/2+j
-            for k in xrange(nbf):
-                for l in xrange(k+1):
-                    kl = k*(k+1)/2+l
-                    if ij >= kl:
-                        Ints[intindex(i,j,k,l)] = coulomb(bfs[i],bfs[j],
-                                                          bfs[k],bfs[l])
-    if sorted:
-        sortints(nbf,Ints)
-    return Ints
+if settings.libint_enabled == True:
+    # Libint Integrals
+    import numpy as np
+    import clibint
+    
+    def get2ints(basis):
+        lenbasis = len(basis.bfs)
+        
+        Ints = np.zeros((lenbasis**4),dtype=np.float64)
+
+        for i,a in enumerate(basis.shells):
+            for j,b in enumerate(basis.shells[:i+1]):
+                for k,c in enumerate(basis.shells):
+                    for l,d in enumerate(basis.shells[:k+1]):
+                        if (i+j)>=(k+l):
+                            clibint.shell_compute(a,b,c,d,Ints)
+        if sorted:
+            sortints(lenbasis,Ints)
+        return Ints
+else:
+    # PyQuante Integrals
+    def get2ints(bfs):
+        """Store integrals in a long array in the form (ij|kl) (chemists
+        notation. We only need i>=j, k>=l, and ij <= kl"""
+
+        from array import array
+        nbf = len(bfs)
+        totlen = nbf*(nbf+1)*(nbf*nbf+nbf+2)/8
+        Ints = array('d',[0]*totlen)
+
+        for i in xrange(nbf):
+            for j in xrange(i+1):
+                ij = i*(i+1)/2+j
+                for k in xrange(nbf):
+                    for l in xrange(k+1):
+                        kl = k*(k+1)/2+l
+                        if ij <= kl:
+                            Ints[intindex(i,j,k,l)] = coulomb(bfs[i],bfs[j],
+                                                              bfs[k],bfs[l])
+
+        if sorted:
+            sortints(nbf,Ints)
+        return Ints
 
 def sortints(nbf,Ints):
     for i in xrange(nbf):

@@ -68,12 +68,12 @@ def der_kinetic_integral(a,bfi,bfj):
     #we use atom ids on the CGBFs to evaluate which of the 4 above case we have
     #bfi is centered on atom a
     if bfi.atid==a:
-        for upbf in bfj.prims():
-            for vpbf in bfi.prims():
-                alpha = vpbf.exp()
-                l,m,n = vpbf.powers()
-                origin = vpbf.origin()
-                coefs  = upbf.coef()*vpbf.coef()
+        for upbf in bfj.prims:
+            for vpbf in bfi.prims:
+                alpha = vpbf.exp
+                l,m,n = vpbf.powers
+                origin = vpbf.origin
+                coefs  = upbf.coef*vpbf.coef
                                 
                 #x component
                 v = PGBF(alpha,origin,(l+1,m,n))
@@ -118,12 +118,12 @@ def der_kinetic_integral(a,bfi,bfj):
 
     #bfj is centered on atom a
     if bfj.atid==a:
-        for upbf in bfi.prims():
-            for vpbf in bfj.prims():
-                alpha = vpbf.exp()
-                l,m,n = vpbf.powers()
-                origin = vpbf.origin()
-                coefs  = upbf.coef()*vpbf.coef()
+        for upbf in bfi.prims:
+            for vpbf in bfj.prims:
+                alpha = vpbf.exp
+                l,m,n = vpbf.powers
+                origin = vpbf.origin
+                coefs  = upbf.coef*vpbf.coef
                                 
                 #x component
                 v = PGBF(alpha,origin,(l+1,m,n))
@@ -181,12 +181,12 @@ def der_nuc_att(a,bfi,bfj,atoms):
     
     dVij_dXa,dVij_dYa,dVij_dZa = 0.0,0.0,0.0
     if bfi.atid==a: #bfi is centered on atom a
-        for upbf in bfj.prims():
-            for vpbf in bfi.prims():
-                alpha = vpbf.exp()
-                l,m,n = vpbf.powers()
-                origin = vpbf.origin()
-                coefs  = upbf.coef()*vpbf.coef()
+        for upbf in bfj.prims:
+            for vpbf in bfi.prims:
+                alpha = vpbf.exp
+                l,m,n = vpbf.powers
+                origin = vpbf.origin
+                coefs  = upbf.coef*vpbf.coef
                                 
                 #x component
                 v = PGBF(alpha,origin,(l+1,m,n))
@@ -250,12 +250,12 @@ def der_nuc_att(a,bfi,bfj,atoms):
                 
     #bfj is centered on atom a
     if bfj.atid==a:
-        for upbf in bfi.prims():
-            for vpbf in bfj.prims():
-                alpha = vpbf.exp()
-                l,m,n = vpbf.powers()
-                origin = vpbf.origin()
-                coefs = upbf.coef()*vpbf.coef()
+        for upbf in bfi.prims:
+            for vpbf in bfj.prims:
+                alpha = vpbf.exp
+                l,m,n = vpbf.powers
+                origin = vpbf.origin
+                coefs = upbf.coef*vpbf.coef
                 
                 #x component 
                 v = PGBF(alpha,origin,(l+1,m,n))
@@ -318,9 +318,9 @@ def der_nuc_att(a,bfi,bfj,atoms):
     #finally evaluate <i| grad V |j>
     for atom in atoms:
         if atom.atid==a:
-            for upbf in bfi.prims():
-                for vpbf in bfj.prims():
-                    prefactor = upbf.coef()*vpbf.coef()*atom.atno
+            for upbf in bfi.prims:
+                for vpbf in bfj.prims:
+                    prefactor = upbf.coef*vpbf.coef*atom.atno
                     list = upbf.nuclear_gradient(vpbf,atom.pos())
                     
                     dVij_dXa+=prefactor*list[0]
@@ -353,12 +353,12 @@ def der_overlap_element(a,bfi, bfj):
     
     #we use atom ids on the CGBFs to evaluate which of the 4 above case we have
     if bfi.atid==a: #bfi is centered on atom a
-        for upbf in bfj.prims():
-            for vpbf in bfi.prims():
-                alpha = vpbf.exp()
-                l,m,n = vpbf.powers()
-                origin = vpbf.origin()
-                coefs  = upbf.coef()*vpbf.coef()
+        for upbf in bfj.prims:
+            for vpbf in bfi.prims:
+                alpha = vpbf.exp
+                l,m,n = vpbf.powers
+                origin = vpbf.origin
+                coefs  = upbf.coef*vpbf.coef
                                 
                 #x component
                 v = PGBF(alpha,origin,(l+1,m,n))
@@ -404,12 +404,12 @@ def der_overlap_element(a,bfi, bfj):
                 
     #bfj is centered on atom a
     if bfj.atid==a:
-        for upbf in bfi.prims():
-            for vpbf in bfj.prims():
-                alpha = vpbf.exp()
-                l,m,n = vpbf.powers()
-                origin = vpbf.origin()
-                coefs = upbf.coef()*vpbf.coef()
+        for upbf in bfi.prims:
+            for vpbf in bfj.prims:
+                alpha = vpbf.exp
+                l,m,n = vpbf.powers
+                origin = vpbf.origin
+                coefs = upbf.coef*vpbf.coef
                 
                 #x component 
                 v = PGBF(alpha,origin,(l+1,m,n))
@@ -464,14 +464,14 @@ def der_Jints(a, bfi,bfj,bfk,bfl):
     dJint_dXa,dJint_dYa,dJint_dZa = 0.0,0.0,0.0
     
     if bfi.atid==a: #bfi is centered on atom a
-        for tpbf in bfi.prims():
-            for upbf in bfj.prims():
-                for vpbf in bfk.prims():
-                    for wpbf in bfl.prims():
-                        alpha  = tpbf.exp()
-                        l,m,n  = tpbf.powers()
-                        origin = tpbf.origin()
-                        coefs  = tpbf.coef()*upbf.coef()*vpbf.coef()*wpbf.coef()
+        for tpbf in bfi.prims:
+            for upbf in bfj.prims:
+                for vpbf in bfk.prims:
+                    for wpbf in bfl.prims:
+                        alpha  = tpbf.exp
+                        l,m,n  = tpbf.powers
+                        origin = tpbf.origin
+                        coefs  = tpbf.coef*upbf.coef*vpbf.coef*wpbf.coef
                         
                         #x component
                         tmp = PGBF(alpha, origin,(l+1,m,n)) #temp pgbf
@@ -516,14 +516,14 @@ def der_Jints(a, bfi,bfj,bfk,bfl):
                         dJint_dZa += terma + termb
                         
     if bfj.atid==a: #bfj is centered on atom a
-        for tpbf in bfi.prims():
-            for upbf in bfj.prims():
-                for vpbf in bfk.prims():
-                    for wpbf in bfl.prims():
-                        alpha  = upbf.exp()
-                        l,m,n  = upbf.powers()
-                        origin = upbf.origin()
-                        coefs  = tpbf.coef()*upbf.coef()*vpbf.coef()*wpbf.coef()
+        for tpbf in bfi.prims:
+            for upbf in bfj.prims:
+                for vpbf in bfk.prims:
+                    for wpbf in bfl.prims:
+                        alpha  = upbf.exp
+                        l,m,n  = upbf.powers
+                        origin = upbf.origin
+                        coefs  = tpbf.coef*upbf.coef*vpbf.coef*wpbf.coef
                         
                         #x component
                         tmp = PGBF(alpha, origin,(l+1,m,n)) #temp pgbf
@@ -568,14 +568,14 @@ def der_Jints(a, bfi,bfj,bfk,bfl):
                         dJint_dZa += terma + termb
     
     if bfk.atid==a: #bfk is centered on atom a
-        for tpbf in bfi.prims():
-            for upbf in bfj.prims():
-                for vpbf in bfk.prims():
-                    for wpbf in bfl.prims():
-                        alpha  = vpbf.exp()
-                        l,m,n  = vpbf.powers()
-                        origin = vpbf.origin()
-                        coefs  = tpbf.coef()*upbf.coef()*vpbf.coef()*wpbf.coef()
+        for tpbf in bfi.prims:
+            for upbf in bfj.prims:
+                for vpbf in bfk.prims:
+                    for wpbf in bfl.prims:
+                        alpha  = vpbf.exp
+                        l,m,n  = vpbf.powers
+                        origin = vpbf.origin
+                        coefs  = tpbf.coef*upbf.coef*vpbf.coef*wpbf.coef
                         
                         #x component
                         tmp = PGBF(alpha, origin,(l+1,m,n)) #temp pgbf
@@ -620,14 +620,14 @@ def der_Jints(a, bfi,bfj,bfk,bfl):
                         dJint_dZa += terma + termb
     
     if bfl.atid==a: #bfl is centered on atom a
-        for tpbf in bfi.prims():
-            for upbf in bfj.prims():
-                for vpbf in bfk.prims():
-                    for wpbf in bfl.prims():
-                        alpha  = wpbf.exp()
-                        l,m,n  = wpbf.powers()
-                        origin = wpbf.origin()
-                        coefs  = tpbf.coef()*upbf.coef()*vpbf.coef()*wpbf.coef()
+        for tpbf in bfi.prims:
+            for upbf in bfj.prims:
+                for vpbf in bfk.prims:
+                    for wpbf in bfl.prims:
+                        alpha  = wpbf.exp
+                        l,m,n  = wpbf.powers
+                        origin = wpbf.origin
+                        coefs  = tpbf.coef*upbf.coef*vpbf.coef*wpbf.coef
                         
                         #x component
                         tmp = PGBF(alpha, origin,(l+1,m,n)) #temp pgbf

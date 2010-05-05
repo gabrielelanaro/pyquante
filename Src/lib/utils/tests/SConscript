@@ -1,0 +1,2 @@
+Import("env math cutest")
+env.Program("AllTests",["TestMath.c","AllTests.c"] + math + cutest)

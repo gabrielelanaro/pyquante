@@ -41,140 +41,133 @@ from PyQuante.chgp import coulomb_repulsion
 #added 2/8/07 by Hatem Helal hhh23@cam.ac.uk
 #probably need to write the C version in cints...
 from PyQuante.pyints import grad_nuc_att
+from primitive_gto import PrimitiveGTO
 
-class PGBF:
+class PGBF(PrimitiveGTO):
     "Class for Primitive Gaussian Basis Functions."
 
     # Constructor
     def __init__(self,exponent,origin,powers=(0,0,0),norm=1.):
-        self._exponent = float(exponent)
-        self._origin = tuple([float(i) for i in origin])
-        self._powers= powers
-        self._normalization = float(norm)
-        self.normalize()
-        self._coefficient = 1
-        return
+        PrimitiveGTO.__init__(self, exponent, origin, powers)
+        self.exp = float(exponent)
+        self.origin = tuple([float(i) for i in origin])
+        self.powers= powers
+        # It is yet normalized
+        #self.norm = float(norm)
+        #self.normalize()
+        self.coef = 1
 
     # Public
-    def exp(self): return self._exponent
-    def origin(self): return self._origin
-    def powers(self): return self._powers
-    def norm(self): return self._normalization
-    def coef(self): return self._coefficient
-
     def reset_powers(self,px,py,pz):
-        self._powers = (px,py,pz)
+        self.powers = (px,py,pz)
         return
 
     def overlap(self,other):
         "Compute overlap element with another PGBF"
-        #print self._normalization,other._normalization,\
-        #       self._exponent,self._powers,self._origin,\
-        #       other._exponent,other._powers,other._origin
-        return self._normalization*other._normalization*\
-               overlap(self._exponent,self._powers,self._origin,
-                       other._exponent,other._powers,other._origin)
+        return self.norm*other.norm*\
+               overlap(self.exp,self.powers,self.origin,
+                       other.exp,other.powers,other.origin)
 
     def kinetic(self,other):
         "Overlap between two gaussians. THO eq. 2.14."
-        return self._normalization*other._normalization*\
-               kinetic(self._exponent,self._powers,self._origin,
-                       other._exponent,other._powers,other._origin)
+        return self.norm*other.norm*\
+               kinetic(self.exp,self.powers,self.origin,
+                       other.exp,other.powers,other.origin)
 
     def multipole(self,other,i,j,k):
         from pyints import multipole_ints
-        return self._normalization*other._normalization*\
+        return self.norm*other.norm*\
                multipole_ints((i,j,k),
-                              self._exponent,self._powers,self._origin,
-                              other._exponent,other._powers,other._origin)
+                              self.exp,self.powers,self.origin,
+                              other.exp,other.powers,other.origin)
 
 
     #Need to rewrite this to:
-    #  1. pull the _normalization constants out front to be consistent
+    #  1. pull the norm constants out front to be consistent
     #     with overlap() and kinetic()
     #  2. reorder the arguments to be in the same order as overlap()
     #     and kinetic()
     def nuclear(self,other,C):
         "THO eq. 2.17 and 3.1"
-        return nuclear_attraction(self._origin,self._normalization,
-                                  self._powers,self._exponent,
-                                  other._origin,other._normalization,
-                                  other._powers,other._exponent,
+        return nuclear_attraction(self.origin,self.norm,
+                                  self.powers,self.exp,
+                                  other.origin,other.norm,
+                                  other.powers,other.exp,
                                   C)
 
     def nuclear_gradient(self,other,C):
-        return self._normalization*other._normalization*\
-               array(grad_nuc_att(self._origin,self._powers,self._exponent,
-                            other._origin,other._powers,other._exponent,
+        return self.norm*other.norm*\
+               array(grad_nuc_att(self.origin,self.powers,self.exp,
+                            other.origin,other.powers,other.exp,
                             C))
 
     def amp(self,x,y,z):
         "Compute the amplitude of the PGBF at point x,y,z"
-        i,j,k = self._powers
-        x0,y0,z0 = self._origin
-        return self._normalization*self._coefficient*\
+        i,j,k = self.powers
+        x0,y0,z0 = self.origin
+        return self.norm*self.coef*\
                pow(x-x0,i)*pow(y-y0,j)*pow(z-z0,k)*\
-               exp(-self._exponent*dist2((x,y,z),(x0,y0,z0)))
+               exp(-self.exp*dist2((x,y,z),(x0,y0,z0)))
 
     def move_center(self,dx,dy,dz):
-        self._origin = (self._origin[0]+dx,self._origin[1]+dy,self._origin[2]+dz)
+        self.origin = (self.origin[0]+dx,self.origin[1]+dy,self.origin[2]+dz)
         return
 
     # Private
     def normalize(self):
         "Normalize basis function. From THO eq. 2.2"
-        l,m,n = self._powers
-        alpha = self._exponent
-        self._normalization = sqrt(pow(2,2*(l+m+n)+1.5)*
+        l,m,n = self.powers
+        alpha = self.exp
+        self.norm = sqrt(pow(2,2*(l+m+n)+1.5)*
                                    pow(alpha,l+m+n+1.5)/
                                    fact2(2*l-1)/fact2(2*m-1)/
                                    fact2(2*n-1)/pow(pi,1.5))
         # This is a hack to allow zero-valued exponents, for testing
-        if abs(alpha) < 1e-8: self._normalization = 1.
+        if abs(alpha) < 1e-8: self.norm = 1.
         return
 
 
     # Other overloads
     def __str__(self):
-	return "PGBF(%.2f," % self._exponent +\
-               "(%.2f,%.2f,%.2f)," % self._origin +\
-               "(%d,%d,%d)," % self._powers +\
-               "%.2f)" % self._normalization
+	return "PGBF(%.2f," % self.exp +\
+               "(%.2f,%.2f,%.2f)," % self.origin +\
+               "(%d,%d,%d)," % self.powers +\
+               "%.2f)" % self.norm
 
     def prim_str(self,topnorm=1):
         return "    <prim exp=\"%6.4f\" coeff=\"%6.4f\" ncoeff=\"%6.4f\"/>\n" \
-               % (self.exp(),self.coef(),topnorm*self.norm()*self.coef())
+               % (self.exp(),self.coef,topnorm*self.norm*self.coef)
 
     def laplacian(self,pos):
         amp = self.amp(pos[0],pos[1],pos[2])
-        alpha = self._exponent
-        x = pos[0]-self._origin[0]
-        y = pos[1]-self._origin[1]
-        z = pos[2]-self._origin[2]
+        alpha = self.exp
+        x = pos[0]-self.origin[0]
+        y = pos[1]-self.origin[1]
+        z = pos[2]-self.origin[2]
         x2 = x*x
         y2 = y*y
         z2 = z*z
         r2 = x2+y2+z2
-        L,M,N = self._powers
+        L,M,N = self.powers
         term = (L*(L-1)/x2 + M*(M-1)/y2 + N*(N-1)/z2) +\
                 4*alpha*alpha*r2 - 2*alpha*(2*(L+M+N)+3)
-        return self._normalization*self._coefficient*amp*term
+        return self.norm*self.coef*amp*term
 
     def grad_old(self,pos):
         amp = self.amp(pos[0],pos[1],pos[2])
-        alpha = self._exponent
-        L,M,N = self._powers
-        x = pos[0]-self._origin[0]
-        y = pos[1]-self._origin[1]
-        z = pos[2]-self._origin[2]
+        alpha = self.exp
+        L,M,N = self.powers
+        x = pos[0]-self.origin[0]
+        y = pos[1]-self.origin[1]
+        z = pos[2]-self.origin[2]
         val = array([L/x - 2*x*alpha,M/y - 2*y*alpha,N/z-2*z*alpha])
-        return self._normalization*self._coefficient*val*amp
+        return self.norm*self.coef*val*amp
 
     def grad(self,x,y,z):
-        alpha = self._exponent
-        I,J,K = self._powers
-        C = self._normalization*self._coefficient
-        x0,y0,z0 = self._origin
+        alpha = self.exp
+        I,J,K = self.powers
+        C = self.norm*self.coef
+        x0,y0,z0 = self.origin
         fx = pow(x-x0,I)*exp(-alpha*pow(x-x0,2))
         fy = pow(y-y0,J)*exp(-alpha*pow(y-y0,2))
         fz = pow(z-z0,K)*exp(-alpha*pow(z-z0,2))
@@ -190,27 +183,27 @@ class PGBF:
 # Friend functions
 def coulomb(gA,gB,gC,gD):
     """Coulomb interaction between four cartesian Gaussians; THO eq. 2.22"""
-    return coulomb_repulsion(gA._origin,gA._normalization,gA._powers,
-                             gA._exponent,gB._origin,gB._normalization,
-                             gB._powers,gB._exponent,gC._origin,
-                             gC._normalization,gC._powers,gC._exponent,
-                             gD._origin,gD._normalization,gD._powers,
-                             gD._exponent)
+    return coulomb_repulsion(gA.origin,gA.norm,gA.powers,
+                             gA.exp,gB.origin,gB.norm,
+                             gB.powers,gB.exp,gC.origin,
+                             gC.norm,gC.powers,gC.exp,
+                             gD.origin,gD.norm,gD.powers,
+                             gD.exp)
 
 def three_center(gA,gB,gC):
     "Three-center integral between Gaussians"
-    na = gA._normalization
-    nb = gB._normalization
-    nc = gC._normalization
-    ix = three_center_1D(gA._origin[0],gA._powers[0],gA._exponent,
-                         gB._origin[0],gB._powers[0],gB._exponent,
-                         gC._origin[0],gC._powers[0],gC._exponent)
-    iy = three_center_1D(gA._origin[1],gA._powers[1],gA._exponent,
-                        gB._origin[1],gB._powers[1],gB._exponent,
-                        gC._origin[1],gC._powers[1],gC._exponent)
-    iz = three_center_1D(gA._origin[2],gA._powers[2],gA._exponent,
-                        gB._origin[2],gB._powers[2],gB._exponent,
-                        gC._origin[2],gC._powers[2],gC._exponent)
+    na = gA.norm
+    nb = gB.norm
+    nc = gC.norm
+    ix = three_center_1D(gA.origin[0],gA.powers[0],gA.exp,
+                         gB.origin[0],gB.powers[0],gB.exp,
+                         gC.origin[0],gC.powers[0],gC.exp)
+    iy = three_center_1D(gA.origin[1],gA.powers[1],gA.exp,
+                        gB.origin[1],gB.powers[1],gB.exp,
+                        gC.origin[1],gC.powers[1],gC.exp)
+    iz = three_center_1D(gA.origin[2],gA.powers[2],gA.exp,
+                        gB.origin[2],gB.powers[2],gB.exp,
+                        gC.origin[2],gC.powers[2],gC.exp)
     return na*nb*nc*ix*iy*iz
 
 def test_3cent():

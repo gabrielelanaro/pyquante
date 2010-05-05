@@ -11,3 +11,10 @@ try:
 except ImportError:
     openbabel_enabled = False
     print >> sys.stderr, "openbabel not found in path, switching to PyQuante backend"
+
+try:
+    import clibint
+    libint_enabled = True
+except ImportError:
+    libint_enabled = False
+    print >> sys.stderr, "libint extension not found, switching to normal ERI computation"

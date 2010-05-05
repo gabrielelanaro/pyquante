@@ -1445,14 +1445,14 @@ def Shift(G,i,k,xij,xkl):
 
 def general_test(g1,g2,g3,g4):
     from pyints import coulomb_repulsion as coulomb_repulsion_old
-    intg = coulomb_repulsion_old(g1.origin(),g1.norm(),g1.powers(),g1.exp(),
-                                 g2.origin(),g2.norm(),g2.powers(),g2.exp(),
-                                 g3.origin(),g3.norm(),g3.powers(),g3.exp(),
-                                 g4.origin(),g4.norm(),g4.powers(),g4.exp())
-    intr = coulomb_repulsion(g1.origin(),g1.norm(),g1.powers(),g1.exp(),
-                             g2.origin(),g2.norm(),g2.powers(),g2.exp(),
-                             g3.origin(),g3.norm(),g3.powers(),g3.exp(),
-                             g4.origin(),g4.norm(),g4.powers(),g4.exp())
+    intg = coulomb_repulsion_old(g1.origin,g1.norm,g1.powers,g1.exp,
+                                 g2.origin,g2.norm,g2.powers,g2.exp,
+                                 g3.origin,g3.norm,g3.powers,g3.exp,
+                                 g4.origin,g4.norm,g4.powers,g4.exp)
+    intr = coulomb_repulsion(g1.origin,g1.norm,g1.powers,g1.exp,
+                             g2.origin,g2.norm,g2.powers,g2.exp,
+                             g3.origin,g3.norm,g3.powers,g3.exp,
+                             g4.origin,g4.norm,g4.powers,g4.exp)
     return intg,intr
 
 def test():
