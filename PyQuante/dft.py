@@ -75,20 +75,13 @@ def getXC(gr,nel,**opts):
     if do_grad_dens:
         # A,B are dimensioned (npts,3)
         A = transpose(0.5*transpose(gr.grad())*(weight*(2*dfxcdgaa+dfxcdgab)))
-        bfgrads = gr.bfgrads()
         for a in xrange(nbf):
             for b in xrange(a+1):
-                B = grad_bfab(A.shape,gr.bfgrid,a,b,bfgrads[:,a,:],bfgrads[:,b,:])
+                B = gr.grad_bf_prod(a,b)
+                #grad_bfab(A.shape,gr.bfgrid,a,b,bfgrads[:,a,:],bfgrads[:,b,:])
                 Fxc[a,b] += sum(ravel(A*B))
                 Fxc[b,a] = Fxc[a,b]
     return Exc,Fxc
-
-def grad_bfab(dims,bfgrid,a,b,bfgrad_a,bfgrad_b):
-    "Form grad(chia,chib)."
-    B = zeros(dims,'d')
-    for i in xrange(3):
-        B[:,i] = bfgrid[:,a]*bfgrad_b[:,i] + bfgrid[:,b]*bfgrad_a[:,i]
-    return B
 
 def dft(atoms,**opts):
     """\

@@ -30,16 +30,19 @@ class MolecularGrid:
         self.fineness = fineness
         self.make_atom_grids(**opts)
         self.patch_atoms(**opts)
-        self._length = None
+        self.calc_length()
         self._points = self.points()
         self._weights = self.weights()
         return
 
     def __len__(self):
+        return self._length
+
+    def calc_length(self):
         self._length = 0
         for agr in self.atomgrids:
             self._length += len(agr)
-        return self._length
+        return
 
     def make_atom_grids(self,**opts):
         self.atomgrids = []
@@ -106,6 +109,8 @@ class MolecularGrid:
         "Set the basis func amplitude at each grid point"
         for agr in self.atomgrids: agr.set_bf_amps(bfs,**opts)
         self.make_bfgrid()
+        if self.do_grad_dens:
+            self.make_bfgrads()
         return
 
     def setdens(self,D,**opts):
@@ -143,16 +148,24 @@ class MolecularGrid:
             gr[i,:] = pts[i].grad()
         return gr        
 
-    def bfgrads(self):
+    def make_bfgrads(self):
         "Compute gradients over all bfs and all points"
         pts = self._points
         npts = len(pts)
         nbf = len(pts[0].bfgrads[:,0])
-        mtx = zeros((npts,nbf,3),'d')
+        self.bfgrads = zeros((npts,nbf,3),'d')
         for i in xrange(npts):
-            mtx[i,:,:] = pts[i].bfgrads[:,:]
-        return mtx        
-    
+            self.bfgrads[i,:,:] = pts[i].bfgrads[:,:]
+        return
+
+    def grad_bf_prod(self,a,b):
+        "Form grad(chia,chib)."
+        B = zeros((self._length,3),'d')
+        for i in xrange(3):
+            B[:,i] = self.bfgrid[:,a]*self.bfgrads[:,b,i] \
+                     + self.bfgrid[:,b]*self.bfgrads[:,a,i]
+        return B
+
     def bfs(self,i):
         "Return a basis function over the entire grid"
         bfs = []

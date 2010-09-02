@@ -60,17 +60,17 @@ shell_ext = ["Src/PyQuante/shell.c"] + lib_shell
 ext_modules=[Extension("PyQuante.cints",["Src/cints.c"],libraries=libs),
              Extension("PyQuante.chgp",["Src/chgp.c"],libraries=libs),
              Extension("PyQuante.crys",["Src/crys.c"],libraries=libs),
-             #Extension("PyQuante.contracted_gto",
-             #          cgto_ext,
-             #          include_dirs=lib_includes,
-             #          ),
+             Extension("PyQuante.contracted_gto",
+                       cgto_ext,
+                       include_dirs=lib_includes,
+                       ),
              Extension("PyQuante.primitive_gto",
                        pgto_ext,
                        include_dirs=lib_includes,
                        ),
-             #Extension("PyQuante.shell",
-             #          shell_ext,
-             #          include_dirs = lib_includes,)
+             Extension("PyQuante.shell",
+                       shell_ext,
+                       include_dirs = lib_includes,)
              ]
 
 # Fetching command line option
