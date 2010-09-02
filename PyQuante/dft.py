@@ -78,7 +78,6 @@ def getXC(gr,nel,**opts):
         for a in xrange(nbf):
             for b in xrange(a+1):
                 B = gr.grad_bf_prod(a,b)
-                #grad_bfab(A.shape,gr.bfgrid,a,b,bfgrads[:,a,:],bfgrads[:,b,:])
                 Fxc[a,b] += sum(ravel(A*B))
                 Fxc[b,a] = Fxc[a,b]
     return Exc,Fxc
