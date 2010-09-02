@@ -247,7 +247,6 @@ class DFTHamiltonian(AbstractHamiltonian):
         grid_fineness = opts.get('grid_fineness',1)
         self.gr = MolecularGrid(molecule,grid_nrad,grid_fineness,**opts) 
         self.gr.set_bf_amps(bfs)
-        self.bfgrid = self.gr.allbfs() # bfs over all grid points
         return
 
     def update(self,**opts):
@@ -262,7 +261,7 @@ class DFTHamiltonian(AbstractHamiltonian):
         self.J = getJ(self.ERI,D)
         self.Ej = 2*trace2(D,self.J)
 
-        self.Exc,self.XC = getXC(self.gr,self.nel,self.bfgrid,
+        self.Exc,self.XC = getXC(self.gr,self.nel,
                                  functional=self.functional)
 
         self.Eone = 2*trace2(D,self.h)

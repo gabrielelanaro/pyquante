@@ -3873,6 +3873,12 @@ PyQuante/PyQuante2.py).
 Releasing v 1.6.2 where I remove the shebangs since they make the FC
 installation barf, plus a few more minor bugs along the way.
 
+-----2010-09-02-----
+* bfgrid is now a grid attribute; this is done to simplify the grid
+  module in preparation for a rewrite.
+* renamed allbfs() to make_bfgrid() in MolecularGrid and AtomicGrid
+* Created a new routine MG2 that contains the new molecular grids.
+
 
 TODO LIST
 * Integrate Hatem's leapfrog.py with the stuff in Dynamics.py

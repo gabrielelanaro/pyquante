@@ -19,18 +19,14 @@ name = "H2O/DFT"
 def main():
     r = 1./0.5291772                  # conversion factor modified
     h2o=Molecule('h2o',atomlist = [(8,(0,0,0)),(1,(r,0,0)),(1,(0,r,0))])
-    en,orbe,orbs = dft(h2o)
+    en,orbe,orbs = dft(h2o,functional='BLYP')
     return en
 
-class WaterDFTTest(sciunittest.TestCase):
-    def runTest(self):
-        """Energy of H2O (DFT) close to -75.8500459"""
-        E = main()
-        self.assertInside(E, energy, 1e-4)
-
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(WaterDFTTest)
+def profmain():
+    import cProfile,pstats
+    cProfile.run('main()','prof')
+    prof = pstats.Stats('prof')
+    prof.strip_dirs().sort_stats('time').print_stats(15)
 
 if __name__ == '__main__':
-    import unittest
-    unittest.TextTestRunner(verbosity=2).run(suite())
+    profmain()

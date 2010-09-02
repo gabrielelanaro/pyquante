@@ -131,7 +131,7 @@ class AtomicGrid:
             bfs[j] = self.points[j].bfs[i]
         return bfs
 
-    def allbfs(self):
+    def make_bfgrid(self):
         "Construct a matrix with bfs in columns over the entire grid, "
         " so that R[0] is the first basis function, R[1] is the second..."
         bfs = []

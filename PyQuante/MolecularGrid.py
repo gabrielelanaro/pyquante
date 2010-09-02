@@ -95,7 +95,6 @@ class MolecularGrid:
                 Ptot = P_iat/Pdenom
                 point._w *= Ptot
         return
-    
 
     def points(self):
         "Dynamically form an array of all grid points"
@@ -106,6 +105,7 @@ class MolecularGrid:
     def set_bf_amps(self,bfs,**opts):
         "Set the basis func amplitude at each grid point"
         for agr in self.atomgrids: agr.set_bf_amps(bfs,**opts)
+        self.make_bfgrid()
         return
 
     def setdens(self,D,**opts):
@@ -143,7 +143,7 @@ class MolecularGrid:
             gr[i,:] = pts[i].grad()
         return gr        
 
-    def grads(self):
+    def bfgrads(self):
         "Compute gradients over all bfs and all points"
         pts = self._points
         npts = len(pts)
@@ -168,20 +168,21 @@ class MolecularGrid:
         for agr in self.atomgrids: npts += agr.npts()
         return npts
 
-    def allbfs(self):
+    # This function should be renamed:
+    def make_bfgrid(self):
         "Construct a matrix with bfs in columns over the entire grid, "
         " so that R[0] is the first basis function, R[1] is the second..."
         bfs = []
         for agr in self.atomgrids:
-            bfs.extend(agr.allbfs())
-        bfs = array(bfs)
+            bfs.extend(agr.make_bfgrid())
+        self.bfgrid = array(bfs)
         npts = self.npts()
-        nbf,nrem = divmod(len(bfs),npts)
-        if nrem != 0: raise Exception("Remainder in divmod allbfs")
+        nbf,nrem = divmod(len(self.bfgrid),npts)
+        if nrem != 0: raise Exception("Remainder in divmod make_bfgrid")
         nbf2 = self.nbf()
         if nbf != nbf2: raise Exception("Wrong # bfns %d %d" % (nbf,nbf2))
-        bfs = reshape(bfs,(npts,nbf))
-        return bfs
+        self.bfgrid = reshape(bfs,(npts,nbf))
+        return
 
 # These are the functions for the becke projection operator
 def fbecke(x,n=3):

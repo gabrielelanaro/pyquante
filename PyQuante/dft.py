@@ -25,37 +25,7 @@ import logging
 from Convergence import SimpleAverager
 from LA2 import SymOrth
 
-# This is the version before Ann Mattsson made her changes. I'm keeping
-#  it around for old time's sake. Putting this comment in 2007-02;
-#  should delete the function after 2007-08.
-def getXCold(gr,nel,bfgrid,**opts):
-    "Form the exchange-correlation matrix"
-    # Needs to be rewritten with a more intelligent
-    # handling of the functionals
-    from DFunctionals import XCold
-    verbose = opts.get('verbose',False)
-
-    nbf = gr.nbf()
-    Vxc = zeros((nbf,nbf),'d')
-    dens = gr.dens() # densities at each grid point
-    weight = gr.weights()  # weights at each grid point
-    gamma = gr.gamma()
-
-    exc,vxc = XC(dens,gamma,**opts)
-
-    renorm_factor = nel/dot(weight,dens)
-    weight *= renorm_factor # Renormalize to the proper # electrons
-
-    Exc = dot(weight,exc)
-    wv = weight*vxc  # Combine w*v in a vector for multiplication by bfs
-    
-    for a in xrange(nbf):
-        wva = wv*bfgrid[:,a] 
-        for b in xrange(nbf):
-            Vxc[a,b] = dot(wva,bfgrid[:,b])
-    return Exc,Vxc
-
-def getXC(gr,nel,bfgrid,**opts):
+def getXC(gr,nel,**opts):
     "Form the exchange-correlation matrix"
 
     functional = opts.get('functional','SVWN')
@@ -91,9 +61,9 @@ def getXC(gr,nel,bfgrid,**opts):
     nbf = gr.nbf()
     Fxc = zeros((nbf,nbf),'d')
     for a in xrange(nbf):
-        wva = wv*bfgrid[:,a] 
+        wva = wv*gr.bfgrid[:,a] 
         for b in xrange(nbf):
-            Fxc[a,b] = dot(wva,bfgrid[:,b])
+            Fxc[a,b] = dot(wva,gr.bfgrid[:,b])
 
     # Now do the gamma-dependent part.
     # Fxc_a += dot(2 dfxcdgaa*graddensa + dfxcdgab*graddensb,grad(chia*chib))
@@ -105,16 +75,20 @@ def getXC(gr,nel,bfgrid,**opts):
     if do_grad_dens:
         # A,B are dimensioned (npts,3)
         A = transpose(0.5*transpose(gr.grad())*(weight*(2*dfxcdgaa+dfxcdgab)))
-        B = zeros(A.shape,'d')
-        grads = gr.grads()
+        bfgrads = gr.bfgrads()
         for a in xrange(nbf):
             for b in xrange(a+1):
-                for i in xrange(3):
-                    B[:,i] = bfgrid[:,a]*grads[:,b,i] + bfgrid[:,b]*grads[:,a,i]
+                B = grad_bfab(A.shape,gr.bfgrid,a,b,bfgrads[:,a,:],bfgrads[:,b,:])
                 Fxc[a,b] += sum(ravel(A*B))
                 Fxc[b,a] = Fxc[a,b]
     return Exc,Fxc
-    
+
+def grad_bfab(dims,bfgrid,a,b,bfgrad_a,bfgrad_b):
+    "Form grad(chia,chib)."
+    B = zeros(dims,'d')
+    for i in xrange(3):
+        B[:,i] = bfgrid[:,a]*bfgrad_b[:,i] + bfgrid[:,b]*bfgrad_a[:,i]
+    return B
 
 def dft(atoms,**opts):
     """\
@@ -177,8 +151,6 @@ def dft(atoms,**opts):
     gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**opts) 
     gr.set_bf_amps(bfs)
 
-    bfgrid = gr.allbfs() # bfs over all grid points
-
     # It would be nice to have a more intelligent treatment of the guess
     # so that I could pass in a density rather than a set of orbs.
     orbs = opts.get('orbs',None)
@@ -214,7 +186,7 @@ def dft(atoms,**opts):
 
         J = getJ(Ints,D)
 
-        Exc,XC = getXC(gr,nel,bfgrid,**opts)
+        Exc,XC = getXC(gr,nel,**opts)
             
         F = h+2*J+XC
         if DoAveraging: F = avg.getF(F,D)
@@ -289,8 +261,6 @@ def udft(atoms,**opts):
     gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**opts) 
     gr.set_bf_amps(bfs)
 
-    bfgrid = gr.allbfs() # bfs over all grid points
-
     # It would be nice to have a more intelligent treatment of the guess
     # so that I could pass in a density rather than a set of orbs.
     orbs = opts.get('orbs',None)
@@ -319,7 +289,7 @@ def udft(atoms,**opts):
         Ja = getJ(Ints,Da)
         Jb = getJ(Ints,Db)
 
-        Exc,XCa,XCb = getXC_sp(gr,nel,bfgrid,**opts)
+        Exc,XCa,XCb = getXC_sp(gr,nel,**opts)
             
         Fa = h+Ja+Jb-Ka
         Fb = h+Ja+Jb-Kb
@@ -423,8 +393,6 @@ def dft_fixed_occ(atoms,occs,**opts):
     gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**opts) 
     gr.set_bf_amps(bfs)
 
-    bfgrid = gr.allbfs() # bfs over all grid points
-
     # It would be nice to have a more intelligent treatment of the guess
     # so that I could pass in a density rather than a set of orbs.
     orbs = opts.get('orbs',None)
@@ -464,7 +432,7 @@ def dft_fixed_occ(atoms,occs,**opts):
 
         J = getJ(Ints,D)
 
-        Exc,XC = getXC(gr,nel,bfgrid,**opts)
+        Exc,XC = getXC(gr,nel,**opts)
             
         F = h+2*J+XC
         if DoAveraging: F = avg.getF(F,D)
@@ -553,8 +521,6 @@ def udft_fixed_occ(atoms,occa, occb, **opts):
     gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**opts) 
     gr.set_bf_amps(bfs)
 
-    bfgrid = gr.allbfs() # bfs over all grid points
-
     # It would be nice to have a more intelligent treatment of the guess
     # so that I could pass in a density rather than a set of orbs.
     orbs = opts.get('orbs',None)
@@ -591,10 +557,10 @@ def udft_fixed_occ(atoms,occa, occb, **opts):
 
         #remember we must use a functional that has no correlation energy
         gr.setdens(Da)
-        exca,XCa = getXC(gr,nel,bfgrid,**opts)
+        exca,XCa = getXC(gr,nel,**opts)
         
         gr.setdens(Db)
-        excb,XCb = getXC(gr,nel,bfgrid,**opts)
+        excb,XCb = getXC(gr,nel,**opts)
         
         Fa = h+Ja+Jb+XCa
         Fb = h+Ja+Jb+XCb
