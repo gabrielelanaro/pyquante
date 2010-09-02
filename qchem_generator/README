@@ -1,0 +1,17 @@
+QChem Generator
+============
+Rick Muller <rmuller@sandia.gov>
+
+The QChem Generator is a branch of the PyQuante Project that creates C
+programs out of PyQuante molecules. Currently the code is very simple.
+
+The code is driven by the Python script make_hf_driver.py. There are
+several test programs in that module that show how a PyQuante Molecule
+object can be used to generate a main.c program. This program can be
+compiled and linked with cints.c, a modification of the PyQuante
+integral code, and qc.c, a set of helper functions, to produce a
+simple Hartree-Fock program.
+
+Currently the program only needs the LAPACK routine dsygv.
+
+
