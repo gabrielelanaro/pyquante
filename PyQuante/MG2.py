@@ -1,4 +1,4 @@
-from NumWrap import zeros,dot
+from NumWrap import zeros,dot,matrixmultiply
 
 class MG2:
     """
@@ -17,9 +17,6 @@ class MG2:
 
     xyzw:
       ng x 4 ndarray, the x,y,z, and weigt of each grid point
-
-    iatom:
-      ng ndarray, the atom index of each grid point
 
     density:
       ng x 2 ndarray, the spin-up and spin-down density
@@ -123,10 +120,10 @@ class MG2:
         return
 
     def patch_grids(self,atomgrids):
-        """Create the xyzw and iatom arrays from the atomgrids, which
+        """Create the xyzw array from the atomgrids, which
         can then be discarded."""
         self.xyzw = zeros((self.ng,4),'d')
-        self.iatom = zeros(self.ng,'l')
+        #self.iatom = zeros(self.ng,'l') # Can also keep the atom index, if desired
         ig = 0
         nat = len(atomgrids)
         for iat in xrange(nat):
@@ -134,7 +131,7 @@ class MG2:
             for i in xrange(npts):
                 point = atomgrids[iat].points[i]
                 self.xyzw[ig,:] = point.xyzw()
-                self.iatom[ig] = iat
+                #self.iatom[ig] = iat
                 ig += 1
         assert ig == self.ng
         return
@@ -145,25 +142,28 @@ class MG2:
         to a spin polarized case, create the density array and,
         if necessary, the gradients"""
 
-        self.density[:,0] = dot(self.bfgrid,dot(D,self.bfgrid))
+        self.density[:,0] = bdb(self.bfgrid,D)
         if Db is None: # Spin unpolarized case
             self.density[:,1] = self.density[:,0]
         else:
-            self.density[:,1] = dot(self.bfgrid,dot(Db,self.bfgrid))
+            self.density[:,1] = bdb(self.bfgrid,Db)
 
         if self.do_grad:
-            self.grada = dot(self.bfgrid.T,dot(D,self.bfgrads)) +\
-                         dot(self.bfgrads.T,dot(D,self.bfgrid))
-            self.gamma[:,0] = dot(self.grada.T,self.grada)
+            self.grada = 2*bdg(self.bfgrid,D,self.bfgrads)
+            # Note: this code was:
+            #self.grada = bdg(self.bfgrid,D,self.bfgrads) +\
+            #             gdb(self.bfgrads,D,self.bfgrid)
+            # but I can't see that the gdb part does anything different
+            # than the bdg
+            self.gamma[:,0] = abdot(self.grada,self.grada)
             if Db is None:
                 self.gradb = self.grada
                 self.gamma[:,1] = self.gamma[:,0]
                 self.gamma[:,2] = self.gamma[:,0]
             else:
-                self.gradb = dot(self.bfgrid.T,dot(D,self.bfgrads)) +\
-                             dot(self.bfgrads.T,dot(D,self.bfgrid))
-                self.gamma[:,1] = dot(self.gradb.T,self.gradb)
-                self.gamma[:,2] = dot(self.grada.T,self.gradb)
+                self.gradb = 2*bdg(self.bfgrid,Db,self.bfgrads)
+                self.gamma[:,1] = abdot(self.gradb,self.gradb)
+                self.gamma[:,2] = abdot(self.grada,self.gradb)
         return
 
     def zero_density(self):
@@ -188,14 +188,36 @@ class MG2:
     # quite different. But this might avoid a few crashes during
     # porting to the new grids.
 
+# Need to find a faster way to do these, perhaps using tensordot?
+def bdb(b,d):
+    """Basis x Density x Basis matrix multiply."""
+    db = dot(b,d)
+    return abdot(db,b)
+
+def bdg(b,d,g):
+    """Basis x Density x Gradient matrix multiply."""
+    n,m = b.shape
+    _bdg = zeros((n,3),'d')
+    db = dot(b,d)
+    for j in xrange(3):
+        _bdg[:,j] = abdot(db,g[:,:,j])
+    return _bdg
+
+def abdot(A,B):
+    """
+    Multiply two n x m matrices together so that the result is a n-length vector
+    (i.e. the part over m is accumulated).
+    """
+    return (A*B).sum(1)
+
 def new_grid_tester():
     from PyQuante.TestMolecules import he
     from PyQuante.MolecularGrid import MolecularGrid
     from PyQuante.Ints import getbasis
     from PyQuante import SCF
     mol = he
-    gr = MolecularGrid(mol)
-    gr2 = MG2(mol)
+    gr = MolecularGrid(mol,do_grad_dens=True)
+    gr2 = MG2(mol,do_grad=True)
     print "test_length: ",test_length(gr,gr2)
     print "test_distance: ",test_distance(gr,gr2)
 
@@ -211,11 +233,11 @@ def new_grid_tester():
     gr.setdens(hf.dmat)
     gr2.set_density(hf.dmat)
     print "test_density: ",test_density(gr,gr2)
-    # also test gamma
+    print "test_gamma: ",test_gamma(gr,gr2)
 
 def test_density(old,new):
     d = old.dens()-new.density[:,0]-new.density[:,1]
-    return sum(sum(d)) < 1e-5
+    return sum(d) < 1e-5
 
 def test_bfgrid(old,new):
     d = old.bfgrid-new.bfgrid
@@ -233,6 +255,10 @@ def test_distance(old,new):
         x2,y2,z2,w2 = new[i]
         s += dist2((x1,y1,z1),(x2,y2,z2))
     return s<1e-5
+
+def test_gamma(old,new):
+    d = old.get_gamma()-2*(new.gamma[:,0]+new.gamma[:,1])
+    return sum(d) < 1e-5
     
 
 if __name__ == '__main__':

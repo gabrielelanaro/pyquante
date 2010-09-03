@@ -20,10 +20,10 @@ import logging
 
 logger = logging.getLogger("pyquante") # Hack!!!
 
-from math import sqrt,pow
+from math import sqrt,pow,fabs
 from PyQuante.cints import dist
 
-from NumWrap import array2string, fabs, dot, transpose
+from NumWrap import array2string, dot, transpose
 
 
 def get_fock(D,Ints,h):
