@@ -242,7 +242,8 @@ class DFTHamiltonian(AbstractHamiltonian):
     def iterate(self,**opts): return self.iterator.iterate(self,**opts)
 
     def setup_grid(self,molecule,bfs,**opts):
-        from PyQuante.MolecularGrid import MolecularGrid
+        #from PyQuante.MolecularGrid import MolecularGrid
+        from PyQuante.MG2 import MG2 as MolecularGrid
         grid_nrad = opts.get('grid_nrad',32)
         grid_fineness = opts.get('grid_fineness',1)
         self.gr = MolecularGrid(molecule,grid_nrad,grid_fineness,**opts) 

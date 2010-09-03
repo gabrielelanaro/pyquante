@@ -12,7 +12,8 @@
 
 #from math import *
 from Ints import getbasis,getJ,getints
-from MolecularGrid import MolecularGrid
+#from MolecularGrid import MolecularGrid
+from MG2 import MG2 as MolecularGrid
 from LA2 import geigh,mkdens,mkdens_spinavg,trace2
 from fermi_dirac import get_efermi, get_fermi_occs,mkdens_occs, get_entropy
 from NumWrap import zeros,dot,ravel,transpose,sum
@@ -31,24 +32,26 @@ def getXC(gr,nel,**opts):
     functional = opts.get('functional','SVWN')
     do_grad_dens = need_gradients[functional]
 
+    
+    gr.floor_density()  # Insure that the values of the density don't underflow
+    gr.renormalize(nel) # Renormalize to the proper # electrons
+
     dens = gr.dens()
     weight = gr.weights()
     gamma = gr.get_gamma()
     npts = len(dens)
 
-    # This only happens for non-spin-polarized cases
-    amdens = zeros((2,npts),'d')
-    amgamma = zeros((3,npts),'d')
-    amdens[0,:] = amdens[1,:] = 0.5*dens
-    if gamma is not None:
-    	amgamma[0,:] = amgamma[1,:] = amgamma[2,:] = 0.25*gamma
+    if gr.version == 1:
+        amdens = zeros((2,npts),'d')
+        amgamma = zeros((3,npts),'d')
+        amdens[0,:] = amdens[1,:] = 0.5*dens
+        if gamma is not None:
+            amgamma[0,:] = amgamma[1,:] = amgamma[2,:] = 0.25*gamma
+    elif gr.version == 2:
+        amdens = gr.density.T
+        amgamma = gr.gamma.T
 
-    fxc,dfxcdna,dfxcdnb,dfxcdgaa,dfxcdgab,dfxcdgbb = XC(amdens,amgamma,
-                                                        **opts)
-
-    # Renormalize to the proper # electrons
-    renorm_factor = nel/dot(weight,dens)
-    weight *= renorm_factor 
+    fxc,dfxcdna,dfxcdnb,dfxcdgaa,dfxcdgab,dfxcdgbb = XC(amdens,amgamma,**opts)
 
     Exc = dot(weight,fxc)
     wv = weight*dfxcdna  # Combine w*v in a vector for multiplication by bfs
@@ -58,7 +61,7 @@ def getXC(gr,nel,**opts):
     #  by two
 
     # First do the part that doesn't depend upon gamma
-    nbf = gr.nbf()
+    nbf = gr.get_nbf()
     Fxc = zeros((nbf,nbf),'d')
     for a in xrange(nbf):
         wva = wv*gr.bfgrid[:,a] 

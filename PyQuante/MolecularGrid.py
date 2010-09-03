@@ -18,12 +18,13 @@
 """
 from math import sqrt
 from AtomicGrid import AtomicGrid, Bragg
-from NumWrap import array,reshape,zeros
+from NumWrap import array,reshape,zeros,dot
 from PyQuante.cints import dist2
 
 class MolecularGrid:
     "Class to hold grid information from patched atomic grids"
     def __init__(self, atoms, nrad=32, fineness=1,**opts):
+        self.version = 1
         self.do_grad_dens = opts.get('do_grad_dens',False)
         self.atoms = atoms
         self.nrad = nrad 
@@ -37,6 +38,16 @@ class MolecularGrid:
 
     def __len__(self):
         return self._length
+
+    def floor_density(self,tol=1e-9):
+        """
+        Set density values below tol to zero
+        """
+        for j in range(2):
+            for i in range(self.ng):
+                if abs(self.density[i,j]):
+                    self.density[i,j] = 0
+        return
 
     def calc_length(self):
         self._length = 0
@@ -173,7 +184,7 @@ class MolecularGrid:
             bfs.extend(agr.bfs(i))
         return array(bfs)
 
-    def nbf(self):
+    def get_nbf(self):
         return self.atomgrids[0].nbf()
 
     def npts(self):
@@ -181,7 +192,28 @@ class MolecularGrid:
         for agr in self.atomgrids: npts += agr.npts()
         return npts
 
-    # This function should be renamed:
+    def renormalize(self,nel):
+        "Renormalize the density to sum to the proper number of electrons"
+        factor = nel/dot(self.weights(),self.dens())
+        if abs(factor-1) > 1e-2:
+            print "Warning: large renormalization factor found in grid renormalization"
+            print factor
+        # Don't know whether it makes more sense to rescale the weights or the dens.
+        # The density seems to make more sense, I guess
+        #self.scale_weights(factor)
+        self.scale_density(factor)
+        return
+
+    def scale_weights(self,factor):
+        for agr in self.atomgrids:
+            agr.scale_weights(factor)
+        return
+
+    def scale_density(self,factor):
+        for agr in self.atomgrids:
+            agr.scale_density(factor)
+        return
+
     def make_bfgrid(self):
         "Construct a matrix with bfs in columns over the entire grid, "
         " so that R[0] is the first basis function, R[1] is the second..."
@@ -192,7 +224,7 @@ class MolecularGrid:
         npts = self.npts()
         nbf,nrem = divmod(len(self.bfgrid),npts)
         if nrem != 0: raise Exception("Remainder in divmod make_bfgrid")
-        nbf2 = self.nbf()
+        nbf2 = self.get_nbf()
         if nbf != nbf2: raise Exception("Wrong # bfns %d %d" % (nbf,nbf2))
         self.bfgrid = reshape(bfs,(npts,nbf))
         return

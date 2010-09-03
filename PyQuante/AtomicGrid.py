@@ -144,6 +144,16 @@ class AtomicGrid:
 
     def npts(self): return len(self.points)
 
+    def scale_weights(self,factor):
+        for point in self.points:
+            point.scale_weights(factor)
+        return
+
+    def scale_density(self,factor):
+        for point in self.points:
+            point.scale_density(factor)
+        return
+
 # The following two routines return [(ri,wi,nangi)] for nrad shells.
 # The ri's are properly adjusted to go to the proper distances.
 # The wi's are adjusted to only have to be multiplied by wrad from

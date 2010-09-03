@@ -6,13 +6,16 @@ class MG2:
 
     Data objects:
     =============
+    version:
+      Integer, the type of the grid. 1 was the original, these are v=2
+      
     ng:
       Integer, total number of grid points.
 
     nbf:
       Integer: number of basis functions
 
-    do_grad:
+    do_grad_dens:
       Boolean, whether or not we require a density gradient
 
     xyzw:
@@ -46,7 +49,8 @@ class MG2:
 
     """
     def __init__(self,atoms,nrad=32,fineness=1,**kwargs):
-        self.do_grad = kwargs.get('do_grad',False)
+        self.version = 2
+        self.do_grad_dens = kwargs.get('do_grad_dens',False)
         self.atoms = atoms
         self.nrad = nrad
         self.fineness = fineness
@@ -65,7 +69,7 @@ class MG2:
             for ig in xrange(self.ng):
                 x,y,z,w = self.xyzw[ig,:]
                 self.bfgrid[ig,ibf] = bfs[ibf].amp(x,y,z)
-        if self.do_grad:
+        if self.do_grad_dens:
             self.bfgrads = zeros((self.ng,self.nbf,3),'d')
             for ibf in xrange(self.nbf):
                 for ig in xrange(self.ng):
@@ -98,8 +102,6 @@ class MG2:
         """This is Becke's patching algorithm. Attempting to implement
         the normalization that is in eq 22 of that reference."""
         from PyQuante.MolecularGrid import becke_atomic_grid_p
-        from PyQuante.cints import dist2
-        from math import sqrt
         nat = len(self.atoms)
         for iat in xrange(nat):
             ati = self.atoms[iat]
@@ -107,8 +109,6 @@ class MG2:
             for i in xrange(npts):
                 point = atomgrids[iat].points[i]
                 xp,yp,zp,wp = point.xyzw()
-                rip2 = dist2(ati.pos(),(xp,yp,zp))
-                rip = sqrt(rip2)
                 Pnum = 1
                 Pdenom = 0
                 for jat in xrange(nat):
@@ -136,6 +136,14 @@ class MG2:
         assert ig == self.ng
         return
 
+    def grad_bf_prod(self,a,b):
+        "Form grad(chia,chib)."
+        gab = zeros((self.ng,3),'d')
+        for i in xrange(3):
+            gab[:,i] = self.bfgrid[:,a]*self.bfgrads[:,b,i] \
+                     + self.bfgrid[:,b]*self.bfgrads[:,a,i]
+        return gab
+
     def set_density(self,D,Db=None):
         """Given either one density matrix, corresponding to
         a spin unpolarized case, or two density matrices, corresponding
@@ -148,7 +156,7 @@ class MG2:
         else:
             self.density[:,1] = bdb(self.bfgrid,Db)
 
-        if self.do_grad:
+        if self.do_grad_dens:
             self.grada = 2*bdg(self.bfgrid,D,self.bfgrads)
             # Note: this code was:
             #self.grada = bdg(self.bfgrid,D,self.bfgrads) +\
@@ -165,6 +173,20 @@ class MG2:
                 self.gamma[:,1] = abdot(self.gradb,self.gradb)
                 self.gamma[:,2] = abdot(self.grada,self.gradb)
         return
+
+    def renormalize(self,nel):
+        factor = nel/dot(self.xyzw[:,3],self.density.sum(1))
+        if abs(factor-1) > 1e-2:
+            print "Warning: large renormalization factor found in grid renormalization"
+            print factor
+        # Don't know whether it makes more sense to rescale the weights or the dens.
+        # The density seems to make more sense, I guess
+        #self.scale_weights(factor)
+        self.scale_density(factor)
+        return
+
+    def scale_density(self,factor): self.density *= factor
+    def scale_weights(self,factor): self.xyzw[:,3] *= factor
 
     def zero_density(self):
         """Initialize the density matrices for later. If nothing else,
@@ -184,6 +206,7 @@ class MG2:
     def weights(self): return self.xyzw[:,3]
     def grad(self): return self.grada + self.gradb
     def get_gamma(self): return 2*(self.gamma[:,0]+self.gamma[:,1])
+    def get_nbf(self): return self.nbf
     # This can only go so far, since the internal structure is now
     # quite different. But this might avoid a few crashes during
     # porting to the new grids.
@@ -217,7 +240,7 @@ def new_grid_tester():
     from PyQuante import SCF
     mol = he
     gr = MolecularGrid(mol,do_grad_dens=True)
-    gr2 = MG2(mol,do_grad=True)
+    gr2 = MG2(mol,do_grad_dens=True)
     print "test_length: ",test_length(gr,gr2)
     print "test_distance: ",test_distance(gr,gr2)
 

@@ -61,16 +61,17 @@ class GridPoint:
         #  a factor, pull it up to AtomicGrids and have two
         #  explicit cases here.
         if self.do_grad_dens:
-            #gx = 2*dot(self.bfs,matrixmultiply(D,self.bfgrads[:,0])) + \
-            #           2*dot(self.bfgrads[:,0],matrixmultiply(D,self.bfs))
-            #gy = 2*dot(self.bfs,matrixmultiply(D,self.bfgrads[:,1])) + \
-            #           2*dot(self.bfgrads[:,1],matrixmultiply(D,self.bfs))
-            #gz = 2*dot(self.bfs,matrixmultiply(D,self.bfgrads[:,2])) + \
-            #           2*dot(self.bfgrads[:,2],matrixmultiply(D,self.bfs))
-            #self._grad = array((gx,gy,gz))
             self._grad = 2*dot(self.bfs.T,matrixmultiply(D,self.bfgrads)) +\
                          2*dot(self.bfgrads.T,matrixmultiply(D,self.bfs))
             self._gamma = dot(self._grad,self._grad)
+        return
+
+    def scale_density(self,factor):
+        self._dens *= factor
+        return
+
+    def scale_weights(self,factor):
+        self._w *= factor
         return
 
 
