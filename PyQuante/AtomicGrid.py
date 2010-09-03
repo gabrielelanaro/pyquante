@@ -115,12 +115,12 @@ class AtomicGrid:
             dens[i] = self.points[i].dens()
         return dens
 
-    def gamma(self):
+    def get_gamma(self):
         "Return the density gradient gamma for each point in the grid"
         if not self.do_grad_dens: return None
         gamma = zeros(len(self.points),'d')
         for i in xrange(len(self.points)):
-            gamma[i] = self.points[i].gamma()
+            gamma[i] = self.points[i].get_gamma()
         return gamma
 
     def bfs(self,i):

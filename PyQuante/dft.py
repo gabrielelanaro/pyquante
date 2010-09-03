@@ -33,7 +33,7 @@ def getXC(gr,nel,**opts):
 
     dens = gr.dens()
     weight = gr.weights()
-    gamma = gr.gamma()
+    gamma = gr.get_gamma()
     npts = len(dens)
 
     # This only happens for non-spin-polarized cases

@@ -31,7 +31,7 @@ class GridPoint:
 
     def xyzw(self): return (self._x,self._y,self._z,self._w)
     def dens(self): return self._dens
-    def gamma(self): return self._gamma
+    def get_gamma(self): return self._gamma
     def grad(self): return self._grad
     def weight(self): return self._w
     def nbf(self): return len(self.bfs)

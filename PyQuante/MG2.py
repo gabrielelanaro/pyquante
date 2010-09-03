@@ -80,6 +80,7 @@ class MG2:
         self.ng = 0
         for ag in atomgrids:
             self.ng += len(ag)
+        self._length = self.ng # backwards compatibility
         return
 
     def make_atomgrids(self,**kwargs):
@@ -173,6 +174,19 @@ class MG2:
         self.grada = zeros((self.ng,3),'d')
         self.gradb = zeros((self.ng,3),'d')
         self.gamma = zeros((self.ng,3),'d')
+
+    # These are some convenience functions to allow MG2 grids to be
+    # used in the same way as the old MolecularGrid objects
+    def set_bf_amps(self,bfs): self.add_basis(bfs)
+    def setdens(self,D): self.set_density(D)
+    def dens(self): return self.density[:,0]+self.density[:,1]
+    def points(self): return self.xyzw
+    def weights(self): return self.xyzw[:,3]
+    def grad(self): return self.grada + self.gradb
+    def get_gamma(self): return 2*(self.gamma[:,0]+self.gamma[:,1])
+    # This can only go so far, since the internal structure is now
+    # quite different. But this might avoid a few crashes during
+    # porting to the new grids.
 
 def new_grid_tester():
     from PyQuante.TestMolecules import he

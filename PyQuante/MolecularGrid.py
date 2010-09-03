@@ -132,12 +132,12 @@ class MolecularGrid:
             ds.extend(agr.dens())
         return array(ds)
 
-    def gamma(self):
+    def get_gamma(self):
         "Return the density gradient gamma for each point in the grid"
         if not self.do_grad_dens: return None
         gs = []
         for agr in self.atomgrids:
-            gs.extend(agr.gamma())
+            gs.extend(agr.get_gamma())
         return array(gs)
 
     def grad(self):
