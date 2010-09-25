@@ -26,11 +26,12 @@ import logging
 from Convergence import SimpleAverager
 from LA2 import SymOrth
 
-def getXC(gr,nel,**opts):
+def getXC(gr,nel,**kwargs):
     "Form the exchange-correlation matrix"
 
-    functional = opts.get('functional','SVWN')
+    functional = kwargs.get('functional','SVWN')
     do_grad_dens = need_gradients[functional]
+    do_spin_polarized = kwargs.get('do_spin_polarized')
     
     gr.floor_density()  # Insure that the values of the density don't underflow
     gr.renormalize(nel) # Renormalize to the proper # electrons
@@ -50,22 +51,19 @@ def getXC(gr,nel,**opts):
         amdens = gr.density.T
         amgamma = gr.gamma.T
 
-    fxc,dfxcdna,dfxcdnb,dfxcdgaa,dfxcdgab,dfxcdgbb = XC(amdens,amgamma,**opts)
+    fxc,dfxcdna,dfxcdnb,dfxcdgaa,dfxcdgab,dfxcdgbb = XC(amdens,amgamma,**kwargs)
 
     Exc = dot(weight,fxc)
-    wv = weight*dfxcdna  # Combine w*v in a vector for multiplication by bfs
 
-    # Just do the Fxc_a summation here, since we're still looking only
-    #  at the unpolarized special case. May have to multiply the result
-    #  by two
+    wva = weight*dfxcdna  # Combine w*v in a vector for multiplication by bfs
 
     # First do the part that doesn't depend upon gamma
     nbf = gr.get_nbf()
-    Fxc = zeros((nbf,nbf),'d')
-    for a in xrange(nbf):
-        wva = wv*gr.bfgrid[:,a] 
-        for b in xrange(nbf):
-            Fxc[a,b] = dot(wva,gr.bfgrid[:,b])
+    Fxca = zeros((nbf,nbf),'d')
+    for i in xrange(nbf):
+        wva_i = wva*gr.bfgrid[:,i] 
+        for j in xrange(nbf):
+            Fxca[i,j] = dot(wva_i,gr.bfgrid[:,j])
 
     # Now do the gamma-dependent part.
     # Fxc_a += dot(2 dfxcdgaa*graddensa + dfxcdgab*graddensb,grad(chia*chib))
@@ -74,19 +72,49 @@ def getXC(gr,nel,**opts):
     # or a 2d trace product
     # Here A contains the dfxcdgaa stuff
     #      B contains the grad(chia*chib)
+
+    # Possible errors: gr.grad() here should be the grad of the b part?
     if do_grad_dens:
         # A,B are dimensioned (npts,3)
         A = transpose(0.5*transpose(gr.grad())*(weight*(2*dfxcdgaa+dfxcdgab)))
         for a in xrange(nbf):
             for b in xrange(a+1):
                 B = gr.grad_bf_prod(a,b)
-                Fxc[a,b] += sum(ravel(A*B))
-                Fxc[b,a] = Fxc[a,b]
-    return Exc,Fxc
+                Fxca[a,b] += sum(ravel(A*B))
+                Fxca[b,a] = Fxca[a,b]
+    if not do_spin_polarized: return Exc,Fxca
 
-def dft(atoms,**opts):
+    wvb = weight*dfxcdnb  # Combine w*v in a vector for multiplication by bfs
+
+    # First do the part that doesn't depend upon gamma
+    Fxcb = zeros((nbf,nbf),'d')
+    for i in xrange(nbf):
+        wvb_i = wvb*gr.bfgrid[:,i] 
+        for j in xrange(nbf):
+            Fxcb[i,j] = dot(wvb_i,gr.bfgrid[:,j])
+
+    # Now do the gamma-dependent part.
+    # Fxc_b += dot(2 dfxcdgbb*graddensb + dfxcdgab*graddensa,grad(chia*chib))
+    # We can do the dot product as
+    #  sum_grid sum_xyz A[grid,xyz]*B[grid,xyz]
+    # or a 2d trace product
+    # Here A contains the dfxcdgaa stuff
+    #      B contains the grad(chia*chib)
+
+    # Possible errors: gr.grad() here should be the grad of the b part?
+    if do_grad_dens:
+        # A,B are dimensioned (npts,3)
+        A = transpose(0.5*transpose(gr.grad())*(weight*(2*dfxcdgbb+dfxcdgab)))
+        for a in xrange(nbf):
+            for b in xrange(a+1):
+                B = gr.grad_bf_prod(a,b)
+                Fxcb[a,b] += sum(ravel(A*B))
+                Fxcb[b,a] = Fxcb[a,b]
+    return Exc,Fxca,Fxcb
+
+def dft(atoms,**kwargs):
     """\
-    dft(atoms,**opts) - DFT driving routine
+    dft(atoms,**kwargs) - DFT driving routine
 
     atoms       A Molecule object containing the molecule
 
@@ -116,20 +144,20 @@ def dft(atoms,**opts):
                   U       Unrestricted open shell (aka spin-polarized dft)
                           Only A works now. Stay tuned.
     """
-    verbose = opts.get('verbose',False) 
-    ConvCriteria = opts.get('ConvCriteria',1e-4)
-    MaxIter = opts.get('MaxIter',20)
-    DoAveraging = opts.get('DoAveraging',True)
-    ETemp = opts.get('ETemp',False)
-    functional = opts.get('functional','SVWN')
-    opts['do_grad_dens'] = need_gradients[functional]
+    verbose = kwargs.get('verbose',False) 
+    ConvCriteria = kwargs.get('ConvCriteria',1e-4)
+    MaxIter = kwargs.get('MaxIter',20)
+    DoAveraging = kwargs.get('DoAveraging',True)
+    ETemp = kwargs.get('ETemp',False)
+    functional = kwargs.get('functional','SVWN')
+    kwargs['do_grad_dens'] = need_gradients[functional]
 
-    bfs = opts.get('bfs',None)
+    bfs = kwargs.get('bfs',None)
     if not bfs:
-        basis_data = opts.get('basis_data',None)
+        basis_data = kwargs.get('basis_data',None)
         bfs = getbasis(atoms,basis_data)
 
-    integrals = opts.get('integrals',None)
+    integrals = kwargs.get('integrals',None)
     if integrals:
         S,h,Ints = integrals
     else:
@@ -139,15 +167,15 @@ def dft(atoms,**opts):
     enuke = atoms.get_enuke()
 
     # default medium mesh
-    grid_nrad = opts.get('grid_nrad',32)
-    grid_fineness = opts.get('grid_fineness',1)
+    grid_nrad = kwargs.get('grid_nrad',32)
+    grid_fineness = kwargs.get('grid_fineness',1)
 
-    gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**opts) 
+    gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**kwargs) 
     gr.set_bf_amps(bfs)
 
     # It would be nice to have a more intelligent treatment of the guess
     # so that I could pass in a density rather than a set of orbs.
-    orbs = opts.get('orbs',None)
+    orbs = kwargs.get('orbs',None)
     if orbs is None: orbe,orbs = geigh(h,S)
 
     nclosed,nopen = atoms.get_closedopen()
@@ -180,7 +208,7 @@ def dft(atoms,**opts):
 
         J = getJ(Ints,D)
 
-        Exc,XC = getXC(gr,nel,**opts)
+        Exc,XC = getXC(gr,nel,**kwargs)
             
         F = h+2*J+XC
         if DoAveraging: F = avg.getF(F,D)
@@ -198,9 +226,9 @@ def dft(atoms,**opts):
     print "Final %s energy for system %s is %f" % (functional,atoms.name,energy)
     return energy,orbe,orbs
 
-def udft(atoms,**opts):
+def udft(atoms,**kwargs):
     """\
-    udft(atoms,**opts) - Unrestricted spin DFT driving routine
+    udft(atoms,**kwargs) - Unrestricted spin DFT driving routine
 
     atoms       A Molecule object containing the molecule
 
@@ -226,20 +254,21 @@ def udft(atoms,**opts):
     grid_nrad     32      Number of radial shells per atom
     grid_fineness 1       Radial shell fineness. 0->coarse, 1->medium, 2->fine
     """
-    verbose = opts.get('verbose',False) 
-    ConvCriteria = opts.get('ConvCriteria',1e-4)
-    MaxIter = opts.get('MaxIter',20)
-    DoAveraging = opts.get('DoAveraging',True)
-    ETemp = opts.get('ETemp',False)
-    functional = opts.get('functional','SVWN')
-    opts['do_grad_dens'] = need_gradients[functional]
+    verbose = kwargs.get('verbose',False) 
+    ConvCriteria = kwargs.get('ConvCriteria',1e-4)
+    MaxIter = kwargs.get('MaxIter',20)
+    DoAveraging = kwargs.get('DoAveraging',True)
+    ETemp = kwargs.get('ETemp',False)
+    functional = kwargs.get('functional','SVWN')
+    kwargs['do_grad_dens'] = need_gradients[functional]
+    kwargs['do_spin_polarized'] = True
 
-    bfs = opts.get('bfs',None)
+    bfs = kwargs.get('bfs',None)
     if not bfs:
-        basis_data = opts.get('basis_data',None)
+        basis_data = kwargs.get('basis_data',None)
         bfs = getbasis(atoms,basis_data)
 
-    integrals = opts.get('integrals',None)
+    integrals = kwargs.get('integrals',None)
     if integrals:
         S,h,Ints = integrals
     else:
@@ -249,15 +278,15 @@ def udft(atoms,**opts):
     enuke = atoms.get_enuke()
 
     # default medium mesh
-    grid_nrad = opts.get('grid_nrad',32)
-    grid_fineness = opts.get('grid_fineness',1)
+    grid_nrad = kwargs.get('grid_nrad',32)
+    grid_fineness = kwargs.get('grid_fineness',1)
 
-    gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**opts) 
+    gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**kwargs) 
     gr.set_bf_amps(bfs)
 
     # It would be nice to have a more intelligent treatment of the guess
     # so that I could pass in a density rather than a set of orbs.
-    orbs = opts.get('orbs',None)
+    orbs = kwargs.get('orbs',None)
     if not orbs: orbe,orbs = geigh(h,S)
     orbsa = orbsb = orbs
 
@@ -278,12 +307,12 @@ def udft(atoms,**opts):
         Da = mkdens(orbsa,0,nalpha)
         Db = mkdens(orbsb,0,nbeta)
 
-        gr.setdens_sp(Da,Db)
+        gr.setdens(Da,Db)
 
         Ja = getJ(Ints,Da)
         Jb = getJ(Ints,Db)
 
-        Exc,XCa,XCb = getXC_sp(gr,nel,**opts)
+        Exc,XCa,XCb = getXC(gr,nel,**kwargs)
             
         Fa = h+Ja+Jb-Ka
         Fb = h+Ja+Jb-Kb
@@ -305,16 +334,6 @@ def udft(atoms,**opts):
     return energy,orbe,orbs
 
 
-if __name__ == '__main__':
-    from Molecule import Molecule
-    h2 = Molecule('h2o',
-                  [( 1,(0,0,0.35)),
-                   ( 1,(0,0,-0.35))],
-                   units='Angs')
-    en = dft(h2)
-    print en
-
-    
 def mk_auger_dens(c, occ):
     "Forms a density matrix from a coef matrix c and occupations in occ"
     #count how many states we were given
@@ -326,9 +345,9 @@ def mk_auger_dens(c, occ):
     return D
     
     
-def dft_fixed_occ(atoms,occs,**opts):
+def dft_fixed_occ(atoms,occs,**kwargs):
     """\
-    dft(atoms,**opts) - DFT driving routine
+    dft(atoms,**kwargs) - DFT driving routine
 
     atoms       A Molecule object containing the molecule
 
@@ -358,20 +377,20 @@ def dft_fixed_occ(atoms,occs,**opts):
                   U       Unrestricted open shell (aka spin-polarized dft)
                           Only A works now. Stay tuned.
     """
-    verbose = opts.get('verbose',False) 
-    ConvCriteria = opts.get('ConvCriteria',1e-4)
-    MaxIter = opts.get('MaxIter',20)
-    DoAveraging = opts.get('DoAveraging',True)
-    ETemp = opts.get('ETemp',False)
-    functional = opts.get('functional','SVWN')
-    opts['do_grad_dens'] = need_gradients[functional]
+    verbose = kwargs.get('verbose',False) 
+    ConvCriteria = kwargs.get('ConvCriteria',1e-4)
+    MaxIter = kwargs.get('MaxIter',20)
+    DoAveraging = kwargs.get('DoAveraging',True)
+    ETemp = kwargs.get('ETemp',False)
+    functional = kwargs.get('functional','SVWN')
+    kwargs['do_grad_dens'] = need_gradients[functional]
 
-    bfs = opts.get('bfs',None)
+    bfs = kwargs.get('bfs',None)
     if not bfs:
-        basis_data = opts.get('basis_data',None)
+        basis_data = kwargs.get('basis_data',None)
         bfs = getbasis(atoms,basis_data)
 
-    integrals = opts.get('integrals',None)
+    integrals = kwargs.get('integrals',None)
     if integrals:
         S,h,Ints = integrals
     else:
@@ -381,15 +400,15 @@ def dft_fixed_occ(atoms,occs,**opts):
     enuke = atoms.get_enuke()
 
     # default medium mesh
-    grid_nrad = opts.get('grid_nrad',32)
-    grid_fineness = opts.get('grid_fineness',1)
+    grid_nrad = kwargs.get('grid_nrad',32)
+    grid_fineness = kwargs.get('grid_fineness',1)
 
-    gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**opts) 
+    gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**kwargs) 
     gr.set_bf_amps(bfs)
 
     # It would be nice to have a more intelligent treatment of the guess
     # so that I could pass in a density rather than a set of orbs.
-    orbs = opts.get('orbs',None)
+    orbs = kwargs.get('orbs',None)
     if orbs is None: orbe,orbs = geigh(h,S)
 
     nclosed,nopen = atoms.get_closedopen()
@@ -426,7 +445,7 @@ def dft_fixed_occ(atoms,occs,**opts):
 
         J = getJ(Ints,D)
 
-        Exc,XC = getXC(gr,nel,**opts)
+        Exc,XC = getXC(gr,nel,**kwargs)
             
         F = h+2*J+XC
         if DoAveraging: F = avg.getF(F,D)
@@ -452,12 +471,12 @@ def dft_fixed_occ(atoms,occs,**opts):
     print "Final %s energy for system %s is %f" % (functional,atoms.name,energy)
     return energy,orbe,orbs
     
-def udft_fixed_occ(atoms,occa, occb, **opts):
+def udft_fixed_occ(atoms,occa, occb, **kwargs):
     """\
     occa and occb represent the orbital occupation arrays for 
     the calculating spin orbitals with holes
     
-    udft(atoms,**opts) - Unrestricted spin DFT driving routine
+    udft(atoms,**kwargs) - Unrestricted spin DFT driving routine
 
     atoms       A Molecule object containing the molecule
 
@@ -483,23 +502,24 @@ def udft_fixed_occ(atoms,occa, occb, **opts):
     grid_nrad     32      Number of radial shells per atom
     grid_fineness 1       Radial shell fineness. 0->coarse, 1->medium, 2->fine
     """
-    verbose = opts.get('verbose',False) 
-    ConvCriteria = opts.get('ConvCriteria',1e-4)
-    MaxIter = opts.get('MaxIter',20)
-    DoAveraging = opts.get('DoAveraging',True)
-    averaging = opts.get('averaging',0.5)
-    ETemp = opts.get('ETemp',False)
-    functional = opts.get('functional','LDA') 
+    verbose = kwargs.get('verbose',False) 
+    ConvCriteria = kwargs.get('ConvCriteria',1e-4)
+    MaxIter = kwargs.get('MaxIter',20)
+    DoAveraging = kwargs.get('DoAveraging',True)
+    averaging = kwargs.get('averaging',0.5)
+    ETemp = kwargs.get('ETemp',False)
+    functional = kwargs.get('functional','LDA') 
     #default to LDA which has no correlation since that is easier
-    
-    opts['do_grad_dens'] = need_gradients[functional]
 
-    bfs = opts.get('bfs',None)
+    kwargs['do_grad_dens'] = need_gradients[functional]
+    kwargs['do_spin_polarized'] = True
+
+    bfs = kwargs.get('bfs',None)
     if not bfs:
-        basis_data = opts.get('basis_data',None)
+        basis_data = kwargs.get('basis_data',None)
         bfs = getbasis(atoms,basis_data)
 
-    integrals = opts.get('integrals',None)
+    integrals = kwargs.get('integrals',None)
     if integrals:
         S,h,Ints = integrals
     else:
@@ -509,15 +529,15 @@ def udft_fixed_occ(atoms,occa, occb, **opts):
     enuke = atoms.get_enuke()
 
     # default medium mesh
-    grid_nrad = opts.get('grid_nrad',32)
-    grid_fineness = opts.get('grid_fineness',1)
+    grid_nrad = kwargs.get('grid_nrad',32)
+    grid_fineness = kwargs.get('grid_fineness',1)
 
-    gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**opts) 
+    gr = MolecularGrid(atoms,grid_nrad,grid_fineness,**kwargs) 
     gr.set_bf_amps(bfs)
 
     # It would be nice to have a more intelligent treatment of the guess
     # so that I could pass in a density rather than a set of orbs.
-    orbs = opts.get('orbs',None)
+    orbs = kwargs.get('orbs',None)
     if not orbs: orbe,orbs = geigh(h,S)
     orbsa = orbsb = orbs
 
@@ -550,11 +570,8 @@ def udft_fixed_occ(atoms,occa, occb, **opts):
         Jb = getJ(Ints,Db)
 
         #remember we must use a functional that has no correlation energy
-        gr.setdens(Da)
-        exca,XCa = getXC(gr,nel,**opts)
-        
-        gr.setdens(Db)
-        excb,XCb = getXC(gr,nel,**opts)
+        gr.setdens(Da,Db)
+        exca,XCa,XCb = getXC(gr,nel,**kwargs)
         
         Fa = h+Ja+Jb+XCa
         Fb = h+Ja+Jb+XCb
@@ -576,3 +593,14 @@ def udft_fixed_occ(atoms,occa, occb, **opts):
     print "Final U%s energy for system %s is %f" % (
         functional,atoms.name,energy)
     return energy,(orbea,orbeb),(orbsa,orbsb)
+
+if __name__ == '__main__':
+    from Molecule import Molecule
+    h2 = Molecule('h2o',
+                  [( 1,(0,0,0.35)),
+                   ( 1,(0,0,-0.35))],
+                   units='Angs')
+    en = dft(h2)
+    print en
+
+    

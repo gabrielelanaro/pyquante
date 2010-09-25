@@ -68,7 +68,8 @@ class Atom:
     def urotate(self,U):
         "Rotate molecule by the unitary matrix U"
         from PyQuante.NumWrap import matrixmultiply
-        self.r = matrixmultiply(self.r,U)
+        #self.r = matrixmultiply(self.r,U)
+        self.r = matrixmultiply(U,self.r)
         return
     
 
