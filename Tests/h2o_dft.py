@@ -19,7 +19,7 @@ name = "H2O/DFT"
 def main():
     r = 1./0.5291772                  # conversion factor modified
     h2o=Molecule('h2o',atomlist = [(8,(0,0,0)),(1,(r,0,0)),(1,(0,r,0))])
-    en,orbe,orbs = dft(h2o,functional='BLYP')
+    en,orbe,orbs = dft(h2o,functional='SVWN')
     return en
 
 def profmain():

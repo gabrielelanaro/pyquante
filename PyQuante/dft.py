@@ -31,7 +31,6 @@ def getXC(gr,nel,**opts):
 
     functional = opts.get('functional','SVWN')
     do_grad_dens = need_gradients[functional]
-
     
     gr.floor_density()  # Insure that the values of the density don't underflow
     gr.renormalize(nel) # Renormalize to the proper # electrons

@@ -55,6 +55,11 @@ class GridPoint:
                 self.bfgrads[i,:] = bfs[i].grad(x,y,z)
         return
 
+    def floor_density(self,tol=1e-9):
+        if self._dens < tol:
+            self._dens = 0
+        return
+
     def setdens(self,D):
         self._dens = 2*dot(self.bfs,matrixmultiply(D,self.bfs))
         # This *if* statement is potentially slow. If it becomes

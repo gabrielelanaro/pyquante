@@ -91,6 +91,11 @@ class AtomicGrid:
     def __len__(self): return len(self.points)
     def __getitem__(self,index): return self.points[index]
 
+    def floor_density(self,tol=1e-9):
+        for point in self.points:
+            point.floor_density(tol)
+        return
+
     def set_bf_amps(self,bfs,**opts):
         "Set the basis function amplitude at each grid point"
         for point in self.points: point.set_bf_amps(bfs,**opts)

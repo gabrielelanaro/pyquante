@@ -40,13 +40,8 @@ class MolecularGrid:
         return self._length
 
     def floor_density(self,tol=1e-9):
-        """
-        Set density values below tol to zero
-        """
-        for j in range(2):
-            for i in range(self.ng):
-                if abs(self.density[i,j]):
-                    self.density[i,j] = 0
+        for agr in self.atomgrids:
+            agr.floor_density(tol)
         return
 
     def calc_length(self):

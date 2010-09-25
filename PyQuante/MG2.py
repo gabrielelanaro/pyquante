@@ -77,6 +77,13 @@ class MG2:
                     self.bfgrads[ig,ibf,:] = bfs[ibf].grad(x,y,z)
         return
 
+    def floor_density(self,tol=1e-9):
+        """
+        Set density values below tol to zero
+        """
+        self.density[self.density<tol] = 0
+        return
+
     def compute_grid_size(self,atomgrids):
         self.ng = 0
         for ag in atomgrids:
@@ -234,11 +241,11 @@ def abdot(A,B):
     return (A*B).sum(1)
 
 def new_grid_tester():
-    from PyQuante.TestMolecules import he
+    from PyQuante.TestMolecules import he,h2
     from PyQuante.MolecularGrid import MolecularGrid
     from PyQuante.Ints import getbasis
     from PyQuante import SCF
-    mol = he
+    mol = h2
     gr = MolecularGrid(mol,do_grad_dens=True)
     gr2 = MG2(mol,do_grad_dens=True)
     print "test_length: ",test_length(gr,gr2)
