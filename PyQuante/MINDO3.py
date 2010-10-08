@@ -700,17 +700,19 @@ def mopac_overlap(bfi,bfj): # from the routine gover.f
                        pow(2*sqrt(apb)/amb,1.5)*exp(-adb*RR)*abn
     return Sij
 
-def mopac_doverlap(bfi,bfj,dir): # from the routine dcart.f
+def mopac_doverlap(bfi,bfj,direction): # from the routine dcart.f
     cgbfi,cgbfj = bfi.cgbf,bfj.cgbf
     ri = cgbfi.origin # distance in bohr
     rj = cgbfj.origin
     RR = pow(ri[0]-rj[0],2)+pow(ri[1]-rj[1],2)+pow(ri[2]-rj[2],2)
-    del1 = ri[dir] - rj[dir]
+    del1 = ri[direction] - rj[direction]
     itype = bfi.type
     jtype = bfj.type
     DS = 0
-    for primi in cgbfi.prims():
-        for primj in cgbfj.prims():
+    for primi in cgbfi.prims:
+        primialpha = primi.exp
+        for primj in cgbfj.prims:
+            primjalpha = primj.exp
             del2 = del3 = 0
             SS = 0
             apb = primialpha*primjalpha
@@ -721,7 +723,7 @@ def mopac_doverlap(bfi,bfj,dir): # from the routine dcart.f
                 # is=1
                 abn = -2.*adb*del1/A0
             elif itype == 0 and jtype > 0: # sp
-                if jtype-1 == dir: 
+                if jtype-1 == direction: 
                     #is = 3
                     abn = 2*adb/sqrt(primjalpha)*(1-2*adb*del1*del1)/A0
                 else:
@@ -729,7 +731,7 @@ def mopac_doverlap(bfi,bfj,dir): # from the routine dcart.f
                     del2 = ri[jtype-1]-rj[jtype-1]
                     abn = -4*adb*adb*del1*del2/sqrt(primjalpha)/A0
             elif itype > 0 and jtype == 0: # ps
-                if itype-1 == dir: 
+                if itype-1 == direction: 
                     #is = 5
                     abn = -2*adb/sqrt(primialpha)*(1-2*adb*del1*del1)/A0
                 else:
@@ -737,21 +739,21 @@ def mopac_doverlap(bfi,bfj,dir): # from the routine dcart.f
                     del2 = ri[itype-1]-rj[itype-1]
                     abn = 4*adb*adb*del1*del2/sqrt(primialpha)/A0
             elif itype == jtype: 
-                if dir == itype-1:
+                if direction == itype-1:
                     #is = 9 (p|p)
                     abn=-8*adb*adb*del1/sqrt(apb)*(1.5-adb*del1*del1)/A0
                 else:
                     #is = 8 (p'|p')
                     del2 = ri[jtype-1]-rj[jtype-1]
                     abn=-8*pow(adb,2)*del1/sqrt(apb)*(0.5-adb*del2*del2)/A0
-            elif (dir != itype-1) and (dir != jtype-1):
+            elif (direction != itype-1) and (direction != jtype-1):
                 #is = 7(p'|p")
                 del2 = ri[itype-1] - rj[itype-1]
                 del3 = ri[jtype-1] - rj[jtype-1]
                 abn=8*pow(adb,3)*del1*del2*del3/sqrt(apb)/A0
             else:
                 #is = 6 (p|p') or (p'|p)
-                del2 = ri[itype+jtype-dir-2]-rj[itype+jtype-dir-2]
+                del2 = ri[itype+jtype-direction-2]-rj[itype+jtype-direction-2]
                 abn=-4*adb*adb*del2/sqrt(apb)*(1-2*adb*del1*del1)/A0
             SS = pow(2*sqrt(apb)/amb,1.5)*exp(-adr)*abn
             DS += SS*primi.coef*primj.coef

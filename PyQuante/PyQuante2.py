@@ -52,7 +52,8 @@ class SCFIterator:
             ham.update(**opts)
             logging.debug("%d %f" % (self.iter,ham.energy))
             energy_var=abs(ham.energy - self.energy_history[-1]) 
-            logger.info("Iteration: %d    Energy: %f    EnergyVar: %f"%(self.iter,ham.energy,energy_var))
+            logger.info("Iteration: %d    Energy: %f    EnergyVar: %f"%
+                        (self.iter,ham.energy,energy_var))
             if self.is_converged(ham): break
         if self.iter < self.max_iter:
             logger.info("PyQuante converged in %d iterations" % self.iter)
@@ -208,6 +209,7 @@ class HFHamiltonian(AbstractHamiltonian):
 class DFTHamiltonian(AbstractHamiltonian):
     method='DFT'
     def __init__(self,molecule,**opts):
+        from PyQuante.Convergence import DIIS
         from PyQuante.DFunctionals import need_gradients
         self.molecule = molecule
         logger.info("DFT calculation on system %s" % self.molecule.name)
@@ -225,6 +227,9 @@ class DFTHamiltonian(AbstractHamiltonian):
         self.setup_grid(molecule,self.basis_set.get(),**opts)
         self.dmat = None
         self.entropy = None
+        self.DoAveraging = opts.get('DoAveraging',True)
+        if self.DoAveraging:
+            self.Averager = DIIS(self.S)
         nel = molecule.get_nel()
         nclosed,nopen = molecule.get_closedopen()
         logger.info("Nclosed/open = %d, %d" % (nclosed,nopen))
@@ -255,6 +260,12 @@ class DFTHamiltonian(AbstractHamiltonian):
         from PyQuante.Ints import getJ
         from PyQuante.dft import getXC
 
+        #self.DoAveraging = opts.get('DoAveraging',True)
+        #if self.DoAveraging:
+        #    self.Averager = DIIS(self.S)
+
+        if self.DoAveraging and self.dmat is not None:
+            self.F = self.Averager.getF(self.F,self.dmat)
         self.dmat,self.entropy = self.solver.solve(self.F,**opts)
         D = self.dmat
         

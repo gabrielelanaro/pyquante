@@ -77,7 +77,9 @@ class DIIS:
         self.Fold = None
         self.S = S
         #self.X = SymOrth(S)
-        self.started = 0
+        # Begin DIIS from iteration 0 in all cases
+        self.started = True
+        #self.started = 0
         self.errcutoff = 0.1
         return
 
