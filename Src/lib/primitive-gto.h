@@ -1,9 +1,20 @@
 /**
  * @file primitive-gto.h
  * @author Gabriele Lanaro (gabriele.lanaro@gmail.com)
+ *
+ * This source code is part of the PyQuante Quantum Chemistry suite.
  * 
  * This file is very important, defines all the functions related to
  * the primitive gaussian basis functions.
+ *  
+ * Written by Gabriele Lanaro, 2009-2010
+ * Copyright (c) 2009-2010, Gabriele Lanaro
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
  */
 
 #ifndef _PRIMITIVE_GTO_H_

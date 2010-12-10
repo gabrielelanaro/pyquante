@@ -1,6 +1,8 @@
 /**
  * @file contracted-gto.h
  * @author Gabriele Lanaro <gabriele.lanaro@gmail.com>
+ *
+ * This source code is part of the PyQuante Quantum Chemistry suite.
  * 
  * Here are defined the contracted gaussian basis function and related
  * functions.
@@ -9,6 +11,16 @@
  * functions pretends that the pgtos are yet instantiated, however we
  * can implement the memory management of the pgto directly in the
  * cgto functions.
+ * 
+ *
+ * Written by Gabriele Lanaro, 2009-2010
+ * Copyright (c) 2009-2010, Gabriele Lanaro
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
  */
 
 #ifndef _CONTRACTED_GTO_H_
